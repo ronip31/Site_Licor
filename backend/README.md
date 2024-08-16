@@ -38,11 +38,11 @@
 
 ##### Tabela pedidos
 
-id_pedido (PK) – ID único do pedido.
-id_usuario (FK) – Referência ao usuário que fez o pedido.
-data_pedido – Data de realização do pedido.
-status – Status do pedido (ex: "Pendente", "Processando", "Enviado").
-valor_total – Valor total do pedido.
+- id_pedido (PK) – ID único do pedido.
+- id_usuario (FK) – Referência ao usuário que fez o pedido.
+- data_pedido – Data de realização do pedido.
+- status – Status do pedido (ex: "Pendente", "Processando", "Enviado").
+- valor_total – Valor total do pedido.
 
 ##### Tabela itens_pedido
 
@@ -110,13 +110,13 @@ valor_total – Valor total do pedido.
 - id_admin (FK) – Referência ao administrador que realizou a alteração (pode ser nulo se feito pelo usuário).
 
 ### Relacionamentos
-Um **usuario** pode ter múltiplos **pedidos**.
-Um **pedido** pode conter múltiplos **itens_pedido**.
-Um **produto** pode pertencer a uma **categoria**.
-Um **usuario** pode ter múltiplos **enderecos**.
-Um **produto** pode ter múltiplas **avaliacoes**.
-Um **produto** pode ter múltiplas **imagens_produtos**.
-Cada **imagem_produtos** está associada a um **único produto**.
-Um **administrador** pode gerenciar múltiplos registros (produtos, categorias, pedidos).
-A tabela **log_acoes** rastreia as ações realizadas por cada **administrador**.
-A tabela **historico_pedidos** armazena as alterações de status dos pedidos, rastreando quem realizou a alteração e quando.
+- Um **usuario** pode ter múltiplos **pedidos**.
+- Um **pedido** pode conter múltiplos **itens_pedido**.
+- Um **produto** pode pertencer a uma **categoria**.
+- Um **usuario** pode ter múltiplos **enderecos**.
+- Um **produto** pode ter múltiplas **avaliacoes**.
+- Um **produto** pode ter múltiplas **imagens_produtos**.
+- Cada **imagem_produtos** está associada a um **único produto**.
+- Um **administrador** pode gerenciar múltiplos registros (produtos, categorias, pedidos).
+- A tabela **log_acoes** rastreia as ações realizadas por cada **administrador**.
+- A tabela **historico_pedidos** armazena as alterações de status dos pedidos, rastreando quem realizou a alteração e quando.
