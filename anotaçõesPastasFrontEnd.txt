@@ -1,0 +1,101 @@
+src/
+│
+├── assets/
+│   ├── images/            # Imagens do projeto
+│   ├── styles/            # Arquivos de estilo (CSS/Sass)
+│   └── fonts/             # Fontes personalizadas
+│
+├── components/            # Componentes reutilizáveis gerais
+│   ├── Button/
+│   │   ├── Button.jsx
+│   │   └── Button.module.css
+│   ├── Input/
+│   │   ├── Input.jsx
+│   │   └── Input.module.css
+│   └── Navbar/
+│       ├── Navbar.jsx
+│       └── Navbar.module.css
+│
+├── layouts/               # Layouts gerais para diferentes partes do site
+│   ├── MainLayout/
+│   │   ├── MainLayout.jsx
+│   │   └── MainLayout.module.css
+│   └── AdminLayout/
+│       ├── AdminLayout.jsx
+│       └── AdminLayout.module.css
+│
+├── pages/                 # Páginas principais do projeto
+│   ├── Home/
+│   │   ├── Home.jsx
+│   │   └── Home.module.css
+│   ├── Products/
+│   │   ├── ProductsList.jsx
+│   │   ├── ProductDetails.jsx
+│   │   └── Products.module.css
+│   ├── Cart/
+│   │   ├── Cart.jsx
+│   │   └── Cart.module.css
+│   ├── Checkout/
+│   │   ├── Checkout.jsx
+│   │   └── Checkout.module.css
+│   ├── User/
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── UserProfile.jsx
+│   │   └── User.module.css
+│   └── Admin/             # Páginas do painel de administração
+│       ├── Dashboard.jsx
+│       ├── Products/
+│       │   ├── AdminProductsList.jsx
+│       │   ├── AdminAddProduct.jsx
+│       │   └── AdminEditProduct.jsx
+│       ├── Orders/
+│       │   ├── AdminOrdersList.jsx
+│       │   └── AdminOrderDetails.jsx
+│       ├── Categories/
+│       │   ├── AdminCategoriesList.jsx
+│       │   ├── AdminAddCategory.jsx
+│       │   └── AdminEditCategory.jsx
+│       ├── Users/
+│       │   ├── AdminUsersList.jsx
+│       │   ├── AdminAddUser.jsx
+│       │   └── AdminEditUser.jsx
+│       └── Admin.module.css
+│
+├── services/              # Serviços de integração com o backend (APIs)
+│   ├── api.js             # Configuração geral da API
+│   └── productService.js  # Serviço específico para produtos
+│
+├── utils/                 # Utilitários e funções auxiliares
+│   ├── helpers.js
+│   └── validators.js
+│
+├── App.js                 # Componente principal do aplicativo
+├── index.js               # Ponto de entrada da aplicação
+└── routes.js              # Configuração das rotas
+
+
+Descrição das Pastas
+assets/: Armazena todos os recursos estáticos, como imagens, estilos e fontes.
+
+components/: Contém componentes reutilizáveis que podem ser usados em diferentes partes do site, como botões, inputs, e a barra de navegação.
+
+layouts/: Contém layouts globais, como o layout principal e o layout de administração, que podem envolver diferentes conjuntos de componentes.
+
+pages/: Contém todas as páginas principais do site, com cada subpasta representando uma seção ou funcionalidade específica (como produtos, carrinho, usuário, etc.). Dentro da pasta Admin/, estão organizadas as páginas de administração, separadas por funcionalidades (produtos, pedidos, categorias, usuários).
+
+services/: Contém os arquivos para interação com o backend, como a configuração da API e os serviços específicos para manipulação de dados (como produtos, usuários, etc.).
+
+utils/: Contém funções utilitárias e auxiliares, como helpers e validadores, que podem ser usados em diversas partes do projeto.
+
+App.js: O componente principal que orquestra a aplicação, incluindo os layouts e rotas.
+
+index.js: O ponto de entrada principal da aplicação React.
+
+routes.js: Gerencia as rotas do aplicativo, definindo quais componentes devem ser exibidos para cada URL.
+
+Fluxo de Desenvolvimento
+Cada página específica (como Home, Products, etc.) tem sua própria pasta dentro de pages/ para facilitar a organização e manutenção do código.
+Componentes reutilizáveis, como botões e inputs, são mantidos em components/ e são estilizados utilizando CSS Modules (.module.css) para evitar conflitos de estilo.
+As funcionalidades de administração são organizadas separadamente dentro de pages/Admin/, mantendo o código administrativo isolado do código voltado para o usuário final.
+services/ é onde você colocará a lógica de comunicação com o backend Python, permitindo que as páginas consumam dados da API de forma organizada.

@@ -32,3 +32,8 @@ venv\Scripts\activate
 EXECUTAR:
 python manage.py runserver
 ************************
+
+
+Caso seja acrescentado alguma dependência nova executar o comando para atualizar o arquivo:
+
+pip freeze > requirements.txt
