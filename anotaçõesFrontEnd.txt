@@ -1,0 +1,7 @@
+Para a primeira execução:
+Instalar todas dependencias:
+
+npm install
+
+Iniciar projeto:
+npm start
