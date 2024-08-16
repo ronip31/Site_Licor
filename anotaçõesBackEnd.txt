@@ -1,27 +1,34 @@
 navegue até a pasta raiz do projeto backend 
 
 Crie um novo ambiente virtual:
-python -m venv myenv
+python -m venv venv
 
 Ative o ambiente virtual:
-myenv\Scripts\activate
+venv\Scripts\activate
+
 
 Instalar dependências:
 pip install -r requirements.txt
 
 
 
-## Executar Migrações para Criar ou Alterar as Tabelas no Banco de Dados:
+## Executar Migrações para Criar ou Alterar as Tabelas no Banco de Dados depois de alterar os Models:
 
 Após definir os modelos, gere as migrações:
 python manage.py makemigrations
 
+
 Aplique as migrações ao banco de dados:
 python manage.py migrate
+
 
 **************************
 PARA INICIAR O SERVIDOR:
 NAVEGAR ATÉ: site_licor\backend>
+
+ATIVE O AMBIENTE VIRTUAL:
+venv\Scripts\activate
+
 EXECUTAR:
 python manage.py runserver
 ************************
