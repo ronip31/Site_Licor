@@ -21,4 +21,4 @@ class UsuarioDetailView(generics.RetrieveAPIView):
 class UsuarioDeleteView(generics.DestroyAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [AllowAny]  # Permitir que qualquer pessoa acesse este endpoint
+    permission_classes = [AllowAny]

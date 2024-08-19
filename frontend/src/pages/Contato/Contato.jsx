@@ -4,7 +4,7 @@ const Contato = () => {
   return (
     <div>
       <h2>Página para que o cliente possa entrar em contato</h2>
-      <p>Criar página para colocar informações para contato!</p>
+      <p>Criar página para contato!</p>
     </div>
   );
 };

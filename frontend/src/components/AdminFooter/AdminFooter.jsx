@@ -1,8 +1,8 @@
 import React from 'react';
-import './Footer.css';
+import './AdminFooter.css';
 import { Facebook, Instagram, Twitter } from '@mui/icons-material';
 
-const Footer = () => {
+const AdminFooter = () => {
   return (
     <footer className="footer">
       <div className="container">
@@ -23,4 +23,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default AdminFooter;
