@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
+from .models import ImagemProduto
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -50,3 +51,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return {
             'access': str(refresh.access_token)
         }
+    
+class ImagemProdutoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagemProduto
+        fields = ['id', 'produto', 'imagem', 'descricao_imagem']

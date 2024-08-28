@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import UsuarioCreateView, UsuarioListView, UsuarioDetailView, UsuarioDeleteView, ListProductView, ProducCreateView, ProductDetailView, ProducDeleteView
+from .views import UsuarioCreateView, UsuarioListView, UsuarioDetailView, UsuarioDeleteView, ListProductView, ProducCreateView, ProductUpdate, ProducDeleteView
 from .views import CustomTokenObtainPairView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('usuarios/', UsuarioCreateView.as_view(), name='usuario-create'),
@@ -14,8 +16,8 @@ urlpatterns = [
     #PRODUTOS ADMIN
     path('createproduct/', ProducCreateView.as_view(), name='create_protuct'),
     path('product/lista/', ListProductView.as_view(), name='lista_protuct'),
-    path('product/<int:pk>/', ProductDetailView.as_view(), name='detalhe_protuct'),
+    path('product/<int:pk>/', ProductUpdate.as_view(), name='detalhe_protuct'),
     path('product/<int:pk>/delete/', ProducDeleteView.as_view(), name='delete_protuct'),
     
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

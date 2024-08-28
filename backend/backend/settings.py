@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import os
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,3 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
 AUTH_USER_MODEL = 'core.Usuario'  # Definindo o modelo de usuário personalizado
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
