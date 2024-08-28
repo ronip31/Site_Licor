@@ -1,25 +1,46 @@
 from django.db import models
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-class Usuario(models.Model):
-    ADMINISTRADOR = 'administrador'
-    CLIENTE = 'cliente'
-    TIPO_USUARIO_CHOICES = [
-        (ADMINISTRADOR, 'Administrador'),
-        (CLIENTE, 'Cliente'),
-    ]
+class UsuarioManager(BaseUserManager):
+    def create_user(self, email, nome, password=None, **extra_fields):
+        if not email:
+            raise ValueError('O email deve ser fornecido')
+        email = self.normalize_email(email)
+        user = self.model(email=email, nome=nome, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-    nome = models.CharField(max_length=255)
+    def create_superuser(self, email, nome, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(email, nome, password, **extra_fields)
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    senha = models.CharField(max_length=255)
+    nome = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
     telefone = models.CharField(max_length=20, blank=True, null=True)
-    tipo_usuario = models.CharField(max_length=50, choices=TIPO_USUARIO_CHOICES, default=CLIENTE)
+    tipo_usuario = models.CharField(max_length=50, choices=[('administrador', 'Administrador'), ('cliente', 'Cliente')], default='administrador')
     data_criacao = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)  # Necessário para is_authenticated
+    is_staff = models.BooleanField(default=False)  # Necessário para acesso ao admin site
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nome']
+
+    objects = UsuarioManager()
 
     class Meta:
         db_table = 'usuario'
 
     def __str__(self):
-        return self.nome
+        return self.email
+    
+    
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=255)
@@ -44,7 +65,7 @@ class Produto(models.Model):
     preco = models.DecimalField(max_digits=10, decimal_places=2)
     quantidade_estoque = models.IntegerField()
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
-    sku = models.CharField(max_length=100, unique=True)
+    sku = models.CharField(max_length=101, unique=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=ATIVO)
     data_adicionado = models.DateTimeField(auto_now_add=True)
     data_modificado = models.DateTimeField(auto_now=True)
@@ -102,7 +123,7 @@ class ItemPedido(models.Model):
 class Endereco(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     endereco = models.TextField()
-    cidade = models.CharField(max_length=100)
+    cidade = models.CharField(max_length=200)
     estado = models.CharField(max_length=100)
     cep = models.CharField(max_length=20)
     pais = models.CharField(max_length=100)

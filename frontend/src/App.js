@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout/MainLayout';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
+//import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin '; //caso seja protegido por token, descomentar essa linha
+import ProtectedRouteCliente from './components/ProtectedRoute/ProtectedRouteCliente ';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
@@ -11,9 +13,11 @@ import Contato from './pages/Contato/Contato';
 import Sobre from './pages/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
 import CreateProducts from './pages/Admin/Products/CreateProducts';
-import Groups from './pages/Admin/grups/grups';
-import Customer from './pages/Admin/customer/customer';
-import Orders from './pages/Admin/orders/orders';
+import Groups from './pages/Admin/Grups/Grups';
+import Customer from './pages/Admin/Customer/Customer';
+import Orders from './pages/Admin/Orders/Orders';
+import AdminLoginForm from './components/LoginAdmin/AdminLoginForm';
+import ClienteLoginForm from './components/LoginCliente/ClienteLoginForm';
 
 function App() {
   return (
@@ -27,17 +31,20 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="about" element={<Sobre />} />
           <Route path="contact" element={<Contato />} />
-          <Route path="perfil" element={<Perfil />} />
+          <Route path="perfil" element={<ProtectedRouteCliente component={Perfil} />} />
         </Route>
 
+        {/* Rotas de login */}
+        <Route path="/loginadmin" element={<AdminLoginForm />} />
+        <Route path="/login" element={<ClienteLoginForm />} />
+
         {/* Rotas para a área administrativa */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin/*" element={<AdminLayout />}> {/* Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
           <Route index element={<AdminDashboard />} />
           <Route path="createproducts" element={<CreateProducts />} />
           <Route path="creategrups" element={<Groups />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="orders" element={<Orders />} />
-          {/* Adicione mais rotas administrativas conforme necessário */}
         </Route>
       </Routes>
     </Router>
