@@ -12,15 +12,20 @@ import Perfil from './pages/Perfil/Perfil';
 import Contato from './pages/Contato/Contato';
 import Sobre from './pages/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
-import CreateProducts from './pages/Admin/Products/CreateProducts';
+import ProductsPage from './pages/Admin/Products/ProductsPage';
 import Groups from './pages/Admin/Grups/Grups';
 import Customer from './pages/Admin/Customer/Customer';
 import Orders from './pages/Admin/Orders/Orders';
 import AdminLoginForm from './components/LoginAdmin/AdminLoginForm';
 import ClienteLoginForm from './components/LoginCliente/ClienteLoginForm';
+import { SnackbarProvider } from 'notistack';
 
 function App() {
   return (
+    <SnackbarProvider maxSnack={3} anchorOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}>
     <Router>
       <Routes>
         {/* Rotas para o site principal (clientes) */}
@@ -41,13 +46,14 @@ function App() {
         {/* Rotas para a área administrativa */}
         <Route path="/admin/*" element={<AdminLayout />}> {/* Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
           <Route index element={<AdminDashboard />} />
-          <Route path="createproducts" element={<CreateProducts />} />
+          <Route path="createproducts" element={<ProductsPage />} />
           <Route path="creategrups" element={<Groups />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="orders" element={<Orders />} />
         </Route>
       </Routes>
     </Router>
+    </SnackbarProvider>
   );
 }
 

@@ -1,6 +1,6 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from .models import Usuario, Produto
+from .models import Usuario, Produto, Categoria
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
@@ -19,10 +19,29 @@ class UsuarioSerializer(serializers.ModelSerializer):
         validated_data['password'] = make_password(validated_data['password'])
         return super().create(validated_data)
 
+
+class ImagemProdutoSerializer(serializers.ModelSerializer):
+    imagem = serializers.SerializerMethodField()  # Use SerializerMethodField para customizar o campo
+
+    class Meta:
+        model = ImagemProduto
+        fields = ['id', 'produto', 'imagem', 'descricao_imagem']
+
+    def get_imagem(self, obj):
+        # Verifica se o objeto tem uma imagem e retorna a URL correta
+        if obj.imagem:
+            return obj.imagem.url  # Retorna a URL relativa da imagem
+        return None
+
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    imagens = ImagemProdutoSerializer(many=True, required=False)
+
     class Meta:
         model = Produto
-        fields = ['id', 'nome', 'descricao', 'preco', 'quantidade_estoque', 'categoria', 'sku', 'status']
+        fields = ['id', 'nome', 'descricao', 'preco', 'quantidade_estoque', 'categoria', 'sku', 'status', 'imagens']
+
         
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -52,7 +71,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'access': str(refresh.access_token)
         }
     
-class ImagemProdutoSerializer(serializers.ModelSerializer):
+        
+class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ImagemProduto
-        fields = ['id', 'produto', 'imagem', 'descricao_imagem']
+        model = Categoria
+        fields = ['id', 'nome', 'descricao']
