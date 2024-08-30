@@ -203,6 +203,7 @@ const ProductsPage = () => {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+
   // Busca os produtos e categorias quando o componente é montado
   useEffect(() => {
     const fetchProducts = async () => {
@@ -388,6 +389,7 @@ const ProductsPage = () => {
             <Select
               label="Categoria"
               value={selectedProduct?.categoria || ''}
+              
               onChange={(e) => setSelectedProduct({ ...selectedProduct, categoria: e.target.value })}
             >
               {categories.map((category) => (

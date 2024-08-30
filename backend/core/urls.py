@@ -17,9 +17,7 @@ from django.conf.urls.static import static
 # Criação do router para registrar os ViewSets
 router = DefaultRouter()
 router.register(r'produtos', ProdutoViewSet, basename='produto')
-
-# URLs padrões:
-
+# URLs padrões do ProdutoViewSet:
 # Listar Produtos: GET /api/produtos/
 # Criar Produto: POST /api/produtos/
 # Detalhes do Produto: GET /api/produtos/{id}/

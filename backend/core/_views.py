@@ -101,6 +101,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = ProductSerializer
     parser_classes = (MultiPartParser, FormParser)
+    #permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -133,6 +134,7 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
     queryset = ImagemProduto.objects.all()
     serializer_class = ImagemProdutoSerializer
     parser_classes = (MultiPartParser, FormParser)
+    #permission_classes = [IsAdminUser]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

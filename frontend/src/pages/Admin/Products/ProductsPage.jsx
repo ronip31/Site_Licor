@@ -38,33 +38,35 @@ const ProductsPage = () => {
   };
     
 
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await api.get('/produtos/');
+        console.log("Produtos carregados:", response.data);
         setProducts(response.data);
       } catch (error) {
-        enqueueSnackbar('Erro ao buscar produtos. Tente novamente mais tarde.', { variant: 'error' });
+        console.error('Erro ao buscar produtos:', error);
         setError('Erro ao buscar produtos. Tente novamente mais tarde.');
       } finally {
         setLoading(false);
       }
     };
-
+  
     const fetchCategories = async () => {
       try {
         const response = await api.get('/categories/list/');
+        console.log('Categorias carregadas:', response.data);
         setCategories(response.data);
       } catch (error) {
         console.error('Erro ao buscar categorias:', error);
-        enqueueSnackbar('Erro ao buscar categorias:', { variant: 'error' });
       }
     };
-
+  
     fetchProducts();
     fetchCategories();
   }, [enqueueSnackbar]);
+  
+  
 
   const handleOpenDialog = (product = null) => {
     setSelectedProduct(
@@ -107,7 +109,7 @@ const ProductsPage = () => {
     if (!validateFields()) return false;
 
 
-      const formData = new FormData();
+    const formData = new FormData();
       formData.append('nome', selectedProduct.nome);
       formData.append('descricao', selectedProduct.descricao);
       formData.append('preco', selectedProduct.preco);
@@ -136,36 +138,36 @@ const ProductsPage = () => {
       }
     };
 
-  const columns = [
-    { field: 'id', headerName: 'ID', width: 30 },
-    { field: 'nome', headerName: 'Nome', width: 300 },
-    { field: 'descricao', headerName: 'Descrição', width: 250 },
-    { field: 'preco', headerName: 'Preço', type: 'number', width: 90 },
-    { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 110 },
-    { field: 'categoria', headerName: 'Categoria', width: 110 },
-    { field: 'sku', headerName: 'SKU', width: 110 },
-    { field: 'status', headerName: 'Status', width: 110 },
-    {
-      field: 'acoes',
-      headerName: 'Ações',
-      width: 350,
-      renderCell: (params) => (
-        <div>
-          <Button variant="contained" color="primary" onClick={() => handleOpenDialog(params.row)}>
-            Editar
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            style={{ marginLeft: 8 }}
-            onClick={() => handleOpenImageDialog(params.row)}
-          >
-            Visualizar e Editar Fotos
-          </Button>
-        </div>
-      ),
-    },
-  ];
+    const columns = [
+      { field: 'id', headerName: 'ID', width: 30 },
+      { field: 'nome', headerName: 'Nome', width: 300 },
+      { field: 'descricao', headerName: 'Descrição', width: 250 },
+      { field: 'preco', headerName: 'Preço', type: 'number', width: 90 },
+      { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 110 },
+      { field: 'categoria', headerName: 'Categoria', width: 110 },
+      { field: 'sku', headerName: 'SKU', width: 110 },
+      { field: 'status', headerName: 'Status', width: 110 },
+      {
+        field: 'acoes',
+        headerName: 'Ações',
+        width: 350,
+        renderCell: (params) => (
+          <div>
+            <Button variant="contained" color="primary" onClick={() => handleOpenDialog(params.row)}>
+              Editar
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              style={{ marginLeft: 8 }}
+              onClick={() => handleOpenImageDialog(params.row)}
+            >
+              Visualizar e Editar Fotos
+            </Button>
+          </div>
+        ),
+      },
+    ];
 
   if (loading) return <p>Carregando produtos...</p>;
   if (error) return <p>{error}</p>;
