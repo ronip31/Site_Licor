@@ -21,11 +21,9 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         produto_serializer = ProductSerializer(instance, data=request.data, partial=partial)
-        print("Recebendo dados para edição do produto:", request.data)
 
         if produto_serializer.is_valid():
             produto = produto_serializer.save()
-            print(f"Produto {produto.nome} atualizado com sucesso.")
 
             # Salvar imagens se forem enviadas durante a edição
             if 'imagens' in request.FILES:
@@ -71,7 +69,6 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
             if produto_pk is not None:
                 imagens = ImagemProduto.objects.filter(produto__id=produto_pk)
                 serializer = self.get_serializer(imagens, many=True)
-                print("serializer, imagens:", serializer, imagens)
                 return Response(serializer.data)
             return Response({"detail": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 

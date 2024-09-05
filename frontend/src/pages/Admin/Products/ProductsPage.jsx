@@ -7,122 +7,91 @@ import ImageEditDialog from '../../../components/ImageEditDialog';
 import ProductDialog from '../../../components/ProductDialog';
 import { useSnackbar } from 'notistack';
 
-
-
-// Componente principal da página de produtos
 const ProductsPage = () => {
-  // Estados para armazenar produtos, categorias, status de carregamento e erros
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [marks, setMarcas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false); // Controle de abertura do diálogo de produtos
-  const [imageDialogOpen, setImageDialogOpen] = useState(false); // Controle de abertura do diálogo de imagens
+  const [open, setOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState({
     nome: '',
-        descricao: '',
-        preco_custo: '',
-        preco_venda: '',
-        quantidade_estoque: '',
-        categoria: '',
-        marca: '',
-        sku: '',
-        status: 'Inativo', 
-        teor_alcoolico: '',
-        volume: '',
-        altura: '',
-        largura: '',
-        comprimento: '',
-        peso: '',
+    descricao: '',
+    preco_custo: '',
+    preco_venda: '',
+    quantidade_estoque: '',
+    categoria: '',
+    marca: '',
+    sku: '',
+    status: 'Inativo',
+    teor_alcoolico: '',
+    volume: '',
+    altura: '',
+    largura: '',
+    comprimento: '',
+    peso: '',
   });
 
+  const { enqueueSnackbar } = useSnackbar();
 
-  const { enqueueSnackbar } = useSnackbar(); // Hook para exibir notificações
-
-  // Função para validar os campos do formulário de produtos
   const validateFields = () => {
     const { nome, descricao, preco_custo, preco_venda, quantidade_estoque, categoria, sku, status } = selectedProduct;
-    
-    // Verifica se todos os campos obrigatórios estão preenchidos
-    if (!nome.trim() || !descricao.trim() || !preco_custo ||!preco_venda || !quantidade_estoque || !categoria || !sku.trim() || !status) {
+
+    if (!nome.trim() || !descricao.trim() || !preco_custo || !preco_venda || !quantidade_estoque || !categoria || !sku.trim() || !status) {
       enqueueSnackbar('Todos os campos são obrigatórios.', { variant: 'warning' });
-      return false; // Retorna false se algum campo estiver vazio
+      return false;
     }
-    
-    return true; // Retorna true se todos os campos estiverem preenchidos corretamente
+    return true;
   };
 
-  // Efeito para buscar produtos e categorias quando o componente é montado
+  const fetchData = async () => {
+    try {
+      const [produtosResponse, categoriasResponse, marcasResponse] = await Promise.all([
+        api.get('/produtos/'),
+        api.get('/categories/list/'),
+        api.get('/marca/'),
+      ]);
+
+      const produtos = produtosResponse.data;
+      const categorias = categoriasResponse.data;
+      const marcas = marcasResponse.data;
+
+      // Mapeamento para categorias e marcas
+      const categoriaMap = categorias.reduce((map, categoria) => {
+        map[categoria.id] = categoria.nome;
+        return map;
+      }, {});
+
+      const marcasMap = marcas.reduce((map, marca) => {
+        map[marca.id] = marca.nome;
+        return map;
+      }, {});
+
+      // Adiciona o nome da categoria e marca a cada produto
+      const produtosComNomeCategoriaEMarca = produtos.map((produto) => ({
+        ...produto,
+        nome_categoria: categoriaMap[produto.categoria] || '',
+        nome_marca: marcasMap[produto.marca] || '',
+      }));
+
+      setProducts(produtosComNomeCategoriaEMarca);
+      setCategories(categorias); // Define as categorias para o estado
+      setMarcas(marcas); // Define as marcas para o estado
+
+    } catch (error) {
+      console.error('Erro ao buscar produtos, categorias ou marcas:', error);
+      setError('Erro ao buscar produtos. Tente novamente mais tarde.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        // Faz uma requisição para buscar todos os produtos
-        const response = await api.get('/produtos/');
-        const produtos = response.data;
-  
-        // Faz uma requisição para buscar todas as categorias
-        const categoriaResponse = await api.get('/categories/list/');
-        const categorias = categoriaResponse.data;
-  
-        // Faz uma requisição para buscar todas as marcas
-        const marcasResponse = await api.get('/marca/');
-        const marcas = marcasResponse.data;
-  
-        // Cria mapas para categorias e marcas
-        const categoriaMap = {};
-        categorias.forEach((categoria) => {
-          categoriaMap[categoria.id] = categoria.nome;
-        });
-  
-        const marcasMap = {};
-        marcas.forEach((marca) => {
-          marcasMap[marca.id] = marca.nome;
-        });
-  
-        // Adiciona o nome da categoria e marca a cada produto
-        const produtosComNomeCategoriaEMarca = produtos.map((produto) => ({
-          ...produto,
-          nome_categoria: categoriaMap[produto.categoria] || '',
-          nome_marca: marcasMap[produto.marca] || '',
-        }));
-  
-        setProducts(produtosComNomeCategoriaEMarca); // Armazena os produtos no estado
-  
-      } catch (error) {
-        console.error('Erro ao buscar produtos, categorias ou marcas:', error);
-        setError('Erro ao buscar produtos. Tente novamente mais tarde.');
-      } finally {
-        setLoading(false); // Desativa o estado de carregamento
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await api.get('categories/list/');
-        setCategories(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar categorias:', error);
-      }
-    };
-
-    const fetchmarks = async () => {
-      try {
-        const response = await api.get('marca/');
-        setMarcas(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar categorias:', error);
-      }
-    };
-
-    fetchProducts();
-    fetchCategories();
-    fetchmarks();
-
+    fetchData();
   }, [enqueueSnackbar]);
-  
 
-  // Função para abrir o diálogo de criação/edição de produtos
+  // Funções de diálogo e salvar
   const handleOpenDialog = (product = null) => {
     setSelectedProduct(
       product || {
@@ -134,7 +103,7 @@ const ProductsPage = () => {
         categoria: '',
         marca: '',
         sku: '',
-        status: 'Inativo', 
+        status: 'Inativo',
         teor_alcoolico: '',
         volume: '',
         altura: '',
@@ -146,7 +115,6 @@ const ProductsPage = () => {
     setOpen(true);
   };
 
-  // Função para fechar o diálogo de produtos e resetar o estado do produto selecionado
   const handleCloseDialog = () => {
     setOpen(false);
     setSelectedProduct({
@@ -158,7 +126,7 @@ const ProductsPage = () => {
       categoria: '',
       marca: '',
       sku: '',
-      status: 'Inativo', 
+      status: 'Inativo',
       teor_alcoolico: '',
       volume: '',
       altura: '',
@@ -168,20 +136,17 @@ const ProductsPage = () => {
     });
   };
 
-  // Função para abrir o diálogo de edição de imagens
   const handleOpenImageDialog = (product) => {
     setSelectedProduct(product);
     setImageDialogOpen(true);
   };
 
-  // Função para fechar o diálogo de edição de imagens
   const handleCloseImageDialog = () => {
     setImageDialogOpen(false);
   };
 
-  // Função para salvar as alterações de um produto (criação ou edição)
   const handleSaveEdit = async () => {
-    if (!validateFields()) return false; // Interrompe se a validação falhar
+    if (!validateFields()) return false;
 
     const formData = new FormData();
     formData.append('nome', selectedProduct.nome);
@@ -213,14 +178,14 @@ const ProductsPage = () => {
         selectedProduct.id ? prev.map((p) => (p.id === selectedProduct.id ? response.data : p)) : [...prev, response.data]
       );
       handleCloseDialog();
-      return true; // Retorna true indicando sucesso
+      fetchData(); // Recarrega os dados após a ação de salvamento
+      return true;
     } catch (error) {
       enqueueSnackbar('Erro ao salvar produto', { variant: 'error' });
-      return false; // Retorna false indicando falha
+      return false;
     }
   };
 
-  // Função personalizada de toolbar para exportação com UTF-8 com BOM
   function CustomToolbar() {
     return (
       <GridToolbarContainer>
@@ -229,7 +194,6 @@ const ProductsPage = () => {
     );
   }
 
-  // Colunas do DataGrid que exibe a lista de produtos
   const columns = [
     { field: 'id', headerName: 'ID', width: 30 },
     { field: 'nome', headerName: 'Nome', width: 200 },
@@ -265,29 +229,25 @@ const ProductsPage = () => {
     },
   ];
 
-  if (loading) return <p>Carregando produtos...</p>; 
+  if (loading) return <p>Carregando produtos...</p>;
   if (error) return <p>{error}</p>;
-  
-  
 
   return (
-    <div>
-      <h1>Produtos</h1>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
       <Button
         variant="contained"
         color="primary"
+        sx={{ mb: 4, alignSelf: 'flex-start', ml: 6 }}
         onClick={() => handleOpenDialog()}
       >
         Criar Novo Produto
       </Button>
-      <Box sx={{ height: 400, width: '100%' }}>
-        
+      <Box sx={{ height: 600, width: '95%' }}>
         <DataGrid
           rows={products}
           columns={columns}
           slots={{
-          toolbar: CustomToolbar,
-
+            toolbar: CustomToolbar,
           }}
           initialState={{
             pagination: {
@@ -296,13 +256,11 @@ const ProductsPage = () => {
               },
             },
           }}
-          pageSizeOptions={[5]}
+          pageSizeOptions={[5, 10, 20]}
           checkboxSelection
-          disableRowSelectionOnClick
         />
       </Box>
 
-      {/* Diálogo para criar/editar produto */}
       <ProductDialog
         open={open}
         onClose={handleCloseDialog}
@@ -313,9 +271,8 @@ const ProductsPage = () => {
         setSelectedProduct={setSelectedProduct}
       />
 
-      {/* Diálogo para visualizar/editar imagens */}
       <ImageEditDialog open={imageDialogOpen} onClose={handleCloseImageDialog} productId={selectedProduct?.id} />
-    </div>
+    </Box>
   );
 };
 
