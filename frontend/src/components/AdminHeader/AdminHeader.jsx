@@ -73,11 +73,27 @@ const AdminHeader = () => {
               <Button variant="text" component={Link} to="/admin/creategrups" color="secondary">
                 Cadastro Grupos
               </Button>
+              <Button variant="text" component={Link} to="/admin/creatediscount" color="secondary">
+                Cadastro Descontos
+              </Button>
+              <Button variant="text" component={Link} to="/admin/DeliveryConfig" color="secondary">
+                Cadastro Frete
+              </Button>
               <Button variant="text" component={Link} to="/admin/customerlist" color="secondary">
                 Lista Clientes
               </Button>
               <Button variant="text" component={Link} to="/admin/orders" color="secondary">
                 Pedidos realizados
+              </Button>
+                <Button
+                  variant="text"
+                  component="a" // Altere para um link de âncora (a)
+                  href="/" // Use href em vez de to
+                  target="_blank" // Abre em uma nova aba
+                  rel="noopener noreferrer" // Adiciona segurança para evitar vulnerabilidades
+                  color="secondary"
+                >
+                Acessar site de venda
               </Button>
               <Button variant="text" onClick={handleLogout} color="secondary">
                 Logout

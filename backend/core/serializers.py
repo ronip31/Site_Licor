@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
 from .models import ImagemProduto
+from .models import Desconto, OpcaoFrete, ConfiguracaoFrete, Marca
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -22,7 +23,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class ImagemProdutoSerializer(serializers.ModelSerializer):
     imagem = serializers.SerializerMethodField()  # Use SerializerMethodField para customizar o campo
-
+     # Serializers para os campos relacionados
+    
     class Meta:
         model = ImagemProduto
         fields = ['id', 'produto', 'imagem', 'descricao_imagem']
@@ -32,7 +34,7 @@ class ImagemProdutoSerializer(serializers.ModelSerializer):
         if obj.imagem:
             return obj.imagem.url  # Retorna a URL relativa da imagem
         return None
-
+    
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -40,9 +42,30 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Produto
-        fields = ['id', 'nome', 'descricao', 'preco', 'quantidade_estoque', 'categoria', 'sku', 'status', 'imagens']
+        fields = [
+            'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'quantidade_estoque', 'categoria', 'sku', 
+            'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
+            'altura', 'largura', 'comprimento', 'peso', 'imagens'
+        ]
 
-        
+    def create(self, validated_data):
+        imagens_data = validated_data.pop('imagens', None)
+        produto = Produto.objects.create(**validated_data)
+        if imagens_data:
+            for imagem_data in imagens_data:
+                ImagemProduto.objects.create(produto=produto, **imagem_data)
+        return produto
+
+    def update(self, instance, validated_data):
+        imagens_data = validated_data.pop('imagens', None)
+
+        # Atualiza os campos simples
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
@@ -76,3 +99,36 @@ class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
         fields = ['id', 'nome', 'descricao']
+
+
+class MarcaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Marca
+        fields = ['id', 'nome', 'descricao']
+
+
+class CalculoFreteSerializer(serializers.Serializer):
+    produto_id = serializers.IntegerField(required=True)
+    cep_destino = serializers.CharField(max_length=10, required=True)
+
+    def validate_cep_destino(self, value):
+        # Adicione aqui a validação de CEP se necessário
+        return value
+
+
+class DescontoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Desconto
+        fields = '__all__'
+
+
+class OpcaoFreteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OpcaoFrete
+        fields = ['id', 'id_frete', 'nome', 'ativo']
+
+
+class ConfiguracaoFreteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfiguracaoFrete
+        fields = ['cep_origem', 'desconto_frete', 'acrescimo_frete', 'dias_adicionais_entrega']

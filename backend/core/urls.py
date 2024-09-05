@@ -9,7 +9,14 @@ from .views import (
     ProdutoViewSet, 
     ImagemProdutoViewSet,
     ListCategoriasView, 
-    CategoriasCreateView
+    CategoriasCreateView,
+    DescontoCreateView,
+    DescontoListView,
+    CalcularFreteView,
+    OpcaoFreteListView,
+    ConfiguracaoFreteView,
+    MarcaViewSet,
+    CategoriasDetailView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -25,6 +32,9 @@ router.register(r'produtos', ProdutoViewSet, basename='produto')
 # Excluir Produto: DELETE /api/produtos/{id}/
 
 router.register(r'imagens', ImagemProdutoViewSet, basename='imagem')
+router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
+router.register(r'marca', MarcaViewSet, basename='marca')
+#router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 # Definindo as URLs
 urlpatterns = [
@@ -35,12 +45,23 @@ urlpatterns = [
     path('usuarios/<int:pk>/', UsuarioDetailView.as_view(), name='usuario-detalhe'),
     path('usuarios/<int:pk>/delete/', UsuarioDeleteView.as_view(), name='usuario-delete'),
 
-    # Autenticação
+    # Autenticação  - Administrador
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
 
-    # Categorias
+    # Categorias  - Administrador
     path('createcategories/', CategoriasCreateView.as_view(), name='create_categorias'),
     path('categories/list/', ListCategoriasView.as_view(), name='lista_categoria'),
+    path('categories/<int:pk>/', CategoriasDetailView.as_view(), name='Categorias-detalhe'),
+
+    # Descontos  - Administrador
+    path('descontos/', DescontoCreateView.as_view(), name='desconto-create'),  # Adicionado
+    path('descontos/lista/', DescontoListView.as_view(), name='desconto-lista'),  # Adicionado
+
+    # Configuração de frete - Administrador
+    path('configuracao-frete/', ConfiguracaoFreteView.as_view(), name='configuracao-frete'),
+
+    # Calcular Frete
+    path('calcular-frete/', CalcularFreteView.as_view(), name='calcular-frete'),
 
     # Incluindo as rotas do DefaultRouter
     path('', include(router.urls)),

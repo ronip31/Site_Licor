@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from ..models import Produto, ImagemProduto
-from ..serializers import ProductSerializer, ImagemProdutoSerializer
+from ..models import Produto, ImagemProduto, Marca
+from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
@@ -12,11 +12,11 @@ import os
 
 
 class ProdutoViewSet(viewsets.ModelViewSet):
+    
     queryset = Produto.objects.all()
     serializer_class = ProductSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    #parser_classes = (MultiPartParser, FormParser)
     #permission_classes = [IsAdminUser]
-
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -91,3 +91,9 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
                     return Response({"detail": "Nenhuma imagem recebida."}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "Método não permitido."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+
+
+class MarcaViewSet(viewsets.ModelViewSet):
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer

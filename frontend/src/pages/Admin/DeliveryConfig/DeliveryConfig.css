@@ -1,0 +1,63 @@
+/* Estilo para o título h2 */
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 24px; /* Tamanho da fonte */
+  color: #333; /* Cor do texto */
+  margin: 20px 0; /* Margens superior e inferior */
+  text-align: center; /* Centraliza o texto */
+}
+
+/* Estilo para o subtítulo h3 */
+h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 18px; /* Tamanho da fonte */
+  color: #555; /* Cor do texto */
+  margin: 10px 0; /* Margens superior e inferior */
+  text-align: center; /* Centraliza o texto */
+}
+
+h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 18px; /* Tamanho da fonte */
+  color: #555; /* Cor do texto */
+  margin: 10px 0; /* Margens superior e inferior */
+  text-align: center; /* Centraliza o texto */
+}
+
+/* Outros estilos já existentes */
+.header {
+  background-image: linear-gradient(to right, #333, #444);
+  box-shadow: 0 2px 4px rgba(35, 47, 62, 0.3);
+  border-bottom: 1px solid #ccc;
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+}
+
+.header nav ul li {
+  margin: 0;
+}
+
+.header nav ul li a {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500; 
+  text-decoration: none;
+  color: #fff; /* Cor do texto do menu */
+  padding: 10px;
+}
