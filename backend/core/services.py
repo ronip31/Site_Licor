@@ -2,11 +2,9 @@ import requests
 from .models import Produto, ConfiguracaoFrete, OpcaoFrete
 
 def calcular_frete(produto_id, cep_destino, token):
-    #print("produto_id, cep_destino, token:", produto_id, cep_destino, token)
     try:
         produto = Produto.objects.get(id=produto_id)
         configuracao_frete = ConfiguracaoFrete.objects.first()  # Assume que há apenas uma configuração de frete
-        #opcoes_frete_ativas = OpcaoFrete.objects.values_list('id', flat=True)  # IDs das opções de frete ativas
 
         url = "https://www.melhorenvio.com.br/api/v2/me/shipment/calculate"
 
@@ -20,7 +18,7 @@ def calcular_frete(produto_id, cep_destino, token):
                 "weight": str(produto.peso),   # Convertendo para float
             },
         }
-        print("payload:", payload)
+
         headers = {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -28,13 +26,7 @@ def calcular_frete(produto_id, cep_destino, token):
                 "User-Agent": "Aplicação roni.pereira31@gmail.com"
             }
 
-        #print("Headers utilizados na requisição:", headers)
-
         response = requests.post(url, json=payload, headers=headers)
-
-        # Verificar a resposta HTTP detalhadamente
-        #print("Status Code:", response.status_code)
-        print("Response Body:",  response.text)
 
         if response.status_code == 200:
             resultado_frete = response.json()

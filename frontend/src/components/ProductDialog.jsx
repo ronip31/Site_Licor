@@ -55,6 +55,7 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
           {/* Coluna Direita */}
           <Grid item xs={6} md={5}>
             <TextField
+              autoFocus
               margin="dense"
               label="Preço Custo"
               type="number"
@@ -123,9 +124,10 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
             <TextField
               margin="dense"
               label="Volume"
+              type="text"
               fullWidth
               value={selectedProduct?.volume || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, volume: parseFloat(e.target.value) })}
+              onChange={(e) => setSelectedProduct({ ...selectedProduct, volume: e.target.value })}
             />
             <FormControl fullWidth margin="dense">
               <InputLabel>Marca</InputLabel>

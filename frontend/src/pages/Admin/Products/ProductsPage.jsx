@@ -21,13 +21,20 @@ const ProductsPage = () => {
   const [imageDialogOpen, setImageDialogOpen] = useState(false); // Controle de abertura do diálogo de imagens
   const [selectedProduct, setSelectedProduct] = useState({
     nome: '',
-    descricao: '',
-    preco_custo: '',
-    preco_venda: '',
-    quantidade_estoque: '',
-    categoria: '',
-    sku: '',
-    status: 'Inativo',
+        descricao: '',
+        preco_custo: '',
+        preco_venda: '',
+        quantidade_estoque: '',
+        categoria: '',
+        marca: '',
+        sku: '',
+        status: 'Inativo', 
+        teor_alcoolico: '',
+        volume: '',
+        altura: '',
+        largura: '',
+        comprimento: '',
+        peso: '',
   });
 
 
@@ -80,7 +87,6 @@ const ProductsPage = () => {
           nome_marca: marcasMap[produto.marca] || '',
         }));
   
-        console.log("Produtos com nome da categoria e marca:", produtosComNomeCategoriaEMarca);
         setProducts(produtosComNomeCategoriaEMarca); // Armazena os produtos no estado
   
       } catch (error) {
@@ -189,7 +195,6 @@ const ProductsPage = () => {
     formData.append('teor_alcoolico', selectedProduct.teor_alcoolico);
     formData.append('volume', selectedProduct.volume);
     formData.append('marca', selectedProduct.marca);
-
     formData.append('altura', selectedProduct.altura);
     formData.append('largura', selectedProduct.largura);
     formData.append('comprimento', selectedProduct.comprimento);

@@ -80,7 +80,7 @@ const Header = () => {
         <AppBar position="static">
           <StyledToolbar>
             <Button component={Link} to="/" color="secondary">
-              MeuSiteDeVendas
+              Casa dos Licores
             </Button>
 
             <CenteredContainer>

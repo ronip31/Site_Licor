@@ -86,6 +86,7 @@ const DeliveryConfig = () => {
     <div>
       <h2 >Configuração de Frete</h2>
       <h3> Pagina destina a configuração do frete, calculo de entregas são feitas pelo <Link href="www.melhorenvio.com.br" target="_blank">www.melhorenvio.com.br</Link></h3>
+      <h3> Essas configrações serão refletidas para o cliente.</h3>
       <Box
         component="form"
         sx={{ '& .MuiTextField-root': { m: 2, width: '25ch' } }}
@@ -115,7 +116,7 @@ const DeliveryConfig = () => {
         <TextField
         margin="normal"
         label="Desconto de Frete (%):"
-        type="text"
+        type="Number"
         fullWidth
         name="desconto_frete"
         value={config.desconto_frete || ''}
@@ -130,7 +131,7 @@ const DeliveryConfig = () => {
         <TextField
         margin="normal"
         label="Acréscimo de Frete (%):"
-        type="text"
+        type="number"
         fullWidth
         name="acrescimo_frete"
         value={config.acrescimo_frete || ''}
@@ -145,7 +146,8 @@ const DeliveryConfig = () => {
         <TextField
         margin="normal"
         label="Dias Adicionais de Entrega:"
-        type="text"
+        helperText="Apenas números inteiros"
+        type="number"
         fullWidth
         name="dias_adicionais_entrega"
         value={config.dias_adicionais_entrega || ''}

@@ -60,18 +60,15 @@ const AdminHeader = () => {
       <ThemeProvider theme={theme}>
         <AppBar position="static">
           <StyledToolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Painel administrador MeuSiteDeVendas
+            <Typography variant="text" component={Link} to="/admin" color="secondary">
+              Painel Administrador Casa dos Licores
             </Typography>
             <div>
-              <Button variant="text" component={Link} to="/admin" color="secondary">
-                Dashboard
-              </Button>
               <Button variant="text" component={Link} to="/admin/createproducts" color="secondary">
                 Cadastro Produtos
               </Button>
               <Button variant="text" component={Link} to="/admin/creategrups" color="secondary">
-                Cadastro Grupos
+                Cadastro Grupos/Categorias/Marcas
               </Button>
               <Button variant="text" component={Link} to="/admin/creatediscount" color="secondary">
                 Cadastro Descontos

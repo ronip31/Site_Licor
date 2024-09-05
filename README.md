@@ -115,12 +115,18 @@ Formulário para criação ou edição de produtos.
 	- Campos de Entrada:
 	- Nome do Produto.
 	- Descrição do Produto.
-	- Preço.
+	- Preço de custo.
+	- Precço de venda
 	- Quantidade em Estoque.
 	- Categoria (dropdown para selecionar a categoria existente).
 	- Upload de Imagens (permitir upload de uma ou mais imagens do produto).
 	- SKU (Stock Keeping Unit) para controle de inventário.
 	- Status do Produto (ex: Ativo, Inativo).
+	- Teor Alcoolico
+	- Volume
+	- Marca
+	- e propriedades para calculo de entrega: Altura, Largura, Comprimento, Peso.
+
 
 - ##### Botões:
 	- Salvar (confirmação do cadastro ou edição do produto).
@@ -130,13 +136,26 @@ Formulário para criação ou edição de produtos.
 	- Verificação de campos obrigatórios (nome, preço, categoria, etc.).
 	- Upload de imagem no formato correto e com tamanho adequado.
 
-### Gerenciamento de Categorias
-Gerenciamento das categorias de produtos na plataforma.
+### Gerenciamento de Categorias / Grupos / Marcas
+Gerenciamento das categorias , protudos e marcas de produtos na plataforma.
 
 - ##### Componentes:
-	- Listagem de categorias com opções de edição, exclusão e visualização.
+	- Listagem de categorias , protudos e marcas com opções de edição, exclusão e visualização.
 	- Botão "Adicionar Categoria" com acesso ao formulário de cadastro.
 	- Formulário de edição com campos para nome e descrição.
+
+### Gerenciamento de Descontos
+Gerenciamento de descontos dos Produtos.
+
+- ##### Componentes:
+	- Tela para gerenciar possíveis descontos por produtos, categorias, e clientes.
+
+### Gerenciamento de Frete
+Gerenciamento de calculo de entregas.
+
+- ##### Componentes:
+	- Possibilidade de gerenciar Origem da entregas, descontos de entrega, dias adicionais.
+	- Habilitar opções de entrega, Sedex ou Pac.
 
 ### Gerenciamento de Pedidos
 Controle completo dos pedidos realizados pelos usuários.
