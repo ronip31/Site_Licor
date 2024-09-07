@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
 from .models import ImagemProduto
-from .models import Desconto, OpcaoFrete, ConfiguracaoFrete, Marca
+from .models import Promocao, OpcaoFrete, ConfiguracaoFrete, Marca
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -39,14 +39,25 @@ class ImagemProdutoSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     imagens = ImagemProdutoSerializer(many=True, required=False)
+    preco_promocional = serializers.SerializerMethodField()
+    preco_anterior = serializers.SerializerMethodField()
 
     class Meta:
         model = Produto
         fields = [
-            'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'quantidade_estoque', 'categoria', 'sku', 
-            'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
+            'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'preco_promocional', 'preco_anterior', 'quantidade_estoque', 
+            'categoria', 'sku', 'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
             'altura', 'largura', 'comprimento', 'peso', 'imagens'
         ]
+
+    def get_preco_promocional(self, obj):
+        prices = obj.get_price_with_discount()
+        return prices.get('preco_promocional')
+
+    def get_preco_anterior(self, obj):
+        prices = obj.get_price_with_discount()
+        return prices.get('preco_anterior')
+
 
     def create(self, validated_data):
         imagens_data = validated_data.pop('imagens', None)
@@ -55,6 +66,7 @@ class ProductSerializer(serializers.ModelSerializer):
             for imagem_data in imagens_data:
                 ImagemProduto.objects.create(produto=produto, **imagem_data)
         return produto
+
 
     def update(self, instance, validated_data):
         imagens_data = validated_data.pop('imagens', None)
@@ -116,9 +128,9 @@ class CalculoFreteSerializer(serializers.Serializer):
         return value
 
 
-class DescontoSerializer(serializers.ModelSerializer):
+class PromocaoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Desconto
+        model = Promocao
         fields = '__all__'
 
 

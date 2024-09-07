@@ -25,15 +25,6 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         if produto_serializer.is_valid():
             produto = produto_serializer.save()
 
-            # Salvar imagens se forem enviadas durante a edição
-            if 'imagens' in request.FILES:
-                for image in request.FILES.getlist('imagens'):
-                    print("Salvando imagem durante a edição:", image)
-                    # Verifique se o campo `imagem` está correto e corresponde ao nome definido no modelo
-                    ImagemProduto.objects.create(produto=produto, imagem=image)
-                    print(f"Imagem {image.name} salva com sucesso durante a edição.")
-            else:
-                print("Nenhuma imagem recebida durante a edição.")
 
             return Response(produto_serializer.data, status=status.HTTP_200_OK)
 
@@ -94,3 +85,5 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
 class MarcaViewSet(viewsets.ModelViewSet):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+
+

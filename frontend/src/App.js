@@ -12,7 +12,7 @@ import Perfil from './pages/Perfil/Perfil';
 import Contato from './pages/Contato/Contato';
 import Sobre from './pages/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
-import Discount from './pages/Admin/Discount/Discount';
+import Promotion from './pages/Admin/Promotion/Promotion';
 import DeliveryConfig from './pages/Admin/DeliveryConfig/DeliveryConfig';
 import ProductsPage from './pages/Admin/Products/ProductsPage';
 import Groups from './pages/Admin/Grups/Grups';
@@ -50,7 +50,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="createproducts" element={<ProductsPage />} />
           <Route path="creategrups" element={<Groups />} />
-          <Route path="creatediscount" element={<Discount />} />
+          <Route path="createpromotion" element={<Promotion />} />
           <Route path="DeliveryConfig" element={<DeliveryConfig />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="orders" element={<Orders />} />

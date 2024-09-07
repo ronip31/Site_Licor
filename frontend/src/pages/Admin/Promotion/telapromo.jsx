@@ -1,0 +1,279 @@
+import React, { useEffect, useState } from 'react';
+import { DataGrid, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
+import Box from '@mui/material/Box';
+import { Button } from '@mui/material';
+import api from '../../../utils/api';
+import ImageEditDialog from '../../../components/ImageEditDialog';
+import ProductDialog from '../../../components/ProductDialog';
+import { useSnackbar } from 'notistack';
+
+const TelaPromo = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [marks, setMarcas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState({
+    nome: '',
+    descricao: '',
+    preco_custo: '',
+    preco_venda: '',
+    quantidade_estoque: '',
+    categoria: '',
+    marca: '',
+    sku: '',
+    status: 'Inativo',
+    teor_alcoolico: '',
+    volume: '',
+    altura: '',
+    largura: '',
+    comprimento: '',
+    peso: '',
+  });
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const validateFields = () => {
+    const { nome, descricao, preco_custo, preco_venda, quantidade_estoque, categoria, sku, status } = selectedProduct;
+
+    if (!nome.trim() || !descricao.trim() || !preco_custo || !preco_venda || !quantidade_estoque || !categoria || !sku.trim() || !status) {
+      enqueueSnackbar('Todos os campos são obrigatórios.', { variant: 'warning' });
+      return false;
+    }
+    return true;
+  };
+
+  const fetchData = async () => {
+    try {
+      const [produtosResponse, categoriasResponse, marcasResponse] = await Promise.all([
+        api.get('/produtos/'),
+        api.get('/categories/list/'),
+        api.get('/marca/'),
+      ]);
+
+      const produtos = produtosResponse.data;
+      const categorias = categoriasResponse.data;
+      const marcas = marcasResponse.data;
+
+      // Mapeamento para categorias e marcas
+      const categoriaMap = categorias.reduce((map, categoria) => {
+        map[categoria.id] = categoria.nome;
+        return map;
+      }, {});
+
+      const marcasMap = marcas.reduce((map, marca) => {
+        map[marca.id] = marca.nome;
+        return map;
+      }, {});
+
+      // Adiciona o nome da categoria e marca a cada produto
+      const produtosComNomeCategoriaEMarca = produtos.map((produto) => ({
+        ...produto,
+        nome_categoria: categoriaMap[produto.categoria] || '',
+        nome_marca: marcasMap[produto.marca] || '',
+      }));
+
+      setProducts(produtosComNomeCategoriaEMarca);
+      setCategories(categorias); // Define as categorias para o estado
+      setMarcas(marcas); // Define as marcas para o estado
+
+    } catch (error) {
+      console.error('Erro ao buscar produtos, categorias ou marcas:', error);
+      setError('Erro ao buscar produtos. Tente novamente mais tarde.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [enqueueSnackbar]);
+
+  // Funções de diálogo e salvar
+  const handleOpenDialog = (product = null) => {
+    setSelectedProduct(
+      product || {
+        nome: '',
+        descricao: '',
+        preco_custo: '',
+        preco_venda: '',
+        quantidade_estoque: '',
+        categoria: '',
+        marca: '',
+        sku: '',
+        status: 'Inativo',
+        teor_alcoolico: '',
+        volume: '',
+        altura: '',
+        largura: '',
+        comprimento: '',
+        peso: '',
+      }
+    );
+    setOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+    setSelectedProduct({
+      nome: '',
+      descricao: '',
+      preco_custo: '',
+      preco_venda: '',
+      quantidade_estoque: '',
+      categoria: '',
+      marca: '',
+      sku: '',
+      status: 'Inativo',
+      teor_alcoolico: '',
+      volume: '',
+      altura: '',
+      largura: '',
+      comprimento: '',
+      peso: '',
+    });
+  };
+
+  const handleOpenImageDialog = (product) => {
+    setSelectedProduct(product);
+    setImageDialogOpen(true);
+  };
+
+  const handleCloseImageDialog = () => {
+    setImageDialogOpen(false);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!validateFields()) return false;
+
+    const formData = new FormData();
+    formData.append('nome', selectedProduct.nome);
+    formData.append('descricao', selectedProduct.descricao);
+    formData.append('preco_custo', selectedProduct.preco_custo);
+    formData.append('preco_venda', selectedProduct.preco_venda);
+    formData.append('quantidade_estoque', selectedProduct.quantidade_estoque);
+    formData.append('categoria', selectedProduct.categoria);
+    formData.append('sku', selectedProduct.sku);
+    formData.append('status', selectedProduct.status);
+    formData.append('teor_alcoolico', selectedProduct.teor_alcoolico);
+    formData.append('volume', selectedProduct.volume);
+    formData.append('marca', selectedProduct.marca);
+    formData.append('altura', selectedProduct.altura);
+    formData.append('largura', selectedProduct.largura);
+    formData.append('comprimento', selectedProduct.comprimento);
+    formData.append('peso', selectedProduct.peso);
+
+    try {
+      const response = selectedProduct.id
+        ? await api.put(`/produtos/${selectedProduct.id}/`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+        : await api.post('/produtos/', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+
+      setProducts((prev) =>
+        selectedProduct.id ? prev.map((p) => (p.id === selectedProduct.id ? response.data : p)) : [...prev, response.data]
+      );
+      handleCloseDialog();
+      fetchData(); // Recarrega os dados após a ação de salvamento
+      return true;
+    } catch (error) {
+      enqueueSnackbar('Erro ao salvar produto', { variant: 'error' });
+      return false;
+    }
+  };
+
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarExport csvOptions={{ utf8WithBom: true }} />
+      </GridToolbarContainer>
+    );
+  }
+
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 30 },
+    { field: 'nome', headerName: 'Nome', width: 200 },
+    { field: 'descricao', headerName: 'Descrição', width: 200 },
+    { field: 'preco_custo', headerName: 'Preço Custo', type: 'number', width: 100 },
+    { field: 'preco_venda', headerName: 'Preço Venda', type: 'number', width: 100 },
+    { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 80 },
+    { field: 'nome_categoria', headerName: 'Categoria', width: 100 },
+    { field: 'sku', headerName: 'SKU', width: 70 },
+    { field: 'teor_alcoolico', headerName: 'Teor alcoolico', width: 110 },
+    { field: 'volume', headerName: 'Volume', width: 70 },
+    { field: 'nome_marca', headerName: 'Marca', width: 70 },
+    { field: 'status', headerName: 'Status', width: 90 },
+    {
+      field: 'acoes',
+      headerName: 'Ações',
+      width: 350,
+      renderCell: (params) => (
+        <div>
+          <Button variant="contained" color="primary" onClick={() => handleOpenDialog(params.row)}>
+            Editar
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            style={{ marginLeft: 8 }}
+            onClick={() => handleOpenImageDialog(params.row)}
+          >
+            Editar Fotos
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  if (loading) return <p>Carregando produtos...</p>;
+  if (error) return <p>{error}</p>;
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mb: 4, alignSelf: 'flex-start', ml: 6 }}
+        onClick={() => handleOpenDialog()}
+      >
+        Criar Novo Produto
+      </Button>
+      <Box sx={{ height: 600, width: '95%' }}>
+        <DataGrid
+          rows={products}
+          columns={columns}
+          slots={{
+            toolbar: CustomToolbar,
+          }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          checkboxSelection
+        />
+      </Box>
+
+      <ProductDialog
+        open={open}
+        onClose={handleCloseDialog}
+        selectedProduct={selectedProduct}
+        handleSaveEdit={handleSaveEdit}
+        categories={categories}
+        marks={marks}
+        setSelectedProduct={setSelectedProduct}
+      />
+
+      <ImageEditDialog open={imageDialogOpen} onClose={handleCloseImageDialog} productId={selectedProduct?.id} />
+    </Box>
+  );
+};
+
+export default TelaPromo;

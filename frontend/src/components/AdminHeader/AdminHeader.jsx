@@ -70,8 +70,8 @@ const AdminHeader = () => {
               <Button variant="text" component={Link} to="/admin/creategrups" color="secondary">
                 Cadastro Grupos/Categorias/Marcas
               </Button>
-              <Button variant="text" component={Link} to="/admin/creatediscount" color="secondary">
-                Cadastro Descontos
+              <Button variant="text" component={Link} to="/admin/createpromotion" color="secondary">
+                Cadastro Promocoes
               </Button>
               <Button variant="text" component={Link} to="/admin/DeliveryConfig" color="secondary">
                 Cadastro Frete

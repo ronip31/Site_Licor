@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from .categoria import Categoria
 from .marca import Marca
-from .tipo_licor import TipoLicor
 
 class Produto(models.Model):
     ATIVO = 'Ativo'
@@ -33,22 +32,50 @@ class Produto(models.Model):
     class Meta:
         db_table = 'produto'
 
-    def __str__(self):
-        return self.nome
-    def get_desconto_aplicavel(self):
-        """
-        Retorna o desconto aplicável para o produto, considerando
-        descontos específicos do produto, categoria e tipo de licor.
-        """
-        descontos_produto = self.descontos.filter(data_inicio__lte=timezone.now(), data_fim__gte=timezone.now())
-        descontos_categoria = self.categoria.descontos.filter(data_inicio__lte=timezone.now(), data_fim__gte=timezone.now())
-        descontos_tipo = self.tipo_licor.descontos.filter(data_inicio__lte=timezone.now(), data_fim__gte=timezone.now())
+    def get_price_with_discount(self):
+        now = timezone.now()
+        print(f"Data atual: {now}")  # Debug: Mostra a data atual
 
-        # Prioridade de desconto: Produto > Categoria > Tipo de Licor
-        if descontos_produto.exists():
-            return descontos_produto.first()  # Retorna o primeiro desconto válido encontrado para o produto
-        elif descontos_categoria.exists():
-            return descontos_categoria.first()  # Retorna o primeiro desconto válido encontrado para a categoria
-        elif descontos_tipo.exists():
-            return descontos_tipo.first()  # Retorna o primeiro desconto válido encontrado para o tipo de licor
-        return None  # Nenhum desconto aplicável
+        # Converter para o fuso horário UTC
+        data_inicio_utc = self.promocao.filter().values_list('data_inicio', flat=True).first()
+        data_fim_utc = self.promocao.filter().values_list('data_fim', flat=True).first()
+        
+        # Verifica se há promoção ativa diretamente no produto
+        promocao_produto = self.promocao.filter(
+            data_inicio__lte=now, 
+            data_fim__gte=now
+        ).first()
+        print(f"Promoção do produto encontrada: {promocao_produto}")  # Debug: Mostra a promoção do produto
+
+        if promocao_produto:
+            if promocao_produto.percentual:
+                valor_desconto = self.preco_venda * (promocao_produto.percentual / 100)
+                preco_promocional = self.preco_venda - valor_desconto
+                print(f"Preço promocional calculado: {preco_promocional}")  # Debug: Mostra o preço calculado
+            elif promocao_produto.valor_promocao:
+                preco_promocional = self.preco_venda - promocao_produto.valor_promocao
+                #preco_promocional = promocao_produto.valor_promocao
+                print(f"Preço promocional definido pelo valor da promoção: {preco_promocional}")  # Debug
+            return {'preco_anterior': self.preco_venda, 'preco_promocional': preco_promocional}
+
+        # Verifica se há promoção ativa na categoria do produto
+        if self.categoria:
+            categoria_promocao = self.categoria.promocao.filter(
+                data_inicio__lte=now,
+                data_fim__gte=now
+            ).first()
+            print(f"Promoção da categoria encontrada: {categoria_promocao}")  # Debug
+
+            if categoria_promocao:
+                if categoria_promocao.percentual:
+                    valor_desconto = self.preco_venda * (categoria_promocao.percentual / 100)
+                    preco_promocional = self.preco_venda - valor_desconto
+                    print(f"Preço promocional calculado pela categoria: {preco_promocional}")  # Debug
+                elif categoria_promocao.valor_promocao:
+                    preco_promocional = categoria_promocao.valor_promocao
+                    print(f"Preço promocional definido pelo valor da promoção da categoria: {preco_promocional}")  # Debug
+                return {'preco_anterior': self.preco_venda, 'preco_promocional': preco_promocional}
+
+        # Sem promoção ativa
+        print("Nenhuma promoção ativa encontrada.")  # Debug
+        return {'preco_anterior': self.preco_venda, 'preco_promocional': None}

@@ -10,8 +10,7 @@ from .views import (
     ImagemProdutoViewSet,
     ListCategoriasView, 
     CategoriasCreateView,
-    DescontoCreateView,
-    DescontoListView,
+    PromocaoViewSet,
     CalcularFreteView,
     OpcaoFreteListView,
     ConfiguracaoFreteView,
@@ -34,6 +33,7 @@ router.register(r'produtos', ProdutoViewSet, basename='produto')
 router.register(r'imagens', ImagemProdutoViewSet, basename='imagem')
 router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
 router.register(r'marca', MarcaViewSet, basename='marca')
+router.register(r'promocoes', PromocaoViewSet, basename='promocoes')
 #router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 # Definindo as URLs
@@ -53,9 +53,9 @@ urlpatterns = [
     path('categories/list/', ListCategoriasView.as_view(), name='lista_categoria'),
     path('categories/<int:pk>/', CategoriasDetailView.as_view(), name='Categorias-detalhe'),
 
-    # Descontos  - Administrador
-    path('descontos/', DescontoCreateView.as_view(), name='desconto-create'),  # Adicionado
-    path('descontos/lista/', DescontoListView.as_view(), name='desconto-lista'),  # Adicionado
+    # Promocao  - Administrador
+    # path('promocoes/', PromocaoCreateView.as_view(), name='promocao-create'),  # Adicionado
+    # path('promocao/lista/', PromocaoListView.as_view(), name='promocao-lista'),  # Adicionado
 
     # Configuração de frete - Administrador
     path('configuracao-frete/', ConfiguracaoFreteView.as_view(), name='configuracao-frete'),

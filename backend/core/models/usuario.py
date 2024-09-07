@@ -37,9 +37,3 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-
-    def get_desconto_aplicavel(self):
-        descontos_cliente = self.descontos.filter(data_inicio__lte=timezone.now(), data_fim__gte=timezone.now())
-        if descontos_cliente.exists():
-            return descontos_cliente.first()
-        return None
