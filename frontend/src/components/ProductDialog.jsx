@@ -92,13 +92,6 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
                 ))}
               </Select>
             </FormControl>
-            <TextField
-              margin="dense"
-              label="SKU"
-              fullWidth
-              value={selectedProduct?.sku || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, sku: e.target.value })}
-            />
             <FormControl fullWidth margin="dense">
               <InputLabel>Status</InputLabel>
               <Select
@@ -113,13 +106,16 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
           </Grid>
           {/*TERCEIRA COLUNA*/}
           <Grid item xs={6} md={4}>
-            <TextField
+          <TextField
               margin="dense"
-              label="Teor Alcoolico"
+              label="Teor Alcoólico (%)"
               type="number"
               fullWidth
-              value={selectedProduct?.teor_alcoolico || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, teor_alcoolico: parseFloat(e.target.value) })}
+              value={selectedProduct.teor_alcoolico}
+              onChange={(e) => {
+                const valor = e.target.value ? parseFloat(e.target.value) : 0.00;
+                setSelectedProduct({ ...selectedProduct, teor_alcoolico: valor });
+              }}
             />
             <TextField
               margin="dense"

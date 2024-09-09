@@ -4,10 +4,13 @@ from rest_framework import status
 from ..services import calcular_frete
 from ..serializers import CalculoFreteSerializer
 from decouple import config
+from ..permissions import IsAdminUser
+
 
 SECRET_KEY = config('TOKEN_API_CORREIO')
 
 class CalcularFreteView(APIView):
+    permission_classes = [IsAdminUser]
     def post(self, request):
         serializer = CalculoFreteSerializer(data=request.data)
         if serializer.is_valid():

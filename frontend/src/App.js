@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout/MainLayout';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
-//import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin '; //caso seja protegido por token, descomentar essa linha
+import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin '; //caso seja protegido por token, descomentar essa linha
 import ProtectedRouteCliente from './components/ProtectedRoute/ProtectedRouteCliente ';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
@@ -14,6 +14,7 @@ import Sobre from './pages/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
 import Promotion from './pages/Admin/Promotion/Promotion';
 import DeliveryConfig from './pages/Admin/DeliveryConfig/DeliveryConfig';
+import CouponsPage from './pages/Admin/CouponsPage/CouponsPage';
 import ProductsPage from './pages/Admin/Products/ProductsPage';
 import Groups from './pages/Admin/Grups/Grups';
 import Customer from './pages/Admin/Customer/Customer';
@@ -46,12 +47,14 @@ function App() {
         <Route path="/login" element={<ClienteLoginForm />} />
 
         {/* Rotas para a área administrativa */}
-        <Route path="/admin/*" element={<AdminLayout />}> {/* Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
+        <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}> {/* Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
+        {/*<Route path="/admin/*" element={<AdminLayout />}>  Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
           <Route index element={<AdminDashboard />} />
           <Route path="createproducts" element={<ProductsPage />} />
           <Route path="creategrups" element={<Groups />} />
           <Route path="createpromotion" element={<Promotion />} />
           <Route path="DeliveryConfig" element={<DeliveryConfig />} />
+          <Route path="createcupons" element={<CouponsPage />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="orders" element={<Orders />} />
         </Route>

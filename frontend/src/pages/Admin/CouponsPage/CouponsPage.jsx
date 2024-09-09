@@ -3,54 +3,60 @@ import { DataGrid, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-g
 import Box from '@mui/material/Box';
 import { Button } from '@mui/material';
 import api from '../../../utils/api';
-import PromotionDialog from '../../../components/PromotionDialog';
+import CouponDialog from '../../../components/CouponDialog';
 import { useSnackbar } from 'notistack';
-import './PromotionPage.css';
+import './CouponsPage.css';
 
-const PromotionsPage = () => {
-  const [promotions, setPromotions] = useState([]);
+const CouponsPage = () => {
+  const [coupons, setCoupons] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
-  const [selectedPromotion, setSelectedPromotion] = useState({
-    nome_promo: '',
-    percentual: '',
-    valor_promocao: '',
+  const [selectedCoupon, setSelectedCoupon] = useState({
+    codigo: '',
+    descricao: '',
+    tipo: '',
+    valor: '',
     data_inicio: '',
     data_fim: '',
-    produto: '',
-    categoria: ''
+    uso_maximo: '',
+    uso_por_cliente: '',
+    produtos: [],
+    categorias: [],
+    clientes_exclusivos: [],
+    ativo: true,
   });
 
   const { enqueueSnackbar } = useSnackbar();
 
   const fetchData = async () => {
     try {
-      const [promocoesResponse, produtosResponse, categoriasResponse] = await Promise.all([
-        api.get('/promocoes/'),
+      const [cuponsResponse, produtosResponse, categoriasResponse, clientesResponse] = await Promise.all([
+        api.get('/cupons/'),
         api.get('/produtos/'),
-        api.get('/categories/list/')
+        api.get('/categories/list/'),
+        api.get('/usuarios/lista/'),
       ]);
 
-      const promotions = promocoesResponse.data;
+      const coupons = cuponsResponse.data;
       const products = produtosResponse.data;
       const categories = categoriasResponse.data;
+      const customers = clientesResponse.data;
 
-      // Ordena as promoções de acordo com a regra: ativas, que vão começar, que já terminaram
-      const sortedPromotions = promotions.sort((a, b) => {
+      // Ordena os cupons por ordem de validade: ativos, que vão começar, que já terminaram
+      const sortedCoupons = coupons.sort((a, b) => {
         const now = new Date();
         const startDateA = new Date(a.data_inicio);
         const endDateA = new Date(a.data_fim);
         const startDateB = new Date(b.data_inicio);
         const endDateB = new Date(b.data_fim);
 
-        // Promoção ativa
         const isActiveA = startDateA <= now && endDateA >= now;
         const isActiveB = startDateB <= now && endDateB >= now;
 
-        // Promoção futura
         const isFutureA = startDateA > now;
         const isFutureB = startDateB > now;
 
@@ -59,16 +65,16 @@ const PromotionsPage = () => {
         if (isFutureA && !isFutureB) return -1;
         if (!isFutureA && isFutureB) return 1;
 
-        // Se ambas são do mesmo tipo (ativas ou futuras), ordena por data de início
         return startDateA - startDateB;
       });
 
-      setPromotions(sortedPromotions);
+      setCoupons(sortedCoupons);
       setProducts(products);
       setCategories(categories);
+      setCustomers(customers);
     } catch (error) {
-      console.error('Erro ao buscar promoções, produtos ou categorias:', error);
-      setError('Erro ao buscar promoções. Tente novamente mais tarde.');
+      console.error('Erro ao buscar cupons, produtos, categorias ou clientes:', error);
+      setError('Erro ao buscar cupons. Tente novamente mais tarde.');
     } finally {
       setLoading(false);
     }
@@ -78,16 +84,21 @@ const PromotionsPage = () => {
     fetchData();
   }, [enqueueSnackbar]);
 
-  const handleOpenDialog = (promotion = null) => {
-    setSelectedPromotion(
-      promotion || {
-        nome_promo: '',
-        percentual: '',
-        valor_promocao: '',
+  const handleOpenDialog = (coupon = null) => {
+    setSelectedCoupon(
+      coupon || {
+        codigo: '',
+        descricao: '',
+        tipo: '',
+        valor: '',
         data_inicio: '',
         data_fim: '',
-        produto: '',
-        categoria: ''
+        uso_maximo: '',
+        uso_por_cliente: '',
+        produtos: [],
+        categorias: [],
+        clientes_exclusivos: [],
+        ativo: true,
       }
     );
     setOpen(true);
@@ -95,48 +106,58 @@ const PromotionsPage = () => {
 
   const handleCloseDialog = () => {
     setOpen(false);
-    setSelectedPromotion({
-      nome_promo: '',
-      percentual: '',
-      valor_promocao: '',
+    setSelectedCoupon({
+      codigo: '',
+      descricao: '',
+      tipo: '',
+      valor: '',
       data_inicio: '',
       data_fim: '',
-      produto: '',
-      categoria: ''
+      uso_maximo: '',
+      uso_por_cliente: '',
+      produtos: [],
+      categorias: [],
+      clientes_exclusivos: [],
+      ativo: true,
     });
   };
 
   const handleSaveEdit = async () => {
-    const { nome_promo, percentual, valor_promocao, data_inicio, data_fim, produto, categoria } = selectedPromotion;
+    const { codigo, descricao, tipo, valor, data_inicio, data_fim, uso_maximo, uso_por_cliente, produtos, categorias, clientes_exclusivos, ativo } = selectedCoupon;
 
-    if (!nome_promo.trim() || (!percentual && !valor_promocao) || !data_inicio || !data_fim) {
+    if (!codigo.trim() || !tipo || !data_inicio || !data_fim) {
       enqueueSnackbar('Preencha todos os campos obrigatórios.', { variant: 'warning' });
       return false;
     }
 
     const payload = {
-      nome_promo,
-      percentual: percentual ? parseFloat(percentual) : null,
-      valor_promocao: valor_promocao ? parseFloat(valor_promocao) : null,
+      codigo,
+      descricao,
+      tipo,
+      valor: valor ? parseFloat(valor) : null,
       data_inicio,
       data_fim,
-      produto: produto || null,
-      categoria: categoria || null
+      uso_maximo: uso_maximo ? parseInt(uso_maximo) : null,
+      uso_por_cliente: uso_por_cliente ? parseInt(uso_por_cliente) : null,
+      produtos,
+      categorias,
+      clientes_exclusivos,
+      ativo,
     };
 
     try {
-      const response = selectedPromotion.id
-        ? await api.put(`/promocoes/${selectedPromotion.id}/`, payload)
-        : await api.post('/promocoes/', payload);
+      const response = selectedCoupon.id
+        ? await api.put(`/cupons/${selectedCoupon.id}/`, payload)
+        : await api.post('/cupons/', payload);
 
-      setPromotions((prev) =>
-        selectedPromotion.id ? prev.map((p) => (p.id === selectedPromotion.id ? response.data : p)) : [...prev, response.data]
+      setCoupons((prev) =>
+        selectedCoupon.id ? prev.map((c) => (c.id === selectedCoupon.id ? response.data : c)) : [...prev, response.data]
       );
       handleCloseDialog();
       fetchData(); // Recarrega os dados após a ação de salvamento
       return true;
     } catch (error) {
-      enqueueSnackbar('Erro ao salvar promoção', { variant: 'error' });
+      enqueueSnackbar('Erro ao salvar cupom', { variant: 'error' });
       return false;
     }
   };
@@ -147,11 +168,11 @@ const PromotionsPage = () => {
     const endDate = new Date(params.row.data_fim);
 
     if (startDate > now) {
-      return 'promotion-starting'; // Promoção que vai começar
+      return 'coupon-starting'; // Cupom que vai começar
     } else if (endDate < now) {
-      return 'promotion-ended'; // Promoção que terminou
+      return 'coupon-ended'; // Cupom que terminou
     } else {
-      return 'promotion-active'; // Promoção ativa
+      return 'coupon-active'; // Cupom ativo
     }
   };
 
@@ -165,13 +186,14 @@ const PromotionsPage = () => {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 30 },
-    { field: 'nome_promo', headerName: 'Nome', width: 200 },
-    { field: 'percentual', headerName: 'Percentual', type: 'number', width: 100 },
-    { field: 'valor_promocao', headerName: 'Valor Promoção', type: 'number', width: 120 },
+    { field: 'codigo', headerName: 'Código', width: 150 },
+    { field: 'descricao', headerName: 'Descrição', width: 200 },
+    { field: 'tipo', headerName: 'Tipo', width: 100 },
+    { field: 'valor', headerName: 'Valor', type: 'number', width: 100 },
     { field: 'data_inicio', headerName: 'Data Início', width: 210 },
     { field: 'data_fim', headerName: 'Data Fim', width: 210 },
-    { field: 'produto', headerName: 'Produto', width: 150 },
-    { field: 'categoria', headerName: 'Categoria', width: 150 },
+    { field: 'uso_maximo', headerName: 'Uso Máximo', type: 'number', width: 100 },
+    { field: 'uso_por_cliente', headerName: 'Uso por Cliente', type: 'number', width: 190 },
     {
       field: 'acoes',
       headerName: 'Ações',
@@ -186,7 +208,7 @@ const PromotionsPage = () => {
     },
   ];
 
-  if (loading) return <p>Carregando promoções...</p>;
+  if (loading) return <p>Carregando cupons...</p>;
   if (error) return <p>{error}</p>;
 
   return (
@@ -197,11 +219,11 @@ const PromotionsPage = () => {
         sx={{ mb: 4, alignSelf: 'flex-start', ml: 6 }}
         onClick={() => handleOpenDialog()}
       >
-        Criar Nova Promoção
+        Criar Novo Cupom
       </Button>
       <Box sx={{ height: 600, width: '95%' }}>
         <DataGrid
-          rows={promotions}
+          rows={coupons}
           columns={columns}
           getRowClassName={getRowClassName}
           slots={{
@@ -219,17 +241,18 @@ const PromotionsPage = () => {
         />
       </Box>
 
-      <PromotionDialog
+      <CouponDialog
         open={open}
         onClose={handleCloseDialog}
-        selectedPromotion={selectedPromotion}
+        selectedCoupon={selectedCoupon}
         handleSaveEdit={handleSaveEdit}
         products={products}
         categories={categories}
-        setSelectedPromotion={setSelectedPromotion}
+        customers={customers}
+        setSelectedCoupon={setSelectedCoupon}
       />
     </Box>
   );
 };
 
-export default PromotionsPage;
+export default CouponsPage;

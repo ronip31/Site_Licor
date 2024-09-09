@@ -18,7 +18,6 @@
 - preco – Preço do produto.
 - quantidade_estoque – Quantidade disponível no estoque.
 - id_categoria (FK) – Referência à tabela de categorias.
-- sku – Código do produto para controle de inventário.
 - status – Status do produto (ex: "Ativo", "Inativo").
 - data_adicionado – Data de adição do produto.
 - data_modificado – Data da última modificação no produto.

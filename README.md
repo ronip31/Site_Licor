@@ -120,7 +120,6 @@ Formulário para criação ou edição de produtos.
 	- Quantidade em Estoque.
 	- Categoria (dropdown para selecionar a categoria existente).
 	- Upload de Imagens (permitir upload de uma ou mais imagens do produto).
-	- SKU (Stock Keeping Unit) para controle de inventário.
 	- Status do Produto (ex: Ativo, Inativo).
 	- Teor Alcoolico
 	- Volume

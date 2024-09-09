@@ -5,3 +5,4 @@ from .token_login_view import CustomTokenObtainPairView
 from .promocao_view import PromocaoViewSet
 from .calcular_frete_view import CalcularFreteView
 from .configuracao_frete_view import OpcaoFreteListView, ConfiguracaoFreteView
+from .cupom_view import CuponsViewSet

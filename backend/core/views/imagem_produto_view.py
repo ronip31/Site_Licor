@@ -7,13 +7,14 @@ import os
 from rest_framework import status
 from .models import Usuario, Produto, ImagemProduto
 from .serializers import ImagemProdutoSerializer
+from ..permissions import IsAdminUser
 
 # ViewSet para gerenciar imagens de produtos
 class ImagemProdutoViewSet(viewsets.ModelViewSet):
     queryset = ImagemProduto.objects.all()
     serializer_class = ImagemProdutoSerializer
     parser_classes = (MultiPartParser, FormParser)
-    #permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

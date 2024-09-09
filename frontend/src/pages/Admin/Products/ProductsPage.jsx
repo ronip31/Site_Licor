@@ -23,7 +23,6 @@ const ProductsPage = () => {
     quantidade_estoque: '',
     categoria: '',
     marca: '',
-    sku: '',
     status: 'Inativo',
     teor_alcoolico: '',
     volume: '',
@@ -36,9 +35,9 @@ const ProductsPage = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   const validateFields = () => {
-    const { nome, descricao, preco_custo, preco_venda, quantidade_estoque, categoria, sku, status } = selectedProduct;
+    const { nome, descricao, preco_custo, preco_venda, quantidade_estoque, categoria, status } = selectedProduct;
 
-    if (!nome.trim() || !descricao.trim() || !preco_custo || !preco_venda || !quantidade_estoque || !categoria || !sku.trim() || !status) {
+    if (!nome.trim() || !descricao.trim() || !preco_custo || !preco_venda || !quantidade_estoque || !categoria || !status) {
       enqueueSnackbar('Todos os campos são obrigatórios.', { variant: 'warning' });
       return false;
     }
@@ -102,7 +101,6 @@ const ProductsPage = () => {
         quantidade_estoque: '',
         categoria: '',
         marca: '',
-        sku: '',
         status: 'Inativo',
         teor_alcoolico: '',
         volume: '',
@@ -125,7 +123,6 @@ const ProductsPage = () => {
       quantidade_estoque: '',
       categoria: '',
       marca: '',
-      sku: '',
       status: 'Inativo',
       teor_alcoolico: '',
       volume: '',
@@ -155,7 +152,6 @@ const ProductsPage = () => {
     formData.append('preco_venda', selectedProduct.preco_venda);
     formData.append('quantidade_estoque', selectedProduct.quantidade_estoque);
     formData.append('categoria', selectedProduct.categoria);
-    formData.append('sku', selectedProduct.sku);
     formData.append('status', selectedProduct.status);
     formData.append('teor_alcoolico', selectedProduct.teor_alcoolico);
     formData.append('volume', selectedProduct.volume);
@@ -202,7 +198,6 @@ const ProductsPage = () => {
     { field: 'preco_venda', headerName: 'Preço Venda', type: 'number', width: 100 },
     { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 80 },
     { field: 'nome_categoria', headerName: 'Categoria', width: 100 },
-    { field: 'sku', headerName: 'SKU', width: 70 },
     { field: 'teor_alcoolico', headerName: 'Teor alcoolico', width: 110 },
     { field: 'volume', headerName: 'Volume', width: 70 },
     { field: 'nome_marca', headerName: 'Marca', width: 70 },

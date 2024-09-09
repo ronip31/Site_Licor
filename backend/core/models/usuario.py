@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+#from .endereco import Endereco
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, nome, password=None, **extra_fields):
@@ -22,8 +23,10 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nome = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     telefone = models.CharField(max_length=20, blank=True, null=True)
-    tipo_usuario = models.CharField(max_length=50, choices=[('administrador', 'Administrador'), ('cliente', 'Cliente')], default='cliente')
+    tipo_usuario = models.CharField(max_length=50, choices=[('administrador', 'Administrador'), ('cliente', 'Cliente')], default='administrador')
     data_criacao = models.DateTimeField(auto_now_add=True)
+    #cpf = models.CharField(max_length=255)
+    #endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

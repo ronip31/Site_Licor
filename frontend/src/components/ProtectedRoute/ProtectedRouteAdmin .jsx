@@ -9,7 +9,7 @@ const ProtectedRoute = ({ allowedRoles, component: Component  }) => {
   if (!token || isTokenExpired(token)) {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
-    return <Navigate to="/login" />;
+    return <Navigate to="/loginadmin" />;
   }
 
   // Se desejar validar o tipo de usuário:

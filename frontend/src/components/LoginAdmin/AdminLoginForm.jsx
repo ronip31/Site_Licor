@@ -50,7 +50,7 @@ const ClienteLoginForm = () => {
 
       if (decodedHeader.tipo_usuario === 'administrador') {
         localStorage.setItem('token', token);
-        navigate('/'); // Redireciona para a área do cliente
+        navigate('/admin/'); // Redireciona para a área do cliente
       } else {
         setErrorMessage('Acesso não autorizado.');
       }

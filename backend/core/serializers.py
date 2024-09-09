@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
-from .models import ImagemProduto
+from .models import ImagemProduto, Cupom
 from .models import Promocao, OpcaoFrete, ConfiguracaoFrete, Marca
 
 
@@ -46,7 +46,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Produto
         fields = [
             'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'preco_promocional', 'preco_anterior', 'quantidade_estoque', 
-            'categoria', 'sku', 'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
+            'categoria', 'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
             'altura', 'largura', 'comprimento', 'peso', 'imagens'
         ]
 
@@ -144,3 +144,26 @@ class ConfiguracaoFreteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConfiguracaoFrete
         fields = ['cep_origem', 'desconto_frete', 'acrescimo_frete', 'dias_adicionais_entrega']
+
+class CupomSerializer(serializers.ModelSerializer):
+    produtos = serializers.PrimaryKeyRelatedField(queryset=Produto.objects.all(), many=True, required=False)
+    categorias = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all(), many=True, required=False)
+    clientes_exclusivos = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), many=True, required=False)
+
+    class Meta:
+        model = Cupom
+        fields = [
+            'id', 'codigo', 'descricao', 'tipo', 'valor', 'data_inicio', 'data_fim', 'ativo',
+            'uso_maximo', 'uso_por_cliente', 'valor_minimo_compra', 'valor_maximo_desconto',
+            'produtos', 'categorias', 'clientes_exclusivos'
+        ]
+
+    def validate(self, data):
+        # Validações personalizadas
+        if data['tipo'] == 'percentual' and not data.get('valor'):
+            raise serializers.ValidationError("Para cupons percentuais, o campo 'valor' é obrigatório.")
+        if data['tipo'] == 'valor' and not data.get('valor'):
+            raise serializers.ValidationError("Para cupons de valor fixo, o campo 'valor' é obrigatório.")
+        if data['tipo'] == 'frete_gratis' and data.get('valor') is not None:
+            raise serializers.ValidationError("Para cupons de frete grátis, o campo 'valor' deve ser nulo.")
+        return data

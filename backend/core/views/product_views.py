@@ -9,14 +9,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 import os
-
+from ..permissions import IsAdminUser
 
 class ProdutoViewSet(viewsets.ModelViewSet):
     
     queryset = Produto.objects.all()
     serializer_class = ProductSerializer
     #parser_classes = (MultiPartParser, FormParser)
-    #permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -36,7 +36,7 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
     queryset = ImagemProduto.objects.all()
     serializer_class = ImagemProdutoSerializer
     parser_classes = (MultiPartParser, FormParser)
-    #permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -85,5 +85,7 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
 class MarcaViewSet(viewsets.ModelViewSet):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+    permission_classes = [IsAdminUser]
+    
 
 

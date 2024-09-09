@@ -84,8 +84,8 @@ const DeliveryConfig = () => {
 
   return (
     <div>
-      <h2 >Configuração de Frete</h2>
-      <h3> Pagina destina a configuração do frete, calculo de entregas são feitas pelo <Link href="www.melhorenvio.com.br" target="_blank">www.melhorenvio.com.br</Link></h3>
+      <h2 >Configuração de Entrega</h2>
+      <h3> Pagina destina a configuração do entrega, calculo de entregas são feitas pelo <Link href="www.melhorenvio.com.br" target="_blank">www.melhorenvio.com.br</Link></h3>
       <h3> Essas configrações serão refletidas para o cliente.</h3>
       <Box
         component="form"

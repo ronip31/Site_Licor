@@ -15,7 +15,8 @@ from .views import (
     OpcaoFreteListView,
     ConfiguracaoFreteView,
     MarcaViewSet,
-    CategoriasDetailView
+    CategoriasDetailView,
+    CuponsViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -34,6 +35,7 @@ router.register(r'imagens', ImagemProdutoViewSet, basename='imagem')
 router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
 router.register(r'marca', MarcaViewSet, basename='marca')
 router.register(r'promocoes', PromocaoViewSet, basename='promocoes')
+router.register(r'cupons', CuponsViewSet, basename='cupons')
 #router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 # Definindo as URLs
