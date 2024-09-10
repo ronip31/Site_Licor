@@ -10,7 +10,7 @@ from ..permissions import IsAdminUser
 SECRET_KEY = config('TOKEN_API_CORREIO')
 
 class CalcularFreteView(APIView):
-    permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
     def post(self, request):
         serializer = CalculoFreteSerializer(data=request.data)
         if serializer.is_valid():

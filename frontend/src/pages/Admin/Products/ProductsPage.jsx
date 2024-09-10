@@ -162,16 +162,18 @@ const ProductsPage = () => {
     formData.append('peso', selectedProduct.peso);
 
     try {
-      const response = selectedProduct.id
-        ? await api.put(`/produtos/${selectedProduct.id}/`, formData, {
+      const response = selectedProduct.uuid 
+        ? await api.put(`/produtos/${selectedProduct.uuid}/`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           })
         : await api.post('/produtos/', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
 
-      setProducts((prev) =>
-        selectedProduct.id ? prev.map((p) => (p.id === selectedProduct.id ? response.data : p)) : [...prev, response.data]
+          setProducts((prev) =>
+          selectedProduct.uuid
+              ? prev.map((p) => (p.uuid === selectedProduct.uuid ? response.data : p))
+              : [...prev, response.data]
       );
       handleCloseDialog();
       fetchData(); // Recarrega os dados após a ação de salvamento
@@ -199,8 +201,8 @@ const ProductsPage = () => {
     { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 80 },
     { field: 'nome_categoria', headerName: 'Categoria', width: 100 },
     { field: 'teor_alcoolico', headerName: 'Teor alcoolico', width: 110 },
-    { field: 'volume', headerName: 'Volume', width: 70 },
-    { field: 'nome_marca', headerName: 'Marca', width: 70 },
+    { field: 'volume', headerName: 'Volume', width: 90 },
+    { field: 'nome_marca', headerName: 'Marca', width: 90 },
     { field: 'status', headerName: 'Status', width: 90 },
     {
       field: 'acoes',
@@ -266,7 +268,8 @@ const ProductsPage = () => {
         setSelectedProduct={setSelectedProduct}
       />
 
-      <ImageEditDialog open={imageDialogOpen} onClose={handleCloseImageDialog} productId={selectedProduct?.id} />
+      <ImageEditDialog open={imageDialogOpen} onClose={handleCloseImageDialog} productId={selectedProduct.uuid} />
+      
     </Box>
   );
 };

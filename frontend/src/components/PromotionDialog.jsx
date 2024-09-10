@@ -27,6 +27,23 @@ const PromotionDialog = ({ open, onClose, selectedPromotion, handleSaveEdit, pro
   const handleSave = () => {
     handleSaveEdit();
   };
+  
+const handlePercentualChange = (e) => {
+  setSelectedPromotion({
+    ...selectedPromotion,
+    percentual: e.target.value,
+    valor_promocao: e.target.value ? '' : selectedPromotion.valor_promocao // Limpa o valor do campo oposto
+  });
+};
+
+const handleValorChange = (e) => {
+  setSelectedPromotion({
+    ...selectedPromotion,
+    valor_promocao: e.target.value,
+    percentual: e.target.value ? '' : selectedPromotion.percentual // Limpa o valor do campo oposto
+  });
+};
+
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -46,7 +63,8 @@ const PromotionDialog = ({ open, onClose, selectedPromotion, handleSaveEdit, pro
           type="number"
           fullWidth
           value={selectedPromotion.percentual}
-          onChange={(e) => setSelectedPromotion({ ...selectedPromotion, percentual: e.target.value })}
+          onChange={handlePercentualChange}
+          disabled={Boolean(selectedPromotion.valor_promocao)} // Desabilita se o valor de desconto estiver preenchido
         />
         <TextField
           margin="dense"
@@ -54,7 +72,8 @@ const PromotionDialog = ({ open, onClose, selectedPromotion, handleSaveEdit, pro
           type="number"
           fullWidth
           value={selectedPromotion.valor_promocao}
-          onChange={(e) => setSelectedPromotion({ ...selectedPromotion, valor_promocao: e.target.value })}
+          onChange={handleValorChange}
+          disabled={Boolean(selectedPromotion.percentual)} // Desabilita se o percentual de desconto estiver preenchido
         />
         <TextField
           margin="dense"

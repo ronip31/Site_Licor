@@ -47,13 +47,13 @@ function App() {
         <Route path="/login" element={<ClienteLoginForm />} />
 
         {/* Rotas para a área administrativa */}
-        <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}> {/* Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
+        <Route path="/admin/*" element={<AdminLayout />}> {/* Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
         {/*<Route path="/admin/*" element={<AdminLayout />}>  Alterar por essa informação protege os menus com token: <Route path="/admin/*" element={<ProtectedRouteAdmin allowedRoles={['administrador']} component={AdminLayout} />}>*/ }
           <Route index element={<AdminDashboard />} />
           <Route path="createproducts" element={<ProductsPage />} />
           <Route path="creategrups" element={<Groups />} />
           <Route path="createpromotion" element={<Promotion />} />
-          <Route path="DeliveryConfig" element={<DeliveryConfig />} />
+          <Route path="DeliveryConfig" element={<DeliveryConfig />} />ss
           <Route path="createcupons" element={<CouponsPage />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="orders" element={<Orders />} />

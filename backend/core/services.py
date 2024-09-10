@@ -3,7 +3,7 @@ from .models import Produto, ConfiguracaoFrete, OpcaoFrete
 
 def calcular_frete(produto_id, cep_destino, token):
     try:
-        produto = Produto.objects.get(id=produto_id)
+        produto = Produto.objects.get(uuid=produto_id)
         configuracao_frete = ConfiguracaoFrete.objects.first()  # Assume que há apenas uma configuração de frete
 
         url = "https://www.melhorenvio.com.br/api/v2/me/shipment/calculate"

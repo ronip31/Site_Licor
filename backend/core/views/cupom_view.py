@@ -7,7 +7,7 @@ from ..serializers import CupomSerializer
 class CuponsViewSet(viewsets.ModelViewSet):
     queryset = Cupom.objects.all()
     serializer_class = CupomSerializer
-    permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

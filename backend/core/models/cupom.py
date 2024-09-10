@@ -29,6 +29,9 @@ class Cupom(models.Model):
 
     clientes_exclusivos = models.ManyToManyField(Usuario, blank=True)  # Clientes específicos aplicáveis
 
+    class Meta:
+        db_table = 'cupom'
+
     def __str__(self):
         return f"{self.codigo} - {self.tipo}"
 

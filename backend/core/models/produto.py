@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from .categoria import Categoria
 from .marca import Marca
+import uuid
 
 class Produto(models.Model):
     ATIVO = 'Ativo'
@@ -11,6 +12,7 @@ class Produto(models.Model):
         (INATIVO, 'Inativo'),
     ]
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     nome = models.CharField(max_length=255)
     descricao = models.TextField()
     preco_custo = models.DecimalField(max_digits=10, decimal_places=2)

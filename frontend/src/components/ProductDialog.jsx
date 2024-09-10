@@ -26,6 +26,22 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
     }
   };
 
+  // Função reutilizável para manipulação de entradas
+  const handleInputChange = (event, fieldName) => {
+    let value = event.target.value;
+
+    // Substitui vírgulas por pontos
+    value = value.replace(/,/g, '.');
+
+    // Valida que o valor contém apenas números e um ponto decimal
+    if (/^[0-9]*\.?[0-9]*$/.test(value)) {
+      setSelectedProduct((prevState) => ({
+        ...prevState,
+        [fieldName]: value,
+      }));
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>{selectedProduct?.id ? 'Editar Informações Produto' : 'Criar Novo Produto'}</DialogTitle>
@@ -58,18 +74,16 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               autoFocus
               margin="dense"
               label="Preço Custo"
-              type="number"
               fullWidth
               value={selectedProduct?.preco_custo || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, preco_custo: parseFloat(e.target.value) })}
+              onChange={(e) => handleInputChange(e, 'preco_custo')}
             />
             <TextField
               margin="dense"
               label="Preço Venda"
-              type="number"
               fullWidth
               value={selectedProduct?.preco_venda || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, preco_venda: parseFloat(e.target.value) })}
+              onChange={(e) => handleInputChange(e, 'preco_venda')}
             />
             <TextField
               margin="dense"
@@ -106,16 +120,13 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
           </Grid>
           {/*TERCEIRA COLUNA*/}
           <Grid item xs={6} md={4}>
-          <TextField
+            <TextField
               margin="dense"
               label="Teor Alcoólico (%)"
-              type="number"
               fullWidth
               value={selectedProduct.teor_alcoolico}
-              onChange={(e) => {
-                const valor = e.target.value ? parseFloat(e.target.value) : 0.00;
-                setSelectedProduct({ ...selectedProduct, teor_alcoolico: valor });
-              }}
+              onChange={(e) => handleInputChange(e, 'teor_alcoolico')}
+              inputProps={{ step: '0.00', min: '0', pattern: '[0-9]*[.,]?[0-9]*' }} // Define o passo e o mínimo
             />
             <TextField
               margin="dense"
@@ -144,29 +155,31 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               label="Altura"
               fullWidth
               value={selectedProduct?.altura || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, altura: e.target.value })}
+              onChange={(e) => handleInputChange(e, 'altura')}
             />
             <TextField
               margin="dense"
               label="Largura"
               fullWidth
               value={selectedProduct?.largura || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, largura: e.target.value })}
+              onChange={(e) => handleInputChange(e, 'largura')}
             />
             <TextField
               margin="dense"
               label="Comprimento"
               fullWidth
               value={selectedProduct?.comprimento || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, comprimento: e.target.value })}
+              onChange={(e) => handleInputChange(e, 'comprimento')}
             />
             <TextField
               margin="dense"
               label="Peso"
               fullWidth
               value={selectedProduct?.peso || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, peso: e.target.value })}
+              onChange={(e) => handleInputChange(e, 'peso')}
+
             />
+
           </Grid>
         </Grid>
       </DialogContent>

@@ -31,7 +31,7 @@ router.register(r'produtos', ProdutoViewSet, basename='produto')
 # Atualizar Produto: PUT /api/produtos/{id}/
 # Excluir Produto: DELETE /api/produtos/{id}/
 
-router.register(r'imagens', ImagemProdutoViewSet, basename='imagem')
+router.register(r'imagens', ImagemProdutoViewSet, basename='imagemproduto')
 router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
 router.register(r'marca', MarcaViewSet, basename='marca')
 router.register(r'promocoes', PromocaoViewSet, basename='promocoes')

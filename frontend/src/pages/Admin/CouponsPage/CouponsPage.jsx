@@ -27,6 +27,8 @@ const CouponsPage = () => {
     produtos: [],
     categorias: [],
     clientes_exclusivos: [],
+    valor_minimo_compra: '',
+    valor_maximo_desconto: '',
     ativo: true,
   });
 
@@ -98,6 +100,8 @@ const CouponsPage = () => {
         produtos: [],
         categorias: [],
         clientes_exclusivos: [],
+        valor_minimo_compra: '',
+        valor_maximo_desconto: '',
         ativo: true,
       }
     );
@@ -118,12 +122,14 @@ const CouponsPage = () => {
       produtos: [],
       categorias: [],
       clientes_exclusivos: [],
+      valor_minimo_compra: '',
+      valor_maximo_desconto: '',
       ativo: true,
     });
   };
 
   const handleSaveEdit = async () => {
-    const { codigo, descricao, tipo, valor, data_inicio, data_fim, uso_maximo, uso_por_cliente, produtos, categorias, clientes_exclusivos, ativo } = selectedCoupon;
+    const { codigo, descricao, tipo, valor, data_inicio, data_fim, uso_maximo, uso_por_cliente, produtos, categorias, clientes_exclusivos, valor_minimo_compra, valor_maximo_desconto, ativo } = selectedCoupon;
 
     if (!codigo.trim() || !tipo || !data_inicio || !data_fim) {
       enqueueSnackbar('Preencha todos os campos obrigatórios.', { variant: 'warning' });
@@ -143,6 +149,8 @@ const CouponsPage = () => {
       categorias,
       clientes_exclusivos,
       ativo,
+      valor_minimo_compra,
+      valor_maximo_desconto,
     };
 
     try {

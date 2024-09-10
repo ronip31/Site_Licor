@@ -23,11 +23,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class ImagemProdutoSerializer(serializers.ModelSerializer):
     imagem = serializers.SerializerMethodField()  # Use SerializerMethodField para customizar o campo
-     # Serializers para os campos relacionados
-    
+
     class Meta:
         model = ImagemProduto
-        fields = ['id', 'produto', 'imagem', 'descricao_imagem']
+        fields = ['uuid', 'produto', 'imagem', 'descricao_imagem', 'data_criacao']
 
     def get_imagem(self, obj):
         # Verifica se o objeto tem uma imagem e retorna a URL correta
@@ -44,8 +43,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Produto
-        fields = [
-            'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'preco_promocional', 'preco_anterior', 'quantidade_estoque', 
+        fields = ['uuid', 'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'preco_promocional', 'preco_anterior', 'quantidade_estoque', 
             'categoria', 'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
             'altura', 'largura', 'comprimento', 'peso', 'imagens'
         ]
@@ -120,7 +118,7 @@ class MarcaSerializer(serializers.ModelSerializer):
 
 
 class CalculoFreteSerializer(serializers.Serializer):
-    produto_id = serializers.IntegerField(required=True)
+    produto_id = serializers.CharField(required=True)
     cep_destino = serializers.CharField(max_length=10, required=True)
 
     def validate_cep_destino(self, value):

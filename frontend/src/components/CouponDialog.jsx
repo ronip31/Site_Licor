@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
+  Autocomplete,
   Button,
   TextField,
   Dialog,
@@ -12,8 +13,10 @@ import {
   InputLabel,
   Checkbox,
   ListItemText,
-  FormControlLabel
+  FormControlLabel,
+  Grid
 } from '@mui/material';
+
 
 
 const formatDate = (date) => {
@@ -32,10 +35,24 @@ const CouponDialog = ({ open, onClose, selectedCoupon, handleSaveEdit, products,
     handleSaveEdit();
   };
 
+const getValorLabel = () => {
+  switch (selectedCoupon.tipo) {
+    case 'percentual':
+      return 'Percentual de Desconto (%)';
+    case 'valor':
+      return 'Valor Fixo do Desconto';
+    default:
+      return 'Valor';
+  }
+};
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>{selectedCoupon?.id ? 'Editar Cupom' : 'Criar Novo Cupom'}</DialogTitle>
       <DialogContent>
+      <Grid container spacing={3} columns={{ xs: 18, sm: 8, md: 16 }}>
+          {/* Coluna Esquerda */}
+        <Grid item xs={6} md={8}>
         <TextField
           autoFocus
           margin="dense"
@@ -50,10 +67,11 @@ const CouponDialog = ({ open, onClose, selectedCoupon, handleSaveEdit, products,
           fullWidth
           value={selectedCoupon.descricao}
           onChange={(e) => setSelectedCoupon({ ...selectedCoupon, descricao: e.target.value })}
-        />
-        <FormControl fullWidth margin="dense">
-          <InputLabel>Tipo de Cupom</InputLabel>
-          <Select
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Tipo de Cupom</InputLabel>
+            <Select
+            label="Tipo de Cupom"
             value={selectedCoupon.tipo}
             onChange={(e) => setSelectedCoupon({ ...selectedCoupon, tipo: e.target.value })}
           >
@@ -64,7 +82,7 @@ const CouponDialog = ({ open, onClose, selectedCoupon, handleSaveEdit, products,
         </FormControl>
         <TextField
           margin="dense"
-          label="Valor"
+          label={getValorLabel()}
           type="number"
           fullWidth
           value={selectedCoupon.valor}
@@ -87,6 +105,8 @@ const CouponDialog = ({ open, onClose, selectedCoupon, handleSaveEdit, products,
           value={formatDate(selectedCoupon.data_fim)}
           onChange={(e) => setSelectedCoupon({ ...selectedCoupon, data_fim: e.target.value })}
         />
+        </Grid>
+        <Grid item xs={6} md={8}>
         <TextField
           margin="dense"
           label="Uso Máximo"
@@ -104,53 +124,97 @@ const CouponDialog = ({ open, onClose, selectedCoupon, handleSaveEdit, products,
           onChange={(e) => setSelectedCoupon({ ...selectedCoupon, uso_por_cliente: e.target.value })}
         />
         <FormControl fullWidth margin="dense">
-          <InputLabel>Produtos</InputLabel>
-          <Select
+          
+          <Autocomplete
+            autoFocus
             multiple
-            value={selectedCoupon.produtos || []}
-            onChange={(e) => setSelectedCoupon({ ...selectedCoupon, produtos: e.target.value })}
-            renderValue={(selected) => selected.map((id) => products.find((p) => p.id === id)?.nome).join(', ')}
-          >
-            {products.map((product) => (
-              <MenuItem key={product.id} value={product.id}>
-                <Checkbox checked={selectedCoupon.produtos?.includes(product.id)} />
-                <ListItemText primary={product.nome} />
-              </MenuItem>
-            ))}
-          </Select>
+            label="Produtos"
+            fullWidth
+            options={products}
+            value={products.filter((product) => selectedCoupon.produtos?.includes(product.id))}
+            onChange={(event, newValue) => {
+              setSelectedCoupon({ ...selectedCoupon, produtos: newValue.map((p) => p.id) });
+            }}
+            getOptionLabel={(option) => option.nome}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  style={{ marginRight: 8 }}
+                  checked={selectedCoupon.produtos?.includes(option.id)}
+                />
+                <ListItemText primary={option.nome} />
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" label="Produtos" placeholder="Buscar produtos..." />
+            )}
+          />
         </FormControl>
         <FormControl fullWidth margin="dense">
-          <InputLabel>Categorias</InputLabel>
-          <Select
+          <Autocomplete
+            autoFocus
             multiple
-            value={selectedCoupon.categorias || []}
-            onChange={(e) => setSelectedCoupon({ ...selectedCoupon, categorias: e.target.value })}
-            renderValue={(selected) => selected.map((id) => categories.find((c) => c.id === id)?.nome).join(', ')}
-          >
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.id}>
-                <Checkbox checked={selectedCoupon.categorias?.includes(category.id)} />
-                <ListItemText primary={category.nome} />
-              </MenuItem>
-            ))}
-          </Select>
+            options={categories}
+            value={categories.filter((category) => selectedCoupon.categorias?.includes(category.id))}
+            onChange={(event, newValue) => {
+              setSelectedCoupon({ ...selectedCoupon, categorias: newValue.map((c) => c.id) });
+            }}
+            getOptionLabel={(option) => option.nome} // Exibe o nome da categoria
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  style={{ marginRight: 8 }}
+                  checked={selectedCoupon.categorias?.includes(option.id)}
+                />
+                <ListItemText primary={option.nome} /> {/* Exibe o nome da categoria */}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" label="Categorias" placeholder="Buscar por categoria..." />
+            )}
+          />
         </FormControl>
         <FormControl fullWidth margin="dense">
-          <InputLabel>Clientes Exclusivos</InputLabel>
-          <Select
-            multiple
-            value={selectedCoupon.clientes_exclusivos || []}
-            onChange={(e) => setSelectedCoupon({ ...selectedCoupon, clientes_exclusivos: e.target.value })}
-            renderValue={(selected) => selected.map((id) => customers.find((c) => c.id === id)?.username).join(', ')}
-          >
-            {customers.map((customer) => (
-              <MenuItem key={customer.id} value={customer.id}>
-                <Checkbox checked={selectedCoupon.clientes_exclusivos?.includes(customer.id)} />
-                <ListItemText primary={customer.username} />
-              </MenuItem>
-            ))}
-          </Select>
+        <Autocomplete
+          autoFocus
+          multiple
+          options={customers}
+          value={customers.filter((customer) => selectedCoupon.clientes_exclusivos?.includes(customer.id))}
+          onChange={(event, newValue) => {
+            setSelectedCoupon({ ...selectedCoupon, clientes_exclusivos: newValue.map((c) => c.id) });
+          }}
+          getOptionLabel={(option) => option.email} // Exibe o e-mail como opção
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox
+                style={{ marginRight: 8 }}
+                checked={selectedCoupon.clientes_exclusivos?.includes(option.id)}
+              />
+              <ListItemText primary={option.email} /> {/* Exibe o e-mail do cliente */}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} variant="outlined" label="Clientes" placeholder="Buscar por e-mail..." />
+          )}
+        />
         </FormControl>
+        
+        <TextField
+          margin="dense"
+          label="Valor Minimo Compra"
+          type="number"
+          fullWidth
+          value={selectedCoupon.valor_minimo_compra}
+          onChange={(e) => setSelectedCoupon({ ...selectedCoupon, valor_minimo_compra: e.target.value })}
+        />
+        <TextField
+          margin="dense"
+          label="Valor Maximo Desconto"
+          type="number"
+          fullWidth
+          value={selectedCoupon.valor_maximo_desconto}
+          onChange={(e) => setSelectedCoupon({ ...selectedCoupon, valor_maximo_desconto: e.target.value })}
+        />
         <FormControlLabel
           control={
             <Checkbox
@@ -160,6 +224,8 @@ const CouponDialog = ({ open, onClose, selectedCoupon, handleSaveEdit, products,
           }
           label="Ativo"
         />
+        </Grid>
+        </Grid>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>

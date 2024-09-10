@@ -10,10 +10,10 @@ from ..permissions import IsAdminUser
 class OpcaoFreteListView(viewsets.ModelViewSet):
     queryset = OpcaoFrete.objects.all()
     serializer_class = OpcaoFreteSerializer
-    permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
 
 class ConfiguracaoFreteView(APIView):
-    permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
     def get(self, request):
         try:
             config = ConfiguracaoFrete.objects.first()

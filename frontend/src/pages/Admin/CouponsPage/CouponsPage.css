@@ -1,12 +1,12 @@
-.promotion-starting {
+.coupon-starting {
     background-color: rgb(248, 248, 180); /* Promoção que vai iniciar */
   }
   
-  .promotion-active {
+  .coupon-active {
     background-color: rgb(173, 240, 173); /* Promoção ativa */
   }
   
-  .promotion-ended {
+  .coupon-ended {
     background-color: rgb(233, 158, 158); /* Promoção que terminou */
   }
   
