@@ -1,8 +1,10 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from ..permissions import IsAdminUser
-from ..models import Cupom
+from ..models import Cupom, Produto, Categoria, Usuario
 from ..serializers import CupomSerializer
+from rest_framework.views import APIView
+from decimal import Decimal
 
 class CuponsViewSet(viewsets.ModelViewSet):
     queryset = Cupom.objects.all()
@@ -33,3 +35,40 @@ class CuponsViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CuponsDetailView(APIView):
+    def post(self, request, *args, **kwargs):
+        codigo = request.data.get('codigo')
+        valor_compra = Decimal(request.data.get('valor_compra', '0'))
+        produto_id = request.data.get('produto_id')
+        usuario_id = request.data.get('usuario_id')
+
+        try:
+            # Tenta encontrar o cupom com o código fornecido
+            cupom = Cupom.objects.get(codigo=codigo)
+
+            # Verifica se o cupom está ativo
+            if not cupom.is_active():
+                return Response({'erro': 'Cupom expirado ou inativo.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verifica se o valor mínimo de compra é atendido
+            if valor_compra < cupom.valor_minimo_compra:
+                return Response({'erro': 'O valor da compra é menor que o mínimo exigido para o cupom.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verifica se o cupom é aplicável ao produto
+            if produto_id and not cupom.produtos.filter(id=produto_id).exists():
+                return Response({'erro': 'Cupom não aplicável a este produto.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verifica se o cupom é aplicável ao usuário
+            if usuario_id and cupom.clientes_exclusivos.exists() and not cupom.clientes_exclusivos.filter(id=usuario_id).exists():
+                return Response({'erro': 'Cupom não aplicável a este usuário.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Calcula o desconto aplicável
+            desconto = cupom.aplicar_cupom(valor_compra)
+            valor_final = valor_compra - desconto
+
+            return Response({'desconto': desconto, 'valor_final': valor_final}, status=status.HTTP_200_OK)
+
+        except Cupom.DoesNotExist:
+            return Response({'erro': 'Cupom não encontrado.'}, status=status.HTTP_404_NOT_FOUND)

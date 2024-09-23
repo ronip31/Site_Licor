@@ -201,7 +201,7 @@ const CouponsPage = () => {
     { field: 'data_inicio', headerName: 'Data Início', width: 210 },
     { field: 'data_fim', headerName: 'Data Fim', width: 210 },
     { field: 'uso_maximo', headerName: 'Uso Máximo', type: 'number', width: 100 },
-    { field: 'uso_por_cliente', headerName: 'Uso por Cliente', type: 'number', width: 190 },
+    { field: 'uso_por_cliente', headerName: 'Uso por Cliente', type: 'number', width: 130 },
     {
       field: 'acoes',
       headerName: 'Ações',
@@ -220,46 +220,52 @@ const CouponsPage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{ mb: 4, alignSelf: 'flex-start', ml: 6 }}
-        onClick={() => handleOpenDialog()}
-      >
-        Criar Novo Cupom
-      </Button>
-      <Box sx={{ height: 600, width: '95%' }}>
-        <DataGrid
-          rows={coupons}
-          columns={columns}
-          getRowClassName={getRowClassName}
-          slots={{
-            toolbar: CustomToolbar,
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+    <div>
+      <h2 >Criação e configuração de Cupons</h2>
+      <h3> Tipos de cupons pode ser por porcentual, valor fixo, ou frete grátis.</h3>
+      <h3> Cupons podem ser criados por produtos, categoria ou clientes específicos.</h3>
+      
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mb: 4, alignSelf: 'flex-start', ml: 6 }}
+          onClick={() => handleOpenDialog()}
+        >
+          Criar Novo Cupom
+        </Button>
+        <Box sx={{ height: 600, width: '95%' }}>
+          <DataGrid
+            rows={coupons}
+            columns={columns}
+            getRowClassName={getRowClassName}
+            slots={{
+              toolbar: CustomToolbar,
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               },
-            },
-          }}
-          pageSizeOptions={[5, 10, 20]}
-          checkboxSelection
+            }}
+            pageSizeOptions={[5, 10, 20]}
+            checkboxSelection
+          />
+        </Box>
+
+        <CouponDialog
+          open={open}
+          onClose={handleCloseDialog}
+          selectedCoupon={selectedCoupon}
+          handleSaveEdit={handleSaveEdit}
+          products={products}
+          categories={categories}
+          customers={customers}
+          setSelectedCoupon={setSelectedCoupon}
         />
       </Box>
-
-      <CouponDialog
-        open={open}
-        onClose={handleCloseDialog}
-        selectedCoupon={selectedCoupon}
-        handleSaveEdit={handleSaveEdit}
-        products={products}
-        categories={categories}
-        customers={customers}
-        setSelectedCoupon={setSelectedCoupon}
-      />
-    </Box>
+    </div>
   );
 };
 

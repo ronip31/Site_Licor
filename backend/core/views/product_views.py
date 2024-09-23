@@ -15,7 +15,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'uuid'  # Adicione esta linha para utilizar o campo UUID
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)

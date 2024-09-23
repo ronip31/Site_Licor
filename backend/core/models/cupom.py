@@ -3,6 +3,7 @@ from django.utils import timezone
 from .produto import Produto
 from .categoria import Categoria
 from .usuario import Usuario
+from decimal import Decimal
 
 class Cupom(models.Model):
     TIPO_CHOICES = [
@@ -26,7 +27,6 @@ class Cupom(models.Model):
 
     produtos = models.ManyToManyField(Produto, blank=True)  # Produtos específicos aplicáveis
     categorias = models.ManyToManyField(Categoria, blank=True)  # Categorias específicas aplicáveis
-
     clientes_exclusivos = models.ManyToManyField(Usuario, blank=True)  # Clientes específicos aplicáveis
 
     class Meta:
@@ -43,12 +43,15 @@ class Cupom(models.Model):
         """
         Função para calcular o desconto com base no tipo de cupom
         """
+        # Certifique-se de que valor_compra seja Decimal
+        valor_compra = Decimal(valor_compra)
+
         if not self.is_active():
             return 0
 
         desconto = 0
         if self.tipo == 'percentual':
-            desconto = valor_compra * (self.valor / 100)
+            desconto = valor_compra * (self.valor / Decimal(100))
             if self.valor_maximo_desconto:
                 desconto = min(desconto, self.valor_maximo_desconto)
         elif self.tipo == 'valor':

@@ -195,9 +195,9 @@ const ProductsPage = () => {
   const columns = [
     { field: 'id', headerName: 'ID', width: 30 },
     { field: 'nome', headerName: 'Nome', width: 200 },
-    { field: 'descricao', headerName: 'Descrição', width: 200 },
-    { field: 'preco_custo', headerName: 'Preço Custo', type: 'number', width: 100 },
-    { field: 'preco_venda', headerName: 'Preço Venda', type: 'number', width: 100 },
+    { field: 'descricao', headerName: 'Descrição', width: 150 },
+    { field: 'preco_custo', headerName: 'Preço Custo', type: 'number', width: 90 },
+    { field: 'preco_venda', headerName: 'Preço Venda', type: 'number', width: 90 },
     { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 80 },
     { field: 'nome_categoria', headerName: 'Categoria', width: 100 },
     { field: 'teor_alcoolico', headerName: 'Teor alcoolico', width: 110 },

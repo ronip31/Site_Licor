@@ -1,9 +1,15 @@
 import axios from 'axios';
 import isTokenExpired from './isTokenExpired';
 
+// Construir a baseURL dinamicamente usando o hostname atual
+const baseURL = `http://${window.location.hostname}:8000/api`;
+console.log(baseURL)
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: baseURL,
 });
+
+
 
 // Interceptor de requisição para adicionar o token JWT
 api.interceptors.request.use(
