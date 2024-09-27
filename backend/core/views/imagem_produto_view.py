@@ -8,7 +8,7 @@ from ..serializers import ImagemProdutoSerializer
 from ..permissions import IsAdminUser
 
 # Definir tamanho máximo e tipos permitidos
-MAX_IMAGE_SIZE = 2 * 1024 * 1024  # 2MB
+MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
 ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 
 class ImagemProdutoViewSet(viewsets.ModelViewSet):
@@ -16,7 +16,7 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
     serializer_class = ImagemProdutoSerializer
     lookup_field = 'uuid'
     parser_classes = (MultiPartParser, FormParser)
-    # permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -48,7 +48,7 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
                 for image in request.FILES.getlist('imagens'):
                     # Validação de tipo e tamanho de arquivo
                     if image.size > MAX_IMAGE_SIZE:
-                        return Response({"detail": f"Arquivo {image.name} é muito grande. O tamanho máximo permitido é 2MB."}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({"detail": f"Arquivo {image.name} é muito grande. O tamanho máximo permitido é 5MB."}, status=status.HTTP_400_BAD_REQUEST)
                     if image.content_type not in ALLOWED_IMAGE_TYPES:
                         return Response({"detail": f"Tipo de arquivo não permitido: {image.content_type}"}, status=status.HTTP_400_BAD_REQUEST)
                     

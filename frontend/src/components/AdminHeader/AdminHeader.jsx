@@ -1,64 +1,61 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import { styled, ThemeProvider, createTheme } from '@mui/material/styles'; 
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  AppBar,
+  Toolbar,
+  Typography,
+  Divider,
+  CssBaseline,
+  Tooltip,
+} from '@mui/material';
+import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
+import PeopleIcon from '@mui/icons-material/People';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import CategoryIcon from '@mui/icons-material/Category';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import DiscountIcon from '@mui/icons-material/Discount';
+import LogoutIcon from '@mui/icons-material/Logout';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import StoreIcon from '@mui/icons-material/Store';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 const theme = createTheme({
   palette: {
     primary: {
       main: '#232f3e',
-      light: '#5472d3',
-      dark: '#002171',
       contrastText: '#ffffff',
     },
     secondary: {
       main: '#ffffff',
-      light: '#ff5983',
-      dark: '#bb002f',
       contrastText: '#ffffff',
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-    text: {
-      primary: '#ffffff',
-      secondary: '#757575',
     },
   },
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
+    fontSize: 13,
   },
 });
 
-const StyledToolbar = styled(Toolbar)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column', 
-  alignItems: 'flex-start',
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.common.white,
-  padding: theme.spacing(1),
-}));
+const drawerWidth = 235; // Defina a largura desejada para o Drawer quando aberto
+const drawerWidthClosed = 50; // Defina a largura desejada para o Drawer quando fechado
 
-const HeaderRow = styled(Box)(({ theme }) => ({
+const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  width: '100%',
+  padding: theme.spacing(0, -1),
+  ...theme.mixins.toolbar,
+  justifyContent: 'flex-start',
 }));
 
-const ButtonContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: theme.spacing(1),
-  marginTop: theme.spacing(1),
-}));
-
-const AdminHeader = () => {
+const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -69,56 +66,140 @@ const AdminHeader = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="static">
-        <StyledToolbar>
-          {/* Primeira linha: Título e alguns botões */}
-          <HeaderRow>
-            <Typography variant="h6" component={Link} to="/admin" color="secondary" sx={{ textDecoration: 'none' }}>
-              Painel Administrador Casa dos Licores
-            </Typography>
-            <Box>
-              <Button variant="text" component={Link} to="/admin/customerlist" color="secondary">
-                Lista Clientes
-              </Button>
-              <Button variant="text" component={Link} to="/admin/orders" color="secondary">
-                Pedidos realizados
-              </Button>
-              <Button
-                variant="text"
-                component="a"
-                href="/"
-                target="_blank"
-                rel="noopener noreferrer"
-                color="secondary"
-              >
-                Acessar site de venda
-              </Button>
-              <Button variant="text" onClick={handleLogout} color="secondary">
-                Logout
-              </Button>
-            </Box>
-          </HeaderRow>
-
-          {/* Segunda linha: Botões de cadastro */}
-          <ButtonContainer>
-            <Button variant="text" component={Link} to="/admin/createproducts" color="secondary">
-              Cadastro Produtos
-            </Button>
-            <Button variant="text" component={Link} to="/admin/creategrups" color="secondary">
-              Cadastro Categorias/Marcas
-            </Button>
-            <Button variant="text" component={Link} to="/admin/createpromotion" color="secondary">
-              Cadastro Promocoes
-            </Button>
-            <Button variant="text" component={Link} to="/admin/createcupons" color="secondary">
-              Cadastro Cupons
-            </Button>
-            <Button variant="text" component={Link} to="/admin/DeliveryConfig" color="secondary">
-              Configuração Entrega
-            </Button>
-          </ButtonContainer>
-        </StyledToolbar>
+      <CssBaseline />
+      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
+            edge="start"
+            sx={{ marginRight: 2 }}
+          >
+            {drawerOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Painel Administrador Casa dos Licores
+          </Typography>
+        </Toolbar>
       </AppBar>
+
+      <Drawer
+        sx={{
+          width: drawerOpen ? drawerWidth : drawerWidthClosed,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            height: '100vh', // Garante que o Drawer ocupe toda a altura da viewport
+            width: drawerOpen ? drawerWidth : drawerWidthClosed,
+            boxSizing: 'border-box',
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            transition: theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+            overflowX: drawerOpen ? 'auto' : 'hidden', // Oculta rolagem horizontal quando fechado
+            overflowY: 'auto', // Permite rolagem vertical apenas se necessário
+          },
+        }}
+        variant="permanent"
+        anchor="left"
+      >
+      <DrawerHeader>
+        <IconButton onClick={toggleDrawer} sx={{ paddingLeft: 0 }}>
+          {drawerOpen ? (
+            <ChevronLeftIcon sx={{ color: theme.palette.secondary.main }} />
+          ) : (
+            <MenuIcon sx={{ color: theme.palette.secondary.main }} />
+          )}
+        </IconButton>
+      </DrawerHeader>
+
+         <Divider />
+        <List>
+          <ListItem button component={Link} to="/admin">
+            <Tooltip title="Home" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <HomeIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Home" />}
+          </ListItem>
+          <ListItem button component={Link} to="/admin/customerlist">
+            <Tooltip title="Lista Clientes" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <PeopleIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Lista Clientes" />}
+          </ListItem>
+          <ListItem button component={Link} to="/admin/orders">
+            <Tooltip title="Pedidos Realizados" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <ShoppingCartIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Pedidos Realizados" />}
+          </ListItem>
+          <Divider />
+          <ListItem button component={Link} to="/admin/createproducts">
+            <Tooltip title="Cadastro Produtos" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <CategoryIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Cadastro Produtos" />}
+          </ListItem>
+          <ListItem button component={Link} to="/admin/creategrups">
+            <Tooltip title="Cadastro Categorias/Marcas" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <CategoryIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Cadastro Categorias/Marcas" />}
+          </ListItem>
+          <ListItem button component={Link} to="/admin/createpromotion">
+            <Tooltip title="Cadastro Promoções" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <LocalOfferIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Cadastro Promoções" />}
+          </ListItem>
+          <ListItem button component={Link} to="/admin/createcupons">
+            <Tooltip title="Cadastro Cupons" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <DiscountIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Cadastro Cupons" />}
+          </ListItem>
+          <ListItem button component={Link} to="/admin/DeliveryConfig">
+            <Tooltip title="Configuração Entrega" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <LocalShippingIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Configuração Entrega" />}
+          </ListItem>
+          <ListItem button component="a" href="/" target="_blank" rel="noopener noreferrer">
+            <Tooltip title="Acessar Site de Venda" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <StoreIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Acessar Site de Venda" />}
+          </ListItem>
+          <ListItem button onClick={handleLogout}>
+            <Tooltip title="Logout" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <LogoutIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Logout" />}
+          </ListItem>
+        </List>
+      </Drawer>
     </ThemeProvider>
   );
 };

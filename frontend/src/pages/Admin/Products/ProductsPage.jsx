@@ -195,33 +195,39 @@ const ProductsPage = () => {
   const columns = [
     { field: 'id', headerName: 'ID', width: 30 },
     { field: 'nome', headerName: 'Nome', width: 200 },
-    { field: 'descricao', headerName: 'Descrição', width: 150 },
+    { field: 'descricao', headerName: 'Descrição', width: 130 },
     { field: 'preco_custo', headerName: 'Preço Custo', type: 'number', width: 90 },
     { field: 'preco_venda', headerName: 'Preço Venda', type: 'number', width: 90 },
-    { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 80 },
+    { field: 'quantidade_estoque', headerName: 'Estoque', type: 'number', width: 70 },
     { field: 'nome_categoria', headerName: 'Categoria', width: 100 },
-    { field: 'teor_alcoolico', headerName: 'Teor alcoolico', width: 110 },
+    { field: 'teor_alcoolico', headerName: 'Teor Alcoólico', width: 100 },
     { field: 'volume', headerName: 'Volume', width: 90 },
     { field: 'nome_marca', headerName: 'Marca', width: 90 },
     { field: 'status', headerName: 'Status', width: 90 },
     {
       field: 'acoes',
       headerName: 'Ações',
-      width: 350,
+      width: 250,
       renderCell: (params) => (
-        <div>
-          <Button variant="contained" color="primary" onClick={() => handleOpenDialog(params.row)}>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1} height="100%">
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => handleOpenDialog(params.row)}
+          >
             Editar
           </Button>
           <Button
             variant="contained"
             color="secondary"
-            style={{ marginLeft: 8 }}
+            size="small"
             onClick={() => handleOpenImageDialog(params.row)}
           >
             Editar Fotos
           </Button>
-        </div>
+        </Box>
+
       ),
     },
   ];
@@ -234,12 +240,12 @@ const ProductsPage = () => {
       <Button
         variant="contained"
         color="primary"
-        sx={{ mb: 4, alignSelf: 'flex-start', ml: 6 }}
+        sx={{ mb: 4, alignSelf: 'flex-start', ml: 6, fontSize: '0.875rem' }}
         onClick={() => handleOpenDialog()}
       >
         Criar Novo Produto
       </Button>
-      <Box sx={{ height: 600, width: '95%' }}>
+      <Box sx={{ height: 500, width: '100%', fontSize: '0.875rem' }}>
         <DataGrid
           rows={products}
           columns={columns}
@@ -255,6 +261,18 @@ const ProductsPage = () => {
           }}
           pageSizeOptions={[5, 10, 20]}
           checkboxSelection
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f5f5f5',
+              fontSize: '0.875rem',
+            },
+            '& .MuiDataGrid-cell': {
+              fontSize: '0.875rem',
+            },
+            '& .MuiButton-root': {
+              fontSize: '0.75rem',
+            },
+          }}
         />
       </Box>
 

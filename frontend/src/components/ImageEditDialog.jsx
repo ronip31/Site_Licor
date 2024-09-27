@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -24,12 +24,11 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
   const [loading, setLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
-  const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-  
   // Centraliza o carregamento de imagens
-  const handleFetchImages = async () => {
+  const handleFetchImages = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get(`/imagens/por_produto/${productId}/`);
@@ -40,28 +39,29 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId, enqueueSnackbar]);
 
+  // Carrega as imagens sempre que o diálogo é aberto e o productId está disponível
   useEffect(() => {
     if (open && productId) {
       handleFetchImages();
     }
-  }, [open, productId, enqueueSnackbar]);
+  }, [open, productId, handleFetchImages]);
 
   const handleImageChange = (e) => {
     const files = [...e.target.files];
     const validFiles = [];
-  
+
     files.forEach((file) => {
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
         enqueueSnackbar(`Tipo de arquivo não permitido: ${file.type}`, { variant: 'error' });
       } else if (file.size > MAX_IMAGE_SIZE) {
-        enqueueSnackbar(`Arquivo ${file.name} é muito grande. O tamanho máximo permitido é 2MB.`, { variant: 'error' });
+        enqueueSnackbar(`Arquivo ${file.name} é muito grande. O tamanho máximo permitido é 5MB.`, { variant: 'error' });
       } else {
         validFiles.push(file);
       }
     });
-  
+
     if (validFiles.length > 0) {
       setImages(validFiles);
       setSelectedFileNames(validFiles.map((file) => file.name));
@@ -94,11 +94,9 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
 
     setLoading(true);
     try {
-      const response = await api.post(`/imagens/por_produto/${productId}/`, formData, {
-        
+      await api.post(`/imagens/por_produto/${productId}/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log(formData)
       enqueueSnackbar('Imagem adicionada com sucesso', { variant: 'success' });
 
       setImages([]);
