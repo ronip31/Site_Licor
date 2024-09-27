@@ -2,15 +2,15 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout/MainLayout';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
-import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin '; //caso seja protegido por token, descomentar essa linha
+/*import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin ';*/ //caso seja protegido por token, descomentar essa linha
 import ProtectedRouteCliente from './components/ProtectedRoute/ProtectedRouteCliente ';
 import Home from './pages/Home/Home';
-import Products from './pages/Products/Products';
-import ProductDetails from './pages/ProductDetails/ProductDetails';
-import Checkout from './pages/Checkout/Checkout';
+import Products from './pages/Client/Products/Products';
+import ProductDetails from './pages/Client/ProductDetails/ProductDetails';
+import Checkout from './pages/Client/Checkout/Checkout';
 import Perfil from './pages/Perfil/Perfil';
-import Contato from './pages/Contato/Contato';
-import Sobre from './pages/Sobre/Sobre';
+import Contato from './pages/Client/Contato/Contato';
+import Sobre from './pages/Client/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
 import Promotion from './pages/Admin/Promotion/Promotion';
 import DeliveryConfig from './pages/Admin/DeliveryConfig/DeliveryConfig';

@@ -3,8 +3,8 @@ import { Outlet } from 'react-router-dom';
 import AdminHeader from '../../components/AdminHeader/AdminHeader';
 import './AdminLayout.css';
 
-const MainLayout = () => {
-  const [drawerOpen, setDrawerOpen] = useState(true); // Inicialmente aberto
+const AdminLayout = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false); // Inicialmente aberto
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -20,4 +20,4 @@ const MainLayout = () => {
   );
 };
 
-export default MainLayout;
+export default AdminLayout;
