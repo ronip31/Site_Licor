@@ -17,7 +17,9 @@ from .views import (
     MarcaViewSet,
     CategoriasDetailView,
     CuponsViewSet,
-    CuponsDetailView
+    CuponsDetailView,
+    CarouselImageAdminViewSet,
+    CarouselImageListView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -37,6 +39,7 @@ router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
 router.register(r'marca', MarcaViewSet, basename='marca')
 router.register(r'promocoes', PromocaoViewSet, basename='promocoes')
 router.register(r'cupons', CuponsViewSet, basename='cupons')
+router.register(r'carousel-admin', CarouselImageAdminViewSet, basename='carousel-admin')
 #router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 # Definindo as URLs
@@ -60,6 +63,8 @@ urlpatterns = [
     # path('promocoes/', PromocaoCreateView.as_view(), name='promocao-create'),  # Adicionado
     
     # path('promocao/lista/', PromocaoListView.as_view(), name='promocao-lista'),  # Adicionado
+
+    path('carousel-list/', CarouselImageListView.as_view(), name='carousel-lista'),
 
     # Configuração de frete - Administrador
     path('configuracao-frete/', ConfiguracaoFreteView.as_view(), name='configuracao-frete'),

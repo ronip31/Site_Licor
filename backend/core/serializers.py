@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
-from .models import ImagemProduto, Cupom
+from .models import ImagemProduto, Cupom, CarouselImage
 from .models import Promocao, OpcaoFrete, ConfiguracaoFrete, Marca
 
 
@@ -165,3 +165,46 @@ class CupomSerializer(serializers.ModelSerializer):
         if data['tipo'] == 'frete_gratis' and data.get('valor') is not None:
             raise serializers.ValidationError("Para cupons de frete grátis, o campo 'valor' deve ser nulo.")
         return data
+    
+class CarouselImageAdminSerializer(serializers.ModelSerializer):
+    imagem = serializers.ImageField(required=False, allow_null=True) 
+
+    class Meta:
+        model = CarouselImage
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        imagem = validated_data.pop('imagem', None)
+        
+        # Atualiza os outros campos normalmente
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        # Lógica para lidar com a imagem
+        if imagem is None:
+            # Se imagem é None, remover a imagem atual
+            instance.imagem.delete(save=False)
+            instance.imagem = None
+        elif imagem:
+            # Se uma nova imagem foi enviada, substituir
+            instance.imagem = imagem
+        
+        instance.save()
+        return instance
+    
+    def get_imagem(self, obj):
+        request = self.context.get('request')
+        if obj.imagem:
+            return request.build_absolute_uri(obj.imagem.url)
+        return None
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+    
+
+class CarouselImageClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarouselImage
+        fields = ['uuid', 'titulo', 'imagem', 'link_url']

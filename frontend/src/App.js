@@ -8,7 +8,7 @@ import Home from './pages/Home/Home';
 import Products from './pages/Client/Products/Products';
 import ProductDetails from './pages/Client/ProductDetails/ProductDetails';
 import Checkout from './pages/Client/Checkout/Checkout';
-import Perfil from './pages/Perfil/Perfil';
+import Perfil from './pages/Client/Perfil/Perfil';
 import Contato from './pages/Client/Contato/Contato';
 import Sobre from './pages/Client/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
@@ -16,6 +16,7 @@ import Promotion from './pages/Admin/Promotion/Promotion';
 import DeliveryConfig from './pages/Admin/DeliveryConfig/DeliveryConfig';
 import CouponsPage from './pages/Admin/CouponsPage/CouponsPage';
 import ProductsPage from './pages/Admin/Products/ProductsPage';
+import CarouselImagesPage from './pages/Admin/Carousel/CarouselPage';
 import Groups from './pages/Admin/Grups/Grups';
 import Customer from './pages/Admin/Customer/Customer';
 import Orders from './pages/Admin/Orders/Orders';
@@ -55,6 +56,7 @@ function App() {
           <Route path="createpromotion" element={<Promotion />} />
           <Route path="DeliveryConfig" element={<DeliveryConfig />} />ss
           <Route path="createcupons" element={<CouponsPage />} />
+          <Route path="editcarousel" element={<CarouselImagesPage />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="orders" element={<Orders />} />
         </Route>

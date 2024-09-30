@@ -4,16 +4,16 @@ import AdminHeader from '../../components/AdminHeader/AdminHeader';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false); // Inicialmente aberto
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
 
   return (
-    <div className={`layout ${drawerOpen ? '' : 'drawer-closed'}`}>
+    <div className={`admin-layout ${drawerOpen ? '' : 'drawer-closed'}`}>
       <AdminHeader drawerOpen={drawerOpen} toggleDrawer={toggleDrawer} />
-      <main className="content">
+      <main className="admin-content">
         <Outlet />
       </main>
     </div>

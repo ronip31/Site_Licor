@@ -1,17 +1,25 @@
-.layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .content {
-    flex: 1;
-  }
-  
-  .footer {
-    background-color: #222;
-    color: white;
-    text-align: center;
-    padding: 20px 0;
-  }
-  
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+  width: 100%; /* Garante que não haja overflow horizontal */
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-header, .main-footer {
+  width: 100%; /* Evita usar 100vw para ignorar a largura da barra de rolagem */
+}

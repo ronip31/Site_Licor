@@ -16,3 +16,4 @@ from .historico_pedido import HistoricoPedido
 from .opcao_frete import OpcaoFrete
 from .configuracao_frete import ConfiguracaoFrete
 from .cupom import Cupom
+from .carousel_image import CarouselImage

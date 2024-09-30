@@ -7,3 +7,4 @@ from .calcular_frete_view import CalcularFreteView
 from .configuracao_frete_view import OpcaoFreteListView, ConfiguracaoFreteView
 from .cupom_view import CuponsViewSet, CuponsDetailView
 from .imagem_produto_view import ImagemProdutoViewSet
+from .imagem_carosel_view import CarouselImageAdminViewSet, CarouselImageListView

@@ -1,0 +1,8 @@
+.carousel-active {
+    background-color: #d0f0c0; /* Verde claro para imagens ativas */
+  }
+  
+  .carousel-inactive {
+    background-color: #f0d0d0; /* Vermelho claro para imagens inativas */
+  }
+  

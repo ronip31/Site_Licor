@@ -174,6 +174,16 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
             </Tooltip>
             {drawerOpen && <ListItemText primary="Cadastro Cupons" />}
           </ListItem>
+
+          <ListItem button component={Link} to="/admin/editcarousel">
+            <Tooltip title="Cadastro Carrossel" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <DiscountIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
+            </Tooltip>
+            {drawerOpen && <ListItemText primary="Cadastro Carrossel" />}
+          </ListItem>
+
           <ListItem button component={Link} to="/admin/DeliveryConfig">
             <Tooltip title="Configuração Entrega" placement="right" disableHoverListener={drawerOpen}>
               <ListItemIcon>
