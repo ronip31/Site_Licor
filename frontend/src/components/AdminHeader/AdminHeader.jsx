@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Drawer,
@@ -13,6 +13,7 @@ import {
   Divider,
   CssBaseline,
   Tooltip,
+  Collapse,
 } from '@mui/material';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -26,6 +27,10 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import StoreIcon from '@mui/icons-material/Store';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 const theme = createTheme({
   palette: {
@@ -44,8 +49,8 @@ const theme = createTheme({
   },
 });
 
-const drawerWidth = 235; // Defina a largura desejada para o Drawer quando aberto
-const drawerWidthClosed = 50; // Defina a largura desejada para o Drawer quando fechado
+const drawerWidth = 235;
+const drawerWidthClosed = 50;
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -56,12 +61,17 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
+  const [openCadastros, setOpenCadastros] = useState(false); // Estado para controlar submenu
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     navigate('/loginadmin');
+  };
+
+  const handleToggleCadastros = () => {
+    setOpenCadastros(!openCadastros); // Alterna o estado de expansão do submenu "Cadastros"
   };
 
   return (
@@ -89,7 +99,7 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
           width: drawerOpen ? drawerWidth : drawerWidthClosed,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            height: '100vh', // Garante que o Drawer ocupe toda a altura da viewport
+            height: '100vh',
             width: drawerOpen ? drawerWidth : drawerWidthClosed,
             boxSizing: 'border-box',
             backgroundColor: theme.palette.primary.main,
@@ -98,24 +108,24 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.enteringScreen,
             }),
-            overflowX: drawerOpen ? 'auto' : 'hidden', // Oculta rolagem horizontal quando fechado
-            overflowY: 'auto', // Permite rolagem vertical apenas se necessário
+            overflowX: drawerOpen ? 'auto' : 'hidden',
+            overflowY: 'auto',
           },
         }}
         variant="permanent"
         anchor="left"
       >
-      <DrawerHeader>
-        <IconButton onClick={toggleDrawer} sx={{ paddingLeft: 0 }}>
-          {drawerOpen ? (
-            <ChevronLeftIcon sx={{ color: theme.palette.secondary.main }} />
-          ) : (
-            <MenuIcon sx={{ color: theme.palette.secondary.main }} />
-          )}
-        </IconButton>
-      </DrawerHeader>
+        <DrawerHeader>
+          <IconButton onClick={toggleDrawer} sx={{ paddingLeft: 0 }}>
+            {drawerOpen ? (
+              <ChevronLeftIcon sx={{ color: theme.palette.secondary.main }} />
+            ) : (
+              <MenuIcon sx={{ color: theme.palette.secondary.main }} />
+            )}
+          </IconButton>
+        </DrawerHeader>
 
-         <Divider />
+        <Divider />
         <List>
           <ListItem button component={Link} to="/admin">
             <Tooltip title="Home" placement="right" disableHoverListener={drawerOpen}>
@@ -142,48 +152,53 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
             {drawerOpen && <ListItemText primary="Pedidos Realizados" />}
           </ListItem>
           <Divider />
-          <ListItem button component={Link} to="/admin/createproducts">
-            <Tooltip title="Cadastro Produtos" placement="right" disableHoverListener={drawerOpen}>
-              <ListItemIcon>
-                <CategoryIcon sx={{ color: theme.palette.secondary.main }} />
-              </ListItemIcon>
-            </Tooltip>
-            {drawerOpen && <ListItemText primary="Cadastro Produtos" />}
-          </ListItem>
-          <ListItem button component={Link} to="/admin/creategrups">
-            <Tooltip title="Cadastro Categorias/Marcas" placement="right" disableHoverListener={drawerOpen}>
-              <ListItemIcon>
-                <CategoryIcon sx={{ color: theme.palette.secondary.main }} />
-              </ListItemIcon>
-            </Tooltip>
-            {drawerOpen && <ListItemText primary="Cadastro Categorias/Marcas" />}
-          </ListItem>
-          <ListItem button component={Link} to="/admin/createpromotion">
-            <Tooltip title="Cadastro Promoções" placement="right" disableHoverListener={drawerOpen}>
-              <ListItemIcon>
-                <LocalOfferIcon sx={{ color: theme.palette.secondary.main }} />
-              </ListItemIcon>
-            </Tooltip>
-            {drawerOpen && <ListItemText primary="Cadastro Promoções" />}
-          </ListItem>
-          <ListItem button component={Link} to="/admin/createcupons">
-            <Tooltip title="Cadastro Cupons" placement="right" disableHoverListener={drawerOpen}>
-              <ListItemIcon>
-                <DiscountIcon sx={{ color: theme.palette.secondary.main }} />
-              </ListItemIcon>
-            </Tooltip>
-            {drawerOpen && <ListItemText primary="Cadastro Cupons" />}
-          </ListItem>
 
-          <ListItem button component={Link} to="/admin/editcarousel">
-            <Tooltip title="Cadastro Carrossel" placement="right" disableHoverListener={drawerOpen}>
-              <ListItemIcon>
-                <DiscountIcon sx={{ color: theme.palette.secondary.main }} />
-              </ListItemIcon>
+          {/* Menu "Cadastros" */}
+          <ListItem button onClick={handleToggleCadastros}>
+          <Tooltip title="Abrir Cadastros" placement="right" disableHoverListener={drawerOpen}>
+            <ListItemIcon>
+              <AppRegistrationIcon sx={{ color: theme.palette.secondary.main }} />
+            </ListItemIcon>
             </Tooltip>
-            {drawerOpen && <ListItemText primary="Cadastro Carrossel" />}
+            <ListItemText primary="Cadastros" />
+            {openCadastros ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
+          <Collapse in={openCadastros} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button component={Link} to="/admin/createproducts">
+                <ListItemIcon>
+                  <CategoryIcon sx={{ color: theme.palette.secondary.main }} />
+                </ListItemIcon>
+                <ListItemText primary="Produtos" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/categorybrand">
+                <ListItemIcon>
+                  <CategoryIcon sx={{ color: theme.palette.secondary.main }} />
+                </ListItemIcon>
+                <ListItemText primary="Categorias/Marcas" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/createpromotion">
+                <ListItemIcon>
+                  <LocalOfferIcon sx={{ color: theme.palette.secondary.main }} />
+                </ListItemIcon>
+                <ListItemText primary="Promoções" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/createcupons">
+                <ListItemIcon>
+                  <DiscountIcon sx={{ color: theme.palette.secondary.main }} />
+                </ListItemIcon>
+                <ListItemText primary="Cupons" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/editcarousel">
+                <ListItemIcon>
+                  <DiscountIcon sx={{ color: theme.palette.secondary.main }} />
+                </ListItemIcon>
+                <ListItemText primary="Carrossel" />
+              </ListItem>
+            </List>
+          </Collapse>
 
+          <Divider />
           <ListItem button component={Link} to="/admin/DeliveryConfig">
             <Tooltip title="Configuração Entrega" placement="right" disableHoverListener={drawerOpen}>
               <ListItemIcon>

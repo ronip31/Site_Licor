@@ -108,14 +108,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
-        fields = ['id', 'nome', 'descricao']
-
+        fields = '__all__'
 
 class MarcaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Marca
-        fields = ['id', 'nome', 'descricao']
-
+        fields = '__all__'
 
 class CalculoFreteSerializer(serializers.Serializer):
     produto_id = serializers.CharField(required=True)
@@ -167,41 +165,46 @@ class CupomSerializer(serializers.ModelSerializer):
         return data
     
 class CarouselImageAdminSerializer(serializers.ModelSerializer):
-    imagem = serializers.ImageField(required=False, allow_null=True) 
+    imagem = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = CarouselImage
         fields = '__all__'
 
     def update(self, instance, validated_data):
-        imagem = validated_data.pop('imagem', None)
+        # Verificar se a chave 'imagem' está presente no payload
+        imagem = validated_data.get('imagem', None)
         
         # Atualiza os outros campos normalmente
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
+
         # Lógica para lidar com a imagem
-        if imagem is None:
-            # Se imagem é None, remover a imagem atual
-            instance.imagem.delete(save=False)
-            instance.imagem = None
-        elif imagem:
-            # Se uma nova imagem foi enviada, substituir
-            instance.imagem = imagem
+        # Somente atualizar se a imagem foi explicitamente enviada
+        if 'imagem' in validated_data:
+            if imagem is None:
+                # Se imagem é None, remover a imagem atual
+                if instance.imagem:
+                    instance.imagem.delete(save=False)
+                instance.imagem = None
+            elif imagem:
+                # Se uma nova imagem foi enviada, substituir
+                instance.imagem = imagem
         
         instance.save()
         return instance
-    
+
     def get_imagem(self, obj):
         request = self.context.get('request')
         if obj.imagem:
             return request.build_absolute_uri(obj.imagem.url)
         return None
-    
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
         return context
+
     
 
 class CarouselImageClientSerializer(serializers.ModelSerializer):

@@ -39,7 +39,7 @@ const CouponsPage = () => {
       const [cuponsResponse, produtosResponse, categoriasResponse, clientesResponse] = await Promise.all([
         api.get('/cupons/'),
         api.get('/produtos/'),
-        api.get('/categories/list/'),
+        api.get('/categorias/'),
         api.get('/usuarios/lista/'),
       ]);
 

@@ -31,7 +31,7 @@ const PromotionsPage = () => {
       const [promocoesResponse, produtosResponse, categoriasResponse] = await Promise.all([
         api.get('/promocoes/'),
         api.get('/produtos/'),
-        api.get('/categories/list/')
+        api.get('/categorias/')
       ]);
 
       const promotions = promocoesResponse.data;
@@ -215,7 +215,7 @@ const PromotionsPage = () => {
             },
           }}
           pageSizeOptions={[5, 10, 20]}
-          checkboxSelection
+          autoHeight
         />
       </Box>
 

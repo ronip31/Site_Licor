@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Autocomplete,
   Button,
   TextField,
   Dialog,
@@ -11,6 +12,8 @@ import {
   FormControl,
   InputLabel,
   Grid,
+  ListItemText,
+  Checkbox,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import ReactQuill from 'react-quill';
@@ -92,7 +95,7 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               value={selectedProduct?.quantidade_estoque || ''}
               onChange={(e) => setSelectedProduct({ ...selectedProduct, quantidade_estoque: parseFloat(e.target.value) })}
             />
-            <FormControl fullWidth margin="dense">
+            {/* <FormControl fullWidth margin="dense">
               <InputLabel>Categoria</InputLabel>
               <Select
                 label="Categoria"
@@ -105,7 +108,32 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
+          <FormControl fullWidth margin="dense">
+          <Autocomplete
+              autoFocus
+              multiple
+              options={categories}
+              value={categories.filter((category) => selectedProduct.categorias?.includes(category.id))}
+              onChange={(event, newValue) => {
+                setSelectedProduct({ ...selectedProduct, categorias: newValue.map((c) => c.id) });
+              }}
+              getOptionLabel={(option) => option.nome} // Exibe o nome da categoria
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox
+                    style={{ marginRight: 8 }}
+                    checked={selectedProduct.categorias?.includes(option.id)}
+                  />
+                  <ListItemText primary={option.nome} /> {/* Exibe o nome da categoria */}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} variant="outlined" label="Categorias" placeholder="Buscar por categoria..." />
+              )}
+            />
+          </FormControl>
+
             <FormControl fullWidth margin="dense">
               <InputLabel>Status</InputLabel>
               <Select

@@ -55,7 +55,7 @@ const CarouselPropertiesDialog = ({ open, onClose, selectedImage }) => {
 
     try {
       if (selectedImage) {
-        // Atualizar imagem existente
+        // Atualizar as propriedades da imagem existente sem modificar a imagem
         await api.put(`/carousel-admin/${selectedImage.id}/`, payload);
       } else {
         // Criar nova imagem

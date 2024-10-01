@@ -1,19 +1,9 @@
-from rest_framework import generics
+from rest_framework import viewsets
 from ..models import Categoria
 from ..serializers import CategoriaSerializer
 from ..permissions import IsAdminUser
+from rest_framework import serializers
 
-class ListCategoriasView(generics.ListAPIView):
+class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
-    #permission_classes = [IsAdminUser]
-
-class CategoriasCreateView(generics.CreateAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    #permission_classes = [IsAdminUser]
-
-class CategoriasDetailView(generics.RetrieveAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    #permission_classes = [IsAdminUser]

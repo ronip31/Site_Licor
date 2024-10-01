@@ -48,8 +48,8 @@ const ProductsPage = () => {
     try {
       const [produtosResponse, categoriasResponse, marcasResponse] = await Promise.all([
         api.get('/produtos/'),
-        api.get('/categories/list/'),
-        api.get('/marca/'),
+        api.get('/categorias/'),
+        api.get('/marcas/'),
       ]);
 
       const produtos = produtosResponse.data;

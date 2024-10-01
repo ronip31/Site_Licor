@@ -1,6 +1,6 @@
 from .user_views import UsuarioCreateView, UsuarioListView, UsuarioDetailView, UsuarioDeleteView
 from .product_views import ProdutoViewSet,  MarcaViewSet
-from .category_views import ListCategoriasView, CategoriasCreateView, CategoriasDetailView
+from .category_views import CategoriaViewSet
 from .token_login_view import CustomTokenObtainPairView
 from .promocao_view import PromocaoViewSet
 from .calcular_frete_view import CalcularFreteView

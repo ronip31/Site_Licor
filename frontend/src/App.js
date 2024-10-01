@@ -12,6 +12,7 @@ import Perfil from './pages/Client/Perfil/Perfil';
 import Contato from './pages/Client/Contato/Contato';
 import Sobre from './pages/Client/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
+import CategoriaMarcaPage from './pages/Admin/CategoriaMarcaPage/CategoriaMarcaPage';
 import Promotion from './pages/Admin/Promotion/Promotion';
 import DeliveryConfig from './pages/Admin/DeliveryConfig/DeliveryConfig';
 import CouponsPage from './pages/Admin/CouponsPage/CouponsPage';
@@ -58,6 +59,7 @@ function App() {
           <Route path="createcupons" element={<CouponsPage />} />
           <Route path="editcarousel" element={<CarouselImagesPage />} />
           <Route path="customerlist" element={<Customer />} />
+          <Route path="categorybrand" element={<CategoriaMarcaPage />} />
           <Route path="orders" element={<Orders />} />
         </Route>
       </Routes>

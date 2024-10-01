@@ -8,18 +8,16 @@ from .views import (
     CustomTokenObtainPairView,
     ProdutoViewSet, 
     ImagemProdutoViewSet,
-    ListCategoriasView, 
-    CategoriasCreateView,
     PromocaoViewSet,
     CalcularFreteView,
     OpcaoFreteListView,
     ConfiguracaoFreteView,
     MarcaViewSet,
-    CategoriasDetailView,
     CuponsViewSet,
     CuponsDetailView,
     CarouselImageAdminViewSet,
-    CarouselImageListView
+    CarouselImageListView,
+    CategoriaViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -36,10 +34,11 @@ router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 router.register(r'imagens', ImagemProdutoViewSet, basename='imagemproduto')
 router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
-router.register(r'marca', MarcaViewSet, basename='marca')
+router.register(r'marcas', MarcaViewSet, basename='marca')
 router.register(r'promocoes', PromocaoViewSet, basename='promocoes')
 router.register(r'cupons', CuponsViewSet, basename='cupons')
 router.register(r'carousel-admin', CarouselImageAdminViewSet, basename='carousel-admin')
+router.register(r'categorias', CategoriaViewSet, basename='categorias')
 #router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 # Definindo as URLs
@@ -55,9 +54,9 @@ urlpatterns = [
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
 
     # Categorias  - Administrador
-    path('createcategories/', CategoriasCreateView.as_view(), name='create_categorias'),
-    path('categories/list/', ListCategoriasView.as_view(), name='lista_categoria'),
-    path('categories/<int:pk>/', CategoriasDetailView.as_view(), name='Categorias-detalhe'),
+    # path('createcategories/', CategoriasCreateView.as_view(), name='create_categorias'),
+    # path('categories/list/', ListCategoriasView.as_view(), name='lista_categoria'),
+    # path('categories/<int:pk>/', CategoriasDetailView.as_view(), name='Categorias-detalhe'),
 
     # Promocao  - Administrador
     # path('promocoes/', PromocaoCreateView.as_view(), name='promocao-create'),  # Adicionado
