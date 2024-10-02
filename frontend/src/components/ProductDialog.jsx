@@ -37,7 +37,7 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
     value = value.replace(/,/g, '.');
 
     // Valida que o valor contém apenas números e um ponto decimal
-    if (/^[0-9]*\.?[0-9]*$/.test(value)) {
+    if (/^\d*\.?\d*$/.test(value)) {
       setSelectedProduct((prevState) => ({
         ...prevState,
         [fieldName]: value,

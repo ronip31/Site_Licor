@@ -5,7 +5,6 @@ from .views import (
     UsuarioListView, 
     UsuarioDetailView, 
     UsuarioDeleteView, 
-    CustomTokenObtainPairView,
     ProdutoViewSet, 
     ImagemProdutoViewSet,
     PromocaoViewSet,
@@ -17,7 +16,10 @@ from .views import (
     CuponsDetailView,
     CarouselImageAdminViewSet,
     CarouselImageListView,
-    CategoriaViewSet
+    CategoriaViewSet,
+    ThemeConfigViewSet,
+    CustomTokenObtainPairViewAdmin,
+    CustomTokenObtainPairViewCliente
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -39,7 +41,7 @@ router.register(r'promocoes', PromocaoViewSet, basename='promocoes')
 router.register(r'cupons', CuponsViewSet, basename='cupons')
 router.register(r'carousel-admin', CarouselImageAdminViewSet, basename='carousel-admin')
 router.register(r'categorias', CategoriaViewSet, basename='categorias')
-#router.register(r'produtos', ProdutoViewSet, basename='produto')
+router.register(r'theme-config', ThemeConfigViewSet, basename='theme-config')
 
 # Definindo as URLs
 urlpatterns = [
@@ -51,7 +53,8 @@ urlpatterns = [
     path('usuarios/<int:pk>/delete/', UsuarioDeleteView.as_view(), name='usuario-delete'),
 
     # Autenticação  - Administrador
-    path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/admin/', CustomTokenObtainPairViewAdmin.as_view(), name='token_obtain_pair_admin'),
+    path('token/cliente/', CustomTokenObtainPairViewCliente.as_view(), name='token_obtain_pair_cliente'),
 
     # Categorias  - Administrador
     # path('createcategories/', CategoriasCreateView.as_view(), name='create_categorias'),

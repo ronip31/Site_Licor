@@ -52,6 +52,8 @@ const CarouselImagesPage = () => {
     } catch (error) {
       console.error('Erro ao buscar imagens do carrossel:', error);
       setError('Erro ao buscar imagens do carrossel. Tente novamente mais tarde.');
+      enqueueSnackbar('rro ao buscar imagens do carrossel. Tente novamente mais tarde.', { variant: 'error' });
+
     } finally {
       setLoading(false);
     }

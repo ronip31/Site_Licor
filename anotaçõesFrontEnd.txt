@@ -5,3 +5,12 @@ npm install
 
 Iniciar projeto:
 npm start
+
+
+
+SONA:
+Front:
+sonar-scanner -D"sonar.projectKey=sqp_59bfa782fec423b9b23f14296d1f8bb0176a7a8a" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000"
+
+Back
+sonar-scanner -D"sonar.projectKey=sqa_341f9fcceb3f81ab4e8edb168098bea6dfa3dbe" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000"

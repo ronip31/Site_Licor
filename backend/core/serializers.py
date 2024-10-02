@@ -1,4 +1,5 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 from .models import Usuario, Produto, Categoria
 from django.contrib.auth.hashers import make_password
@@ -7,12 +8,13 @@ from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
 from .models import ImagemProduto, Cupom, CarouselImage
 from .models import Promocao, OpcaoFrete, ConfiguracaoFrete, Marca
+from .models import ThemeConfig
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'nome', 'email', 'password', 'telefone', 'data_criacao']
+        fields = ['uuid', 'nome', 'email', 'password', 'telefone', 'data_criacao']
         extra_kwargs = {'password': {'write_only': True}}  # Para evitar que a senha seja exibida nas respostas
 
     def create(self, validated_data):
@@ -77,7 +79,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+class CustomAdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
 
     def validate(self, attrs):
@@ -93,18 +95,61 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "code": "user_not_found"
             })
 
+        # Verifica se o usuário é um administrador
+        if user.tipo_usuario != 'administrador':
+            raise serializers.ValidationError({
+                "detail": "Acesso negado. Apenas administradores podem fazer login aqui.",
+                "code": "not_admin"
+            })
+
         # Gera o token de refresh e access
         refresh = self.get_token(user)
 
-        # Adiciona informações personalizadas no payload do token
-        refresh['tipo_usuario'] = user.tipo_usuario
+        # Adiciona o UUID do usuário no token em vez do ID
+        refresh['uuid'] = str(user.uuid)
 
-        # Retorna apenas o token de acesso com o tipo de usuário incluído
+        # Retorna o token de acesso
         return {
-            'access': str(refresh.access_token)
+            'access': str(refresh.access_token),
+            'uuid': str(user.uuid),  # Incluindo o UUID no retorno
         }
-    
         
+
+class CustomClienteTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        # Autentica o usuário
+        user = authenticate(username=email, password=password)
+
+        if not user:
+            raise serializers.ValidationError({
+                "detail": "Usuário não encontrado",
+                "code": "user_not_found"
+            })
+
+        # Verifica se o usuário é um cliente
+        if user.tipo_usuario != 'cliente':
+            raise serializers.ValidationError({
+                "detail": "Acesso negado. Apenas clientes podem fazer login aqui.",
+                "code": "not_cliente"
+            })
+
+        # Gera o token de refresh e access
+        refresh = self.get_token(user)
+
+        # Adiciona o UUID do usuário no token em vez do ID
+        refresh['uuid'] = str(user.uuid)
+
+        return {
+            'access': str(refresh.access_token),
+            'uuid': str(user.uuid),
+        }
+
+
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
@@ -211,3 +256,9 @@ class CarouselImageClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarouselImage
         fields = ['uuid', 'titulo', 'imagem', 'link_url']
+
+
+class ThemeConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThemeConfig
+        fields = '__all__'

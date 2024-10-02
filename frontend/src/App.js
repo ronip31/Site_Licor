@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout/MainLayout';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
-/*import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin ';*/ //caso seja protegido por token, descomentar essa linha
+import ProtectedRouteAdmin from './components/ProtectedRoute/ProtectedRouteAdmin '; //caso seja protegido por token, descomentar essa linha
 import ProtectedRouteCliente from './components/ProtectedRoute/ProtectedRouteCliente ';
 import Home from './pages/Home/Home';
 import Products from './pages/Client/Products/Products';
@@ -13,6 +13,7 @@ import Contato from './pages/Client/Contato/Contato';
 import Sobre from './pages/Client/Sobre/Sobre';
 import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
 import CategoriaMarcaPage from './pages/Admin/CategoriaMarcaPage/CategoriaMarcaPage';
+import ThemeCustomization from './pages/Admin/ThemeCustomization/ThemeCustomization';
 import Promotion from './pages/Admin/Promotion/Promotion';
 import DeliveryConfig from './pages/Admin/DeliveryConfig/DeliveryConfig';
 import CouponsPage from './pages/Admin/CouponsPage/CouponsPage';
@@ -60,6 +61,7 @@ function App() {
           <Route path="editcarousel" element={<CarouselImagesPage />} />
           <Route path="customerlist" element={<Customer />} />
           <Route path="categorybrand" element={<CategoriaMarcaPage />} />
+          <Route path="edittheme" element={<ThemeCustomization />} />
           <Route path="orders" element={<Orders />} />
         </Route>
       </Routes>

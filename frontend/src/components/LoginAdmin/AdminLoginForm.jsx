@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Button, TextField, Typography, Alert, Stack } from '@mui/material';
 
-// Definindo o tema para manter a consistência visual
 const theme = createTheme({
   palette: {
     primary: {
@@ -31,7 +29,7 @@ const theme = createTheme({
   },
 });
 
-const ClienteLoginForm = () => {
+const AdminLoginForm = () => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -40,20 +38,18 @@ const ClienteLoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/api/token/', {
+      const response = await axios.post('http://localhost:8000/api/token/admin/', {
         email,
         password: senha,
       });
 
       const token = response.data.access;
-      const decodedHeader = jwtDecode(token);
 
-      if (decodedHeader.tipo_usuario === 'administrador') {
-        localStorage.setItem('token', token);
-        navigate('/admin/'); // Redireciona para a área do cliente
-      } else {
-        setErrorMessage('Acesso não autorizado.');
-      }
+      // Armazena o token no localStorage
+      localStorage.setItem('token', token);
+
+      // Redireciona para a área de administração após login bem-sucedido
+      navigate('/admin/');
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       setErrorMessage('Falha no login. Verifique suas credenciais e tente novamente.');
@@ -100,7 +96,7 @@ const ClienteLoginForm = () => {
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Entrar
             </Button>
-            <Button type="submit" href="/esqueceu_senha" variant="contained" color="error"sx={{ ml: 2 }} >
+            <Button type="button" href="/esqueceu_senha" variant="contained" color="error" sx={{ ml: 2 }}>
               Esqueceu sua senha?
             </Button>
           </Stack>
@@ -110,4 +106,4 @@ const ClienteLoginForm = () => {
   );
 };
 
-export default ClienteLoginForm;
+export default AdminLoginForm;

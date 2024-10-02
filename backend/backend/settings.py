@@ -2,16 +2,27 @@ from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
+from django.conf import settings
 
-
+# Base directory path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Secret key for the project (use environment variables for security)
 SECRET_KEY = config('SECRET_KEY')
 
+# Debug flag, controlled via environment variable
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+# Permitir apenas o domínio correto acessar o servidor
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '10.173.82.117',  # Para desenvolvimento local
+    '192.168.1.8',
+        # Para desenvolvimento local
+]  # In production, replace with your domain e.g., ['myfrontend.com']
 
+# Database configuration, using MySQL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -23,9 +34,7 @@ DATABASES = {
     }
 }
 
-
-# Application definition
-
+# Installed apps, including Django, Rest Framework, CORS, and your core app
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -33,15 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'core',
-    'corsheaders',
-    'django_extensions',
+    'rest_framework',  # For API development
+    'rest_framework_simplejwt',  # For JWT authentication
+    'core',  # Your custom app
+    'corsheaders',  # To handle Cross-Origin Resource Sharing (CORS)
+    'django_extensions',  # Optional tools and extensions for development
 ]
 
+# Middleware to manage requests, responses, and CORS
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Enables CORS headers
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,50 +61,57 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Django REST framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Use JWT for token-based auth
     ],
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
 }
 
+# Authentication backends for user login
 AUTHENTICATION_BACKENDS = [
-    'core.backends.EmailBackend',
+    'core.backends.EmailBackend',  # Custom email login backend
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-
+# JWT (JSON Web Token) configuration
 SIMPLE_JWT = {
+    'SIGNING_KEY': config('JWT_SIGNING_KEY', default=config('SECRET_KEY')),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
+    'ALGORITHM': 'HS256',  # Use 'RS256' para assinatura assimétrica
+    'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'uuid',  # Use 'uuid' em vez de 'id'
+    'USER_ID_CLAIM': 'uuid',  # O claim será 'uuid' em vez de 'user_id'
 }
 
+# CORS configuration: Allow only specific origins in production
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Localhost development
+    "http://127.0.0.1:3000",  # Localhost development (IP)
+    "http://10.173.82.117:3000",
+    "http://192.168.1.8:3000",
+]
+# Uncomment the following line for production, and comment the `CORS_ALLOWED_ORIGINS`
+# CORS_ALLOW_ALL_ORIGINS = False  # Allows only specified origins
 
-
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000"
-
-# ]
-
-CORS_ALLOW_ALL_ORIGINS = True # Para permitir todas as origens
-
+# Root URL configuration
 ROOT_URLCONF = 'backend.urls'
 
+# Template configuration for rendering HTML pages
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [],  # You can add custom template directories here
+        'APP_DIRS': True,  # Django will automatically discover templates in each app
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -106,14 +123,10 @@ TEMPLATES = [
     },
 ]
 
+# WSGI application (for deployment)
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
+# Password validation, as recommended by Django for security
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -129,38 +142,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Language and timezone configuration
+LANGUAGE_CODE = 'pt-br'  # Language set to Brazilian Portuguese
+TIME_ZONE = 'America/Sao_Paulo'  # Time zone set to São Paulo
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+USE_I18N = True  # Enables internationalization
+USE_TZ = True  # Enables time zone support
 
-LANGUAGE_CODE = 'pt-br'
-
-TIME_ZONE = 'America/Sao_Paulo'
-
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
+# Static files (CSS, JavaScript, Images) configuration
 STATIC_URL = 'static/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
-AUTH_USER_MODEL = 'core.Usuario'
+AUTH_USER_MODEL = 'core.Usuario'  # Using a custom user model in the core app
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Media files (for user-uploaded content)
+MEDIA_URL = '/media/'  # URL for serving media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store media files
 
-
-# Log da aplicação
+# Application logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
