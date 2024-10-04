@@ -37,7 +37,7 @@ class Produto(models.Model):
         now = timezone.now()
         
         # Verifica se há promoção ativa diretamente no produto
-        promocao_produto = self.promocao.filter(data_inicio__lte=now, data_fim__gte=now).first()
+        promocao_produto = self.promocoes.filter(data_inicio__lte=now, data_fim__gte=now).first()
         if promocao_produto:
             if promocao_produto.percentual:
                 valor_desconto = self.preco_venda * (promocao_produto.percentual / 100)
@@ -48,7 +48,7 @@ class Produto(models.Model):
 
         # Verifica se há promoção ativa na categoria do produto
         if self.categoria:
-            categoria_promocao = self.categoria.promocao.filter(data_inicio__lte=now, data_fim__gte=now).first()
+            categoria_promocao = self.categoria.promocoes.filter(data_inicio__lte=now, data_fim__gte=now).first()
             if categoria_promocao:
                 if categoria_promocao.percentual:
                     valor_desconto = self.preco_venda * (categoria_promocao.percentual / 100)
