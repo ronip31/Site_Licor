@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from ..models import Produto, ImagemProduto
+from rest_framework import generics
+from django.shortcuts import get_object_or_404
 
 class ImagemProdutoSerializer(serializers.ModelSerializer):
     imagem = serializers.SerializerMethodField()
@@ -12,6 +14,12 @@ class ImagemProdutoSerializer(serializers.ModelSerializer):
         if obj.imagem:
             return obj.imagem.url
         return None
+
+class ImagemProdutoSerializerView(serializers.ModelSerializer):
+    class Meta:
+        model = ImagemProduto
+        fields = ['uuid', 'imagem', 'descricao_imagem']
+
 
 class ProductSerializer(serializers.ModelSerializer):
     imagens = ImagemProdutoSerializer(many=True, required=False)
@@ -52,3 +60,18 @@ class ProductSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class ProductClientSerializer(serializers.ModelSerializer):
+    preco_com_desconto = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Produto
+        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque']
+
+    def get_preco_com_desconto(self, obj):
+        # Obtenha o preço com desconto, se disponível
+        preco_info = obj.get_price_with_discount()
+        preco_promocional = preco_info.get('preco_promocional')
+        # Retorne None se não houver preço promocional
+        return preco_promocional if preco_promocional else None

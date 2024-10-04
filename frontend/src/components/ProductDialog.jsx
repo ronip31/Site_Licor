@@ -11,9 +11,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Grid,
-  ListItemText,
-  Checkbox,
+  Grid
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import ReactQuill from 'react-quill';
@@ -95,44 +93,23 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               value={selectedProduct?.quantidade_estoque || ''}
               onChange={(e) => setSelectedProduct({ ...selectedProduct, quantidade_estoque: parseFloat(e.target.value) })}
             />
-            {/* <FormControl fullWidth margin="dense">
-              <InputLabel>Categoria</InputLabel>
-              <Select
-                label="Categoria"
-                value={selectedProduct?.categoria || ''}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, categoria: e.target.value })}
-              >
-                {categories.map((category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.nome}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl> */}
+
           <FormControl fullWidth margin="dense">
-          <Autocomplete
+            <Autocomplete
               autoFocus
-              multiple
               options={categories}
-              value={categories.filter((category) => selectedProduct.categorias?.includes(category.id))}
+              value={categories.find((category) => selectedProduct.categoria === category.id) || null}
               onChange={(event, newValue) => {
-                setSelectedProduct({ ...selectedProduct, categorias: newValue.map((c) => c.id) });
+                setSelectedProduct({ ...selectedProduct, categoria: newValue ? newValue.id : null });
               }}
               getOptionLabel={(option) => option.nome} // Exibe o nome da categoria
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox
-                    style={{ marginRight: 8 }}
-                    checked={selectedProduct.categorias?.includes(option.id)}
-                  />
-                  <ListItemText primary={option.nome} /> {/* Exibe o nome da categoria */}
-                </li>
-              )}
               renderInput={(params) => (
-                <TextField {...params} variant="outlined" label="Categorias" placeholder="Buscar por categoria..." />
+                <TextField {...params} variant="outlined" label="Categoria" placeholder="Buscar por categoria..." />
               )}
             />
           </FormControl>
+
+
 
             <FormControl fullWidth margin="dense">
               <InputLabel>Status</InputLabel>
@@ -164,20 +141,23 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               value={selectedProduct?.volume || ''}
               onChange={(e) => setSelectedProduct({ ...selectedProduct, volume: e.target.value })}
             />
+
+
             <FormControl fullWidth margin="dense">
-              <InputLabel>Marca</InputLabel>
-              <Select
-                label="Marca"
-                value={selectedProduct?.marca || ''}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, marca: e.target.value })}
-              >
-                {marks.map((mark) => (
-                  <MenuItem key={mark.id} value={mark.id}>
-                    {mark.nome}
-                  </MenuItem>
-                ))}
-              </Select>
+              <Autocomplete
+                autoFocus
+                options={marks}
+                value={marks.find((marc) => selectedProduct.marca === marc.id) || null}
+                onChange={(event, newValue) => {
+                  setSelectedProduct({ ...selectedProduct, marca: newValue ? newValue.id : null });
+                }}
+                getOptionLabel={(option) => option.nome} // Exibe o nome da categoria
+                renderInput={(params) => (
+                  <TextField {...params} variant="outlined" label="Marca" placeholder="Buscar por Marca..." />
+                )}
+              />
             </FormControl>
+
             <TextField
               margin="dense"
               label="Altura"

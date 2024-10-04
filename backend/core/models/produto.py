@@ -35,40 +35,27 @@ class Produto(models.Model):
 
     def get_price_with_discount(self):
         now = timezone.now()
-
-        # Converter para o fuso horário UTC
-        data_inicio_utc = self.promocao.filter().values_list('data_inicio', flat=True).first()
-        data_fim_utc = self.promocao.filter().values_list('data_fim', flat=True).first()
         
         # Verifica se há promoção ativa diretamente no produto
-        promocao_produto = self.promocao.filter(
-            data_inicio__lte=now, 
-            data_fim__gte=now
-        ).first()
-
+        promocao_produto = self.promocao.filter(data_inicio__lte=now, data_fim__gte=now).first()
         if promocao_produto:
             if promocao_produto.percentual:
                 valor_desconto = self.preco_venda * (promocao_produto.percentual / 100)
                 preco_promocional = self.preco_venda - valor_desconto
             elif promocao_produto.valor_promocao:
                 preco_promocional = self.preco_venda - promocao_produto.valor_promocao
-                #preco_promocional = promocao_produto.valor_promocao
             return {'preco_anterior': self.preco_venda, 'preco_promocional': preco_promocional}
 
         # Verifica se há promoção ativa na categoria do produto
         if self.categoria:
-            categoria_promocao = self.categoria.promocao.filter(
-                data_inicio__lte=now,
-                data_fim__gte=now
-            ).first()
-
+            categoria_promocao = self.categoria.promocao.filter(data_inicio__lte=now, data_fim__gte=now).first()
             if categoria_promocao:
                 if categoria_promocao.percentual:
                     valor_desconto = self.preco_venda * (categoria_promocao.percentual / 100)
                     preco_promocional = self.preco_venda - valor_desconto
                 elif categoria_promocao.valor_promocao:
-                    preco_promocional = categoria_promocao.valor_promocao
+                    preco_promocional = self.preco_venda - categoria_promocao.valor_promocao
                 return {'preco_anterior': self.preco_venda, 'preco_promocional': preco_promocional}
 
         # Sem promoção ativa
-        return {'preco_anterior': self.preco_venda, 'preco_promocional': None}
+        return {'preco_anterior': self.preco_venda}

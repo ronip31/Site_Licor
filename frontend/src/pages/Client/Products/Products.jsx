@@ -1,26 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Card, CardMedia, CardContent, Typography, Button, Chip, Rating, Box } from '@mui/material';
+import {
+  Container,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+  Chip,
+  Rating,
+  Box,
+  IconButton
+} from '@mui/material';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import Slider from 'react-slick';
 import api from '../../../utils/api';
-// Importar os estilos do slick-carousel
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
-// Exemplo de lista de produtos
-const products = [
-  { id: 1, name: 'Produto 1', image: 'https://via.placeholder.com/300?text=Produto+1', price: 'R$ 100,00', rating: 4, label: 'Novo' },
-  { id: 2, name: 'Produto 2', image: 'https://via.placeholder.com/300?text=Produto+2', price: 'R$ 150,00', rating: 5, label: 'Promoção' },
-  { id: 3, name: 'Produto 3', image: 'https://via.placeholder.com/300?text=Produto+3', price: 'R$ 200,00', rating: 3 },
-  { id: 4, name: 'Produto 4', image: 'https://via.placeholder.com/300?text=Produto+4', price: 'R$ 200,00', rating: 3 },
-  // Adicione mais produtos conforme necessário
-];
-
 const Products = () => {
   const [carouselImages, setCarouselImages] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Configurações do carrossel
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -32,26 +35,71 @@ const Products = () => {
   };
 
   useEffect(() => {
-    // Função para buscar as imagens do carrossel da API
-    const fetchCarouselImages = async () => {
+    const fetchProducts = async () => {
       try {
-        const response = await api.get('/carousel-list/'); // Certifique-se de que a rota da API está correta
-        setCarouselImages(response.data);
+        const response = await api.get('/products/');
+        const productsWithImages = await Promise.all(
+          response.data.map(async (product) => {
+            const imagesResponse = await api.get(`/produtos/${product.uuid}/imagens/`);
+            return {
+              ...product,
+              images: imagesResponse.data,
+              imageIndex: 0, // Adiciona índice inicial para a imagem exibida
+            };
+          })
+        );
+        setProducts(productsWithImages);
       } catch (error) {
-        console.error('Erro ao buscar imagens do carrossel:', error);
+        console.error('Erro ao buscar produtos:', error);
       } finally {
         setLoading(false);
       }
     };
 
+    const fetchCarouselImages = async () => {
+      try {
+        const response = await api.get('/carousel-list/');
+        setCarouselImages(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar imagens do carrossel:', error);
+      }
+    };
+
+    fetchProducts();
     fetchCarouselImages();
   }, []);
+
+  const handleNextImage = (index) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product, i) =>
+        i === index
+          ? {
+              ...product,
+              imageIndex: (product.imageIndex + 1) % product.images.length,
+            }
+          : product
+      )
+    );
+  };
+
+  const handlePreviousImage = (index) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product, i) =>
+        i === index
+          ? {
+              ...product,
+              imageIndex:
+                (product.imageIndex - 1 + product.images.length) % product.images.length,
+            }
+          : product
+      )
+    );
+  };
 
   if (loading) return <p>Carregando...</p>;
 
   return (
     <>
-      {/* Banner com Carrossel */}
       <Slider {...sliderSettings}>
         {carouselImages.map((slide) => (
           <div key={slide.uuid}>
@@ -67,22 +115,12 @@ const Products = () => {
       </Slider>
 
       <Container maxWidth="lg" style={{ padding: '20px' }}>
-        {/* Título da página */}
         <Typography variant="h5" gutterBottom>Nossos Produtos</Typography>
 
-        {/* Grid de produtos */}
         <Grid container spacing={4}>
-          {products.map((product) => (
-            <Grid item xs={12} sm={6} md={3} key={product.id}>
-              <Card
-                sx={{
-                  position: 'relative',
-                  '&:hover .overlay': {
-                    opacity: 1,
-                  },
-                }}
-              >
-                {/* Etiqueta */}
+          {products.map((product, index) => (
+            <Grid item xs={12} sm={6} md={3} key={product.uuid}>
+              <Card sx={{ position: 'relative', textAlign: 'center', padding: '10px' }}>
                 {product.label && (
                   <Chip
                     label={product.label}
@@ -92,49 +130,78 @@ const Products = () => {
                   />
                 )}
 
-                <CardMedia
-                  component="img"
-                  image={product.image}
-                  alt={product.name}
-                  sx={{ height: 200 }}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h6" component="div">
-                    {product.name}
-                  </Typography>
-                  <Rating value={product.rating} readOnly size="small" />
-                  <Typography variant="body2" color="text.secondary">
-                    {product.price}
-                  </Typography>
+                <Link to={`/products/${product.uuid}`}>
+                  <CardMedia
+                    component="img"
+                    image={product.images[product.imageIndex]?.imagem || 'https://via.placeholder.com/300'}
+                    alt={product.nome}
+                    sx={{ height: 200 }}
+                  />
+                </Link>
+
+                {product.images.length > 1 && (
+                  <>
+                    <IconButton
+                      onClick={() => handlePreviousImage(index)}
+                      sx={{ position: 'absolute', top: '20%', left: 0, zIndex: 3, color: 'gray' }}
+                    >
+                      <ArrowBack />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleNextImage(index)}
+                      sx={{ position: 'absolute', top: '20%', right: 0, zIndex: 2, color: 'gray' }}
+                    >
+                      <ArrowForward />
+                    </IconButton>
+                  </>
+                )}
+
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <Link to={`/products/${product.uuid}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Typography gutterBottom variant="h7" component="div">
+                      {product.nome}
+                    </Typography>
+                  </Link>
+                  <Rating value={product.rating || 0} readOnly size="small" />
+                  
+                  {product.preco_com_desconto ? (
+                    <>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ textDecoration: 'line-through', color: 'gray', marginTop: '8px' }}
+                      >
+                        De: R$ {product.preco_venda}
+                      </Typography>
+                      <Typography 
+                        variant="h6" 
+                        color="error" 
+                        sx={{ fontWeight: 'bold', color: 'green', marginTop: '4px' }}
+                      >
+                        Por: R$ {product.preco_com_desconto}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        ou 3x de R$ {(product.preco_com_desconto / 3).toFixed(2)} sem juros
+                      </Typography>
+                    </>
+                  ) : (
+                    <Typography 
+                      variant="h6" 
+                      color="text.secondary" 
+                      sx={{ fontWeight: 'bold', marginTop: '8px' }}
+                    >
+                      R$ {product.preco_venda}
+                    </Typography>
+                  )}
                 </CardContent>
-                {/* Overlay com botões */}
-                <Box
-                  className="overlay"
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    bgcolor: 'rgba(0, 0, 0, 0.5)',
-                    opacity: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'opacity 0.3s',
-                  }}
-                >
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', padding: '10px' }}>
                   <Button
                     variant="contained"
-                    color="primary"
-                    component={Link}
-                    to={`/products/${product.id}`}
-                    sx={{ mr: 1 }}
+                    color="secondary"
+                    sx={{ fontSize: '0.9em', fontWeight: 'bold', padding: '10px 20px' }}
                   >
-                    Ver Detalhes
-                  </Button>
-                  <Button variant="contained" color="secondary">
-                    Adicionar ao Carrinho
+                    Comprar
                   </Button>
                 </Box>
               </Card>

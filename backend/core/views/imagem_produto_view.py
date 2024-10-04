@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 import os
 from ..models import Produto, ImagemProduto
-from ..serializers import ImagemProdutoSerializer
+from ..serializers import ImagemProdutoSerializer, ImagemProdutoSerializerView
 from ..permissions import IsAdminUser
+from rest_framework import generics, status
+from django.shortcuts import get_object_or_404
 
 # Definir tamanho máximo e tipos permitidos
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
@@ -58,3 +60,12 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
                 return Response({"detail": "Nenhuma imagem recebida."}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "Método não permitido."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    
+class ImagensPorProdutoView(generics.ListAPIView):
+    serializer_class = ImagemProdutoSerializerView
+
+    def get_queryset(self):
+        produto_uuid = self.kwargs.get('produto_uuid')
+        produto = get_object_or_404(Produto, uuid=produto_uuid)
+        return ImagemProduto.objects.filter(produto=produto)

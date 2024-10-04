@@ -19,7 +19,9 @@ from .views import (
     ThemeConfigViewSet,
     CustomTokenObtainPairViewAdmin,
     CustomTokenObtainPairViewCliente,
-    AplicarCupomView
+    AplicarCupomView,
+    ProductClientView,
+    ImagensPorProdutoView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -74,6 +76,10 @@ urlpatterns = [
     # Calcular Frete
     path('calcular-frete/', CalcularFreteView.as_view(), name='calcular-frete'),
 
+    # URL para acessar a área do cliente
+    path('products/', ProductClientView.as_view(),  name='produtos-client'),  
+    path('produtos/<uuid:produto_uuid>/imagens/', ImagensPorProdutoView.as_view(), name='imagens-por-produto'),
+    
     # Rota cupom para cliente:
     #path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado
     # Incluindo as rotas do DefaultRouter

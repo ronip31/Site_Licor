@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from ..models import Produto, ImagemProduto, Marca
-from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer
+from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer, ProductClientSerializer
 #from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 import os
 from ..permissions import IsAdminUser
+from rest_framework.permissions import AllowAny
+from rest_framework import generics
 
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
@@ -30,10 +32,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         return Response(produto_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MarcaViewSet(viewsets.ModelViewSet):
-    queryset = Marca.objects.all()
-    serializer_class = MarcaSerializer
-    #permission_classes = [IsAdminUser]
-    
-
+class ProductClientView(generics.ListAPIView):
+    queryset = Produto.objects.filter(status=Produto.ATIVO)
+    serializer_class = ProductClientSerializer
+    permission_classes = [AllowAny]  # Permitir o acesso para a área do cliente
 
