@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from ..models import Produto, ImagemProduto, Marca
-from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer, ProductClientSerializer, ProdutoSerializer
+from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer, ProdutoSerializer, ProductCupomSerializer
 #from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
@@ -30,12 +30,21 @@ class ProdutoViewSet(viewsets.ModelViewSet):
 
         print("Erros na edição do produto:", produto_serializer.errors)
         return Response(produto_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
-class ProductClientView(generics.ListAPIView):
-    queryset = Produto.objects.filter(status=Produto.ATIVO)
-    serializer_class = ProductClientSerializer
-    permission_classes = [AllowAny]  # Permite acesso público
+class Products_cupom_ViewSet(viewsets.ModelViewSet):
+    queryset = Produto.objects.all()
+    serializer_class = ProductCupomSerializer
+    lookup_field = 'uuid'  # Adicione esta linha para utilizar o campo UUID
+    #permission_classes = [IsAdminUser]
+
+
+
+# class ProductClientView(generics.ListAPIView):
+#     queryset = Produto.objects.filter(status=Produto.ATIVO)
+#     serializer_class = ProductClientSerializer
+#     permission_classes = [AllowAny]  # Permite acesso público
 
 
 class ProdutosComImagensListView(generics.ListAPIView):

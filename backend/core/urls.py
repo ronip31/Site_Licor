@@ -20,9 +20,9 @@ from .views import (
     CustomTokenObtainPairViewAdmin,
     CustomTokenObtainPairViewCliente,
     AplicarCupomView,
-    ProductClientView,
     ImagensPorProdutoView,
-    ProdutosComImagensListView
+    ProdutosComImagensListView,
+    Products_cupom_ViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -30,6 +30,7 @@ from django.conf.urls.static import static
 # Criação do router para registrar os ViewSets
 router = DefaultRouter()
 router.register(r'produtos', ProdutoViewSet, basename='produto')
+router.register(r'product_cupom', Products_cupom_ViewSet, basename='produto_cupom')
 # URLs padrões do ProdutoViewSet:
 # Listar Produtos: GET /api/produtos/
 # Criar Produto: POST /api/produtos/
@@ -81,8 +82,8 @@ urlpatterns = [
     path('calcular-frete/', CalcularFreteView.as_view(), name='calcular-frete'),
 
     # URL para acessar a área do cliente
-    path('products/', ProductClientView.as_view(),  name='produtos-client'),  
-    path('produtos/<uuid:produto_uuid>/imagens/', ImagensPorProdutoView.as_view(), name='imagens-por-produto'),
+    #path('products', ProductClientView.as_view(),  name='produtos-client'),  
+    #path('produtos/<uuid:produto_uuid>/imagens/', ImagensPorProdutoView.as_view(), name='imagens-por-produto'),
     path('products-with-images/', ProdutosComImagensListView.as_view(), name='products-with-images'),
     
     # Rota cupom para cliente:

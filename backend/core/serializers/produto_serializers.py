@@ -62,21 +62,22 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ProductClientSerializer(serializers.ModelSerializer):
-    preco_com_desconto = serializers.SerializerMethodField()
+# class ProductClientSerializer(serializers.ModelSerializer):
+#     preco_com_desconto = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Produto
-        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
+#     class Meta:
+#         model = Produto
+#         fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
 
-    def get_preco_com_desconto(self, obj):
-        # Obtenha o preço com desconto, se disponível
-        preco_info = obj.get_price_with_discount()
-        preco_promocional = preco_info.get('preco_promocional')
-        # Retorne None se não houver preço promocional
-        return preco_promocional if preco_promocional else None
+#     def get_preco_com_desconto(self, obj):
+#         # Obtenha o preço com desconto, se disponível
+#         preco_info = obj.get_price_with_discount()
+#         preco_promocional = preco_info.get('preco_promocional')
+#         # Retorne None se não houver preço promocional
+#         return preco_promocional if preco_promocional else None
     
 
+# Utilizado para buscar informações para área do cliente 
 class ProdutoSerializer(serializers.ModelSerializer):
     preco_com_desconto = serializers.SerializerMethodField()
     imagens = ImagemProdutoSerializerView(many=True, read_only=True)
@@ -92,3 +93,9 @@ class ProdutoSerializer(serializers.ModelSerializer):
         # Retorne None se não houver preço promocional
         return preco_promocional if preco_promocional else None
     
+# Utilizado na Rota de Cupoms - menos dados
+class ProductCupomSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Produto
+        fields = ['uuid','id', 'nome', 'categoria']

@@ -1,8 +1,8 @@
 from .user_views import UsuarioCreateView, UsuarioListView, UsuarioDetailView, UsuarioDeleteView
-from .product_views import ProdutoViewSet, ProductClientView, ProdutosComImagensListView
+from .product_views import ProdutoViewSet, ProdutosComImagensListView, Products_cupom_ViewSet
 from .category_views import CategoriaViewSet, MarcaViewSet
 from .token_login_view import CustomTokenObtainPairViewCliente, CustomTokenObtainPairViewAdmin
-from .promocao_view import PromocaoViewSet
+from .promocao_view import PromocaoSerializer, PromocaoViewSet
 from .calcular_frete_view import CalcularFreteView
 from .configuracao_frete_view import OpcaoFreteListView, ConfiguracaoFreteView
 from .cupom_view import CuponsViewSet, AplicarCupomView

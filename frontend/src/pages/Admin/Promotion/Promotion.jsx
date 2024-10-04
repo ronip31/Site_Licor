@@ -20,8 +20,8 @@ const PromotionsPage = () => {
     valor_promocao: '',
     data_inicio: '',
     data_fim: '',
-    produto: '',
-    categoria: ''
+    produtos: [],
+    categorias: []
   });
 
   const { enqueueSnackbar } = useSnackbar();
@@ -30,7 +30,7 @@ const PromotionsPage = () => {
     try {
       const [promocoesResponse, produtosResponse, categoriasResponse] = await Promise.all([
         api.get('/promocoes/'),
-        api.get('/produtos/'),
+        api.get('/product_cupom/'),
         api.get('/categorias/')
       ]);
 
@@ -86,8 +86,8 @@ const PromotionsPage = () => {
         valor_promocao: '',
         data_inicio: '',
         data_fim: '',
-        produto: '',
-        categoria: ''
+        produtos: [],
+        categorias: []
       }
     );
     setOpen(true);
@@ -101,13 +101,13 @@ const PromotionsPage = () => {
       valor_promocao: '',
       data_inicio: '',
       data_fim: '',
-      produto: '',
-      categoria: ''
+      produtos: [],
+      categorias: []
     });
   };
 
   const handleSaveEdit = async () => {
-    const { nome_promo, percentual, valor_promocao, data_inicio, data_fim, produto, categoria } = selectedPromotion;
+    const { nome_promo, percentual, valor_promocao, data_inicio, data_fim, produtos, categorias } = selectedPromotion;
 
     if (!nome_promo.trim() || (!percentual && !valor_promocao) || !data_inicio || !data_fim) {
       enqueueSnackbar('Preencha todos os campos obrigatórios.', { variant: 'warning' });
@@ -120,8 +120,8 @@ const PromotionsPage = () => {
       valor_promocao: valor_promocao ? parseFloat(valor_promocao) : null,
       data_inicio,
       data_fim,
-      produto: produto || null,
-      categoria: categoria || null
+      produtos,
+      categorias
     };
 
     try {
@@ -134,6 +134,7 @@ const PromotionsPage = () => {
       );
       handleCloseDialog();
       fetchData(); // Recarrega os dados após a ação de salvamento
+      enqueueSnackbar('Promoção salva com sucesso!', { variant: 'success' });
       return true;
     } catch (error) {
       enqueueSnackbar('Erro ao salvar promoção', { variant: 'error' });

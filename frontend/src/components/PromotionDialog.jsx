@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Autocomplete,
   Button,
   TextField,
   Dialog,
@@ -7,6 +8,8 @@ import {
   DialogContent,
   DialogTitle,
   Select,
+  Checkbox,
+  ListItemText,
   MenuItem,
   FormControl,
   InputLabel
@@ -27,23 +30,22 @@ const PromotionDialog = ({ open, onClose, selectedPromotion, handleSaveEdit, pro
   const handleSave = () => {
     handleSaveEdit();
   };
-  
-const handlePercentualChange = (e) => {
-  setSelectedPromotion({
-    ...selectedPromotion,
-    percentual: e.target.value,
-    valor_promocao: e.target.value ? '' : selectedPromotion.valor_promocao // Limpa o valor do campo oposto
-  });
-};
 
-const handleValorChange = (e) => {
-  setSelectedPromotion({
-    ...selectedPromotion,
-    valor_promocao: e.target.value,
-    percentual: e.target.value ? '' : selectedPromotion.percentual // Limpa o valor do campo oposto
-  });
-};
+  const handlePercentualChange = (e) => {
+    setSelectedPromotion({
+      ...selectedPromotion,
+      percentual: e.target.value,
+      valor_promocao: e.target.value ? '' : selectedPromotion.valor_promocao // Limpa o valor do campo oposto
+    });
+  };
 
+  const handleValorChange = (e) => {
+    setSelectedPromotion({
+      ...selectedPromotion,
+      valor_promocao: e.target.value,
+      percentual: e.target.value ? '' : selectedPromotion.percentual // Limpa o valor do campo oposto
+    });
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -91,20 +93,24 @@ const handleValorChange = (e) => {
           value={formatDate(selectedPromotion.data_fim)}
           onChange={(e) => setSelectedPromotion({ ...selectedPromotion, data_fim: e.target.value })}
         />
-        <FormControl fullWidth margin="dense">
-          <InputLabel>Produto</InputLabel>
-          <Select
-            value={selectedPromotion.produto}
-            onChange={(e) => setSelectedPromotion({ ...selectedPromotion, produto: e.target.value })}
-          >
-            <MenuItem value=""><em>Nenhum</em></MenuItem>
-            {products.map((product) => (
-              <MenuItem key={product.id} value={product.id}>
-                {product.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {/* Campo para seleção múltipla de produtos */}
+        <Autocomplete
+          multiple
+          options={products}
+          getOptionLabel={(option) => option.nome}
+          value={products.filter((product) => selectedPromotion.produtos.includes(product.id))}
+          onChange={(event, newValue) => {
+            setSelectedPromotion({ ...selectedPromotion, produtos: newValue.map((p) => p.id) });
+          }}
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox checked={selected} />
+              <ListItemText primary={option.nome} />
+            </li>
+          )}
+          renderInput={(params) => <TextField {...params} label="Produtos" placeholder="Selecionar produtos" />}
+        />
+        {/* Campo para seleção múltipla de Categoria */}
         <FormControl fullWidth margin="dense">
           <InputLabel>Categoria</InputLabel>
           <Select
