@@ -1,5 +1,5 @@
 from .usuario_serializers import UsuarioSerializer
-from .produto_serializers import ProductSerializer, ImagemProdutoSerializer, ProductClientSerializer, ImagemProdutoSerializerView
+from .produto_serializers import ProductSerializer, ImagemProdutoSerializer, ProductClientSerializer, ImagemProdutoSerializerView, ProdutoSerializer
 from .auth_serializers import CustomAdminTokenObtainPairSerializer, CustomClienteTokenObtainPairSerializer
 from .frete_serializers import CalculoFreteSerializer, OpcaoFreteSerializer, ConfiguracaoFreteSerializer
 from .cupom_serializers import CupomSerializer

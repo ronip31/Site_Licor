@@ -8,7 +8,7 @@ class ImagemProdutoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ImagemProduto
-        fields = ['uuid', 'produto', 'imagem', 'descricao_imagem', 'data_criacao']
+        fields = ['uuid', 'produto', 'imagem', 'descricao_imagem']
 
     def get_imagem(self, obj):
         if obj.imagem:
@@ -18,7 +18,7 @@ class ImagemProdutoSerializer(serializers.ModelSerializer):
 class ImagemProdutoSerializerView(serializers.ModelSerializer):
     class Meta:
         model = ImagemProduto
-        fields = ['uuid', 'imagem', 'descricao_imagem']
+        fields = ['uuid', 'imagem']
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -67,7 +67,7 @@ class ProductClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Produto
-        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque']
+        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
 
     def get_preco_com_desconto(self, obj):
         # Obtenha o preço com desconto, se disponível
@@ -75,3 +75,20 @@ class ProductClientSerializer(serializers.ModelSerializer):
         preco_promocional = preco_info.get('preco_promocional')
         # Retorne None se não houver preço promocional
         return preco_promocional if preco_promocional else None
+    
+
+class ProdutoSerializer(serializers.ModelSerializer):
+    preco_com_desconto = serializers.SerializerMethodField()
+    imagens = ImagemProdutoSerializerView(many=True, read_only=True)
+
+    class Meta:
+        model = Produto
+        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
+
+    def get_preco_com_desconto(self, obj):
+        # Obtenha o preço com desconto, se disponível
+        preco_info = obj.get_price_with_discount()
+        preco_promocional = preco_info.get('preco_promocional')
+        # Retorne None se não houver preço promocional
+        return preco_promocional if preco_promocional else None
+    

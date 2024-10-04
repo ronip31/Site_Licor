@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import TextField from '@mui/material/TextField';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Stack,
+  TextField,
+  useMediaQuery,
+  Divider,
+} from '@mui/material';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 
 const theme = createTheme({
   palette: {
@@ -17,12 +28,11 @@ const theme = createTheme({
     },
     secondary: {
       main: '#ffffff',
-      light: '#ff5983',
-      dark: '#bb002f',
-      contrastText: '#ffffff',
+      contrastText: '#232f3e',
     },
     background: {
       default: '#f5f5f5',
+      paper: '#232f3e', // Cor do fundo do Drawer
     },
     text: {
       primary: '#ffffff',
@@ -54,10 +64,9 @@ const SearchField = styled(TextField)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   borderRadius: '25px',
   '& .MuiOutlinedInput-root': {
-    borderRadius: '25px', // Garante que a borda externa também seja arredondada
+    borderRadius: '25px',
     '& fieldset': {
       borderColor: theme.palette.secondary.contrastText,
-      borderRadius: '25px', // Arredonda as bordas da borda do campo
     },
     '&:hover fieldset': {
       borderColor: theme.palette.primary.light,
@@ -74,41 +83,90 @@ const SearchField = styled(TextField)(({ theme }) => ({
 }));
 
 const Header = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
   return (
-    <Stack spacing={2} direction="row">
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <Stack spacing={2} direction="row">
         <AppBar position="static">
           <StyledToolbar>
             <Button component={Link} to="/" color="secondary">
               Casa dos Licores
             </Button>
 
-            <CenteredContainer>
-              <SearchField
-                variant="outlined"
-                placeholder="Buscar produtos..."
-                size="small"
-              />
-            </CenteredContainer>
+            {!isMobile && (
+              <CenteredContainer>
+                <SearchField
+                  variant="outlined"
+                  placeholder="Buscar produtos..."
+                  size="small"
+                />
+              </CenteredContainer>
+            )}
 
-            <div>
-              <Button component={Link} to="/products" color="secondary">
-                Produtos
-              </Button>
-              <Button component={Link} to="/about" color="secondary">
-                Sobre
-              </Button>
-              <Button component={Link} to="/contact" color="secondary">
-                Contato
-              </Button>
-              <Button component={Link} to="/perfil" color="secondary">
-                Perfil
-              </Button>
-            </div>
+            {isMobile ? (
+              <IconButton color="inherit" onClick={toggleDrawer}>
+                <MenuIcon />
+              </IconButton>
+            ) : (
+              <div>
+                <Button component={Link} to="/products" color="secondary">
+                  Produtos
+                </Button>
+                <Button component={Link} to="/about" color="secondary">
+                  Sobre
+                </Button>
+                <Button component={Link} to="/contact" color="secondary">
+                  Contato
+                </Button>
+                <Button component={Link} to="/perfil" color="secondary">
+                  Perfil
+                </Button>
+              </div>
+            )}
           </StyledToolbar>
         </AppBar>
-      </ThemeProvider>
-    </Stack>
+
+        {/* Drawer para navegação em dispositivos móveis */}
+        <Drawer
+          anchor="right"
+          open={drawerOpen}
+          onClose={toggleDrawer}
+          PaperProps={{
+            sx: {
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+            },
+          }}
+        >
+          <div style={{ width: 250 }}>
+            <IconButton onClick={toggleDrawer} sx={{ margin: '10px', color: theme.palette.secondary.main }}>
+              <CloseIcon />
+            </IconButton>
+            <Divider />
+            <List>
+              <ListItem button component={Link} to="/products" onClick={toggleDrawer}>
+                <ListItemText primary="Produtos" sx={{ color: theme.palette.primary.contrastText }} />
+              </ListItem>
+              <ListItem button component={Link} to="/about" onClick={toggleDrawer}>
+                <ListItemText primary="Sobre" sx={{ color: theme.palette.primary.contrastText }} />
+              </ListItem>
+              <ListItem button component={Link} to="/contact" onClick={toggleDrawer}>
+                <ListItemText primary="Contato" sx={{ color: theme.palette.primary.contrastText }} />
+              </ListItem>
+              <ListItem button component={Link} to="/perfil" onClick={toggleDrawer}>
+                <ListItemText primary="Perfil" sx={{ color: theme.palette.primary.contrastText }} />
+              </ListItem>
+            </List>
+          </div>
+        </Drawer>
+      </Stack>
+    </ThemeProvider>
   );
 };
 

@@ -14,6 +14,7 @@ import {
   CssBaseline,
   Tooltip,
   Collapse,
+  useMediaQuery,
 } from '@mui/material';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -29,7 +30,6 @@ import StoreIcon from '@mui/icons-material/Store';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import SettingsIcon from '@mui/icons-material/Settings';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 const theme = createTheme({
@@ -64,6 +64,9 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
   const [openCadastros, setOpenCadastros] = useState(false); // Estado para controlar submenu
   const navigate = useNavigate();
 
+  // Responsividade
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
@@ -86,14 +89,17 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
             edge="start"
             sx={{ marginRight: 2 }}
           >
-            {drawerOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+            <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Painel Administrador Casa dos Licores
-          </Typography>
+          {!isMobile && (
+            <Typography variant="h6" noWrap component="div">
+              Painel Administrador Casa dos Licores
+            </Typography>
+          )}
         </Toolbar>
       </AppBar>
 
+      {/* Drawer temporária para dispositivos móveis */}
       <Drawer
         sx={{
           width: drawerOpen ? drawerWidth : drawerWidthClosed,
@@ -112,8 +118,10 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
             overflowY: 'auto',
           },
         }}
-        variant="permanent"
+        variant={isMobile ? 'temporary' : 'permanent'} // Altera o tipo de Drawer para dispositivos móveis
         anchor="left"
+        open={drawerOpen}
+        onClose={toggleDrawer}
       >
         <DrawerHeader>
           <IconButton onClick={toggleDrawer} sx={{ paddingLeft: 0 }}>
@@ -155,12 +163,12 @@ const AdminHeader = ({ drawerOpen, toggleDrawer }) => {
 
           {/* Menu "Cadastros" */}
           <ListItem button onClick={handleToggleCadastros}>
-          <Tooltip title="Abrir Cadastros" placement="right" disableHoverListener={drawerOpen}>
-            <ListItemIcon>
-              <AppRegistrationIcon sx={{ color: theme.palette.secondary.main }} />
-            </ListItemIcon>
+            <Tooltip title="Abrir Cadastros" placement="right" disableHoverListener={drawerOpen}>
+              <ListItemIcon>
+                <AppRegistrationIcon sx={{ color: theme.palette.secondary.main }} />
+              </ListItemIcon>
             </Tooltip>
-            <ListItemText primary="Cadastros" />
+            {drawerOpen && <ListItemText primary="Cadastros" />}
             {openCadastros ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
           <Collapse in={openCadastros} timeout="auto" unmountOnExit>

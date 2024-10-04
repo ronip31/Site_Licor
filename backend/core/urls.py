@@ -21,7 +21,8 @@ from .views import (
     CustomTokenObtainPairViewCliente,
     AplicarCupomView,
     ProductClientView,
-    ImagensPorProdutoView
+    ImagensPorProdutoView,
+    ProdutosComImagensListView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -39,10 +40,11 @@ router.register(r'produtos', ProdutoViewSet, basename='produto')
 router.register(r'imagens', ImagemProdutoViewSet, basename='imagemproduto')
 router.register(r'opcoes-frete', OpcaoFreteListView, basename='opcao-frete')
 router.register(r'marcas', MarcaViewSet, basename='marca')
+router.register(r'categorias', CategoriaViewSet, basename='categorias')
 router.register(r'promocoes', PromocaoViewSet, basename='promocoes')
 router.register(r'cupons', CuponsViewSet, basename='cupons')
 router.register(r'carousel-admin', CarouselImageAdminViewSet, basename='carousel-admin')
-router.register(r'categorias', CategoriaViewSet, basename='categorias')
+
 router.register(r'theme-config', ThemeConfigViewSet, basename='theme-config')
 
 # Definindo as URLs
@@ -58,6 +60,9 @@ urlpatterns = [
     path('token/admin/', CustomTokenObtainPairViewAdmin.as_view(), name='token_obtain_pair_admin'),
     path('token/cliente/', CustomTokenObtainPairViewCliente.as_view(), name='token_obtain_pair_cliente'),
 
+    # Configuração de frete - Administrador
+    path('configuracao-frete/', ConfiguracaoFreteView.as_view(), name='configuracao-frete'),
+
     # Categorias  - Administrador
     # path('createcategories/', CategoriasCreateView.as_view(), name='create_categorias'),
     # path('categories/list/', ListCategoriasView.as_view(), name='lista_categoria'),
@@ -70,8 +75,7 @@ urlpatterns = [
 
     path('carousel-list/', CarouselImageListView.as_view(), name='carousel-lista'),
 
-    # Configuração de frete - Administrador
-    path('configuracao-frete/', ConfiguracaoFreteView.as_view(), name='configuracao-frete'),
+    
 
     # Calcular Frete
     path('calcular-frete/', CalcularFreteView.as_view(), name='calcular-frete'),
@@ -79,6 +83,7 @@ urlpatterns = [
     # URL para acessar a área do cliente
     path('products/', ProductClientView.as_view(),  name='produtos-client'),  
     path('produtos/<uuid:produto_uuid>/imagens/', ImagensPorProdutoView.as_view(), name='imagens-por-produto'),
+    path('products-with-images/', ProdutosComImagensListView.as_view(), name='products-with-images'),
     
     # Rota cupom para cliente:
     #path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado

@@ -90,8 +90,12 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               margin="dense"
               label="Estoque"
               fullWidth
-              value={selectedProduct?.quantidade_estoque || ''}
-              onChange={(e) => setSelectedProduct({ ...selectedProduct, quantidade_estoque: parseFloat(e.target.value) })}
+              type="number" // Adiciona o tipo number para garantir que o campo aceite apenas números
+              value={selectedProduct?.quantidade_estoque || 0} // Mostra 0 quando o campo está vazio
+              onChange={(e) => setSelectedProduct({ 
+                ...selectedProduct, 
+                quantidade_estoque: e.target.value === '' ? 0 : parseFloat(e.target.value) 
+              })}
             />
 
           <FormControl fullWidth margin="dense">

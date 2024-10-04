@@ -250,7 +250,6 @@ const CouponsPage = () => {
               },
             }}
             pageSizeOptions={[5, 10, 20]}
-            checkboxSelection
           />
         </Box>
 

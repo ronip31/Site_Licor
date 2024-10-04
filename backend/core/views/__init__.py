@@ -1,5 +1,5 @@
 from .user_views import UsuarioCreateView, UsuarioListView, UsuarioDetailView, UsuarioDeleteView
-from .product_views import ProdutoViewSet, ProductClientView
+from .product_views import ProdutoViewSet, ProductClientView, ProdutosComImagensListView
 from .category_views import CategoriaViewSet, MarcaViewSet
 from .token_login_view import CustomTokenObtainPairViewCliente, CustomTokenObtainPairViewAdmin
 from .promocao_view import PromocaoViewSet

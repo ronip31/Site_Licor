@@ -35,9 +35,9 @@ const ProductsPage = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   const validateFields = () => {
-    const { nome, descricao, preco_custo, preco_venda, quantidade_estoque, categoria, status } = selectedProduct;
+    const { nome, descricao, preco_custo, preco_venda, categoria, status } = selectedProduct;
 
-    if (!nome.trim() || !descricao.trim() || !preco_custo || !preco_venda || !quantidade_estoque || !categoria || !status) {
+    if (!nome.trim() || !descricao.trim() || !preco_custo || !preco_venda || !categoria || !status) {
       enqueueSnackbar('Todos os campos são obrigatórios.', { variant: 'warning' });
       return false;
     }
@@ -260,7 +260,6 @@ const ProductsPage = () => {
             },
           }}
           pageSizeOptions={[5, 10, 20]}
-          checkboxSelection
           sx={{
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: '#f5f5f5',
