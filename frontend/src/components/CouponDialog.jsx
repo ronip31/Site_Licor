@@ -179,16 +179,16 @@ const getValorLabel = () => {
           autoFocus
           multiple
           options={customers}
-          value={customers.filter((customer) => selectedCoupon.clientes_exclusivos?.includes(customer.id))}
+          value={customers.filter((customer) => selectedCoupon.clientes_exclusivos?.includes(customer.uuid))}
           onChange={(event, newValue) => {
-            setSelectedCoupon({ ...selectedCoupon, clientes_exclusivos: newValue.map((c) => c.id) });
+            setSelectedCoupon({ ...selectedCoupon, clientes_exclusivos: newValue.map((c) => c.uuid) });
           }}
           getOptionLabel={(option) => option.email} // Exibe o e-mail como opção
           renderOption={(props, option, { selected }) => (
             <li {...props}>
               <Checkbox
                 style={{ marginRight: 8 }}
-                checked={selectedCoupon.clientes_exclusivos?.includes(option.id)}
+                checked={selectedCoupon.clientes_exclusivos?.includes(option.uuid)}
               />
               <ListItemText primary={option.email} /> {/* Exibe o e-mail do cliente */}
             </li>

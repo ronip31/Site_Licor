@@ -13,13 +13,13 @@ from .views import (
     ConfiguracaoFreteView,
     MarcaViewSet,
     CuponsViewSet,
-    CuponsDetailView,
     CarouselImageAdminViewSet,
     CarouselImageListView,
     CategoriaViewSet,
     ThemeConfigViewSet,
     CustomTokenObtainPairViewAdmin,
-    CustomTokenObtainPairViewCliente
+    CustomTokenObtainPairViewCliente,
+    AplicarCupomView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -62,7 +62,7 @@ urlpatterns = [
     # path('categories/<int:pk>/', CategoriasDetailView.as_view(), name='Categorias-detalhe'),
 
     # Promocao  - Administrador
-    # path('promocoes/', PromocaoCreateView.as_view(), name='promocao-create'),  # Adicionado
+    path('aplicar-cupom/', AplicarCupomView.as_view(), name='aplicar-cupom'),
     
     # path('promocao/lista/', PromocaoListView.as_view(), name='promocao-lista'),  # Adicionado
 
@@ -75,7 +75,7 @@ urlpatterns = [
     path('calcular-frete/', CalcularFreteView.as_view(), name='calcular-frete'),
 
     # Rota cupom para cliente:
-    path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado
+    #path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado
     # Incluindo as rotas do DefaultRouter
     path('', include(router.urls)),
 

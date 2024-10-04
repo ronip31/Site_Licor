@@ -1,0 +1,10 @@
+from .usuario_serializers import UsuarioSerializer
+from .produto_serializers import ProductSerializer, ImagemProdutoSerializer
+from .auth_serializers import CustomAdminTokenObtainPairSerializer, CustomClienteTokenObtainPairSerializer
+from .frete_serializers import CalculoFreteSerializer, OpcaoFreteSerializer, ConfiguracaoFreteSerializer
+from .cupom_serializers import CupomSerializer
+from .carousel_serializers import CarouselImageAdminSerializer, CarouselImageClientSerializer
+from .theme_serializers import ThemeConfigSerializer
+from .categoria_serializers import CategoriaSerializer
+from .marca_serializers import MarcaSerializer
+from .promocao_serializer import PromocaoSerializer

@@ -1,264 +1,264 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import serializers
-from .models import Usuario, Produto, Categoria
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import check_password
-from rest_framework import serializers
-from .models import ImagemProduto, Cupom, CarouselImage
-from .models import Promocao, OpcaoFrete, ConfiguracaoFrete, Marca
-from .models import ThemeConfig
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+# from rest_framework_simplejwt.tokens import RefreshToken
+# from rest_framework import serializers
+# from .models import Usuario, Produto, Categoria
+# from django.contrib.auth.hashers import make_password
+# from django.contrib.auth import authenticate
+# from django.contrib.auth.hashers import check_password
+# from rest_framework import serializers
+# from .models import ImagemProduto, Cupom, CarouselImage
+# from .models import Promocao, OpcaoFrete, ConfiguracaoFrete, Marca
+# from .models import ThemeConfig
 
 
-class UsuarioSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Usuario
-        fields = ['uuid', 'nome', 'email', 'password', 'telefone', 'data_criacao']
-        extra_kwargs = {'password': {'write_only': True}}  # Para evitar que a senha seja exibida nas respostas
+# class UsuarioSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Usuario
+#         fields = ['uuid', 'nome', 'email', 'password', 'telefone', 'data_criacao']
+#         extra_kwargs = {'password': {'write_only': True}}  # Para evitar que a senha seja exibida nas respostas
 
-    def create(self, validated_data):
-        # Criptografa a senha antes de salvar o usuário
-        validated_data['password'] = make_password(validated_data['password'])
-        return super().create(validated_data)
+#     def create(self, validated_data):
+#         # Criptografa a senha antes de salvar o usuário
+#         validated_data['password'] = make_password(validated_data['password'])
+#         return super().create(validated_data)
 
 
-class ImagemProdutoSerializer(serializers.ModelSerializer):
-    imagem = serializers.SerializerMethodField()  # Use SerializerMethodField para customizar o campo
+# class ImagemProdutoSerializer(serializers.ModelSerializer):
+#     imagem = serializers.SerializerMethodField()  # Use SerializerMethodField para customizar o campo
 
-    class Meta:
-        model = ImagemProduto
-        fields = ['uuid', 'produto', 'imagem', 'descricao_imagem', 'data_criacao']
+#     class Meta:
+#         model = ImagemProduto
+#         fields = ['uuid', 'produto', 'imagem', 'descricao_imagem', 'data_criacao']
 
-    def get_imagem(self, obj):
-        # Verifica se o objeto tem uma imagem e retorna a URL correta
-        if obj.imagem:
-            return obj.imagem.url  # Retorna a URL relativa da imagem
-        return None
+#     def get_imagem(self, obj):
+#         # Verifica se o objeto tem uma imagem e retorna a URL correta
+#         if obj.imagem:
+#             return obj.imagem.url  # Retorna a URL relativa da imagem
+#         return None
     
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    imagens = ImagemProdutoSerializer(many=True, required=False)
-    preco_promocional = serializers.SerializerMethodField()
-    preco_anterior = serializers.SerializerMethodField()
+# class ProductSerializer(serializers.ModelSerializer):
+#     imagens = ImagemProdutoSerializer(many=True, required=False)
+#     preco_promocional = serializers.SerializerMethodField()
+#     preco_anterior = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Produto
-        fields = ['uuid', 'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'preco_promocional', 'preco_anterior', 'quantidade_estoque', 
-            'categoria', 'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
-            'altura', 'largura', 'comprimento', 'peso', 'imagens'
-        ]
+#     class Meta:
+#         model = Produto
+#         fields = ['uuid', 'id', 'nome', 'descricao', 'preco_custo', 'preco_venda', 'preco_promocional', 'preco_anterior', 'quantidade_estoque', 
+#             'categoria', 'status', 'teor_alcoolico', 'volume', 'marca', 'data_adicionado', 'data_modificado', 
+#             'altura', 'largura', 'comprimento', 'peso', 'imagens'
+#         ]
 
-    def get_preco_promocional(self, obj):
-        prices = obj.get_price_with_discount()
-        return prices.get('preco_promocional')
+#     def get_preco_promocional(self, obj):
+#         prices = obj.get_price_with_discount()
+#         return prices.get('preco_promocional')
 
-    def get_preco_anterior(self, obj):
-        prices = obj.get_price_with_discount()
-        return prices.get('preco_anterior')
-
-
-    def create(self, validated_data):
-        imagens_data = validated_data.pop('imagens', None)
-        produto = Produto.objects.create(**validated_data)
-        if imagens_data:
-            for imagem_data in imagens_data:
-                ImagemProduto.objects.create(produto=produto, **imagem_data)
-        return produto
+#     def get_preco_anterior(self, obj):
+#         prices = obj.get_price_with_discount()
+#         return prices.get('preco_anterior')
 
 
-    def update(self, instance, validated_data):
-        imagens_data = validated_data.pop('imagens', None)
-
-        # Atualiza os campos simples
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-
-        return instance
+#     def create(self, validated_data):
+#         imagens_data = validated_data.pop('imagens', None)
+#         produto = Produto.objects.create(**validated_data)
+#         if imagens_data:
+#             for imagem_data in imagens_data:
+#                 ImagemProduto.objects.create(produto=produto, **imagem_data)
+#         return produto
 
 
-class CustomAdminTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'
+#     def update(self, instance, validated_data):
+#         imagens_data = validated_data.pop('imagens', None)
 
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
+#         # Atualiza os campos simples
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+#         instance.save()
 
-        # Autentica o usuário usando o backend personalizado
-        user = authenticate(username=email, password=password)
+#         return instance
 
-        if not user:
-            raise serializers.ValidationError({
-                "detail": "Usuário não encontrado",
-                "code": "user_not_found"
-            })
 
-        # Verifica se o usuário é um administrador
-        if user.tipo_usuario != 'administrador':
-            raise serializers.ValidationError({
-                "detail": "Acesso negado. Apenas administradores podem fazer login aqui.",
-                "code": "not_admin"
-            })
+# class CustomAdminTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     username_field = 'email'
 
-        # Gera o token de refresh e access
-        refresh = self.get_token(user)
+#     def validate(self, attrs):
+#         email = attrs.get('email')
+#         password = attrs.get('password')
 
-        # Adiciona o UUID do usuário no token em vez do ID
-        refresh['uuid'] = str(user.uuid)
+#         # Autentica o usuário usando o backend personalizado
+#         user = authenticate(username=email, password=password)
 
-        # Retorna o token de acesso
-        return {
-            'access': str(refresh.access_token),
-            'uuid': str(user.uuid),  # Incluindo o UUID no retorno
-        }
+#         if not user:
+#             raise serializers.ValidationError({
+#                 "detail": "Usuário não encontrado",
+#                 "code": "user_not_found"
+#             })
+
+#         # Verifica se o usuário é um administrador
+#         if user.tipo_usuario != 'administrador':
+#             raise serializers.ValidationError({
+#                 "detail": "Acesso negado. Apenas administradores podem fazer login aqui.",
+#                 "code": "not_admin"
+#             })
+
+#         # Gera o token de refresh e access
+#         refresh = self.get_token(user)
+
+#         # Adiciona o UUID do usuário no token em vez do ID
+#         refresh['uuid'] = str(user.uuid)
+
+#         # Retorna o token de acesso
+#         return {
+#             'access': str(refresh.access_token),
+#             'uuid': str(user.uuid),  # Incluindo o UUID no retorno
+#         }
         
 
-class CustomClienteTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'
+# class CustomClienteTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     username_field = 'email'
 
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
+#     def validate(self, attrs):
+#         email = attrs.get('email')
+#         password = attrs.get('password')
 
-        # Autentica o usuário
-        user = authenticate(username=email, password=password)
+#         # Autentica o usuário
+#         user = authenticate(username=email, password=password)
 
-        if not user:
-            raise serializers.ValidationError({
-                "detail": "Usuário não encontrado",
-                "code": "user_not_found"
-            })
+#         if not user:
+#             raise serializers.ValidationError({
+#                 "detail": "Usuário não encontrado",
+#                 "code": "user_not_found"
+#             })
 
-        # Verifica se o usuário é um cliente
-        if user.tipo_usuario != 'cliente':
-            raise serializers.ValidationError({
-                "detail": "Acesso negado. Apenas clientes podem fazer login aqui.",
-                "code": "not_cliente"
-            })
+#         # Verifica se o usuário é um cliente
+#         if user.tipo_usuario != 'cliente':
+#             raise serializers.ValidationError({
+#                 "detail": "Acesso negado. Apenas clientes podem fazer login aqui.",
+#                 "code": "not_cliente"
+#             })
 
-        # Gera o token de refresh e access
-        refresh = self.get_token(user)
+#         # Gera o token de refresh e access
+#         refresh = self.get_token(user)
 
-        # Adiciona o UUID do usuário no token em vez do ID
-        refresh['uuid'] = str(user.uuid)
+#         # Adiciona o UUID do usuário no token em vez do ID
+#         refresh['uuid'] = str(user.uuid)
 
-        return {
-            'access': str(refresh.access_token),
-            'uuid': str(user.uuid),
-        }
-
-
-class CategoriaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Categoria
-        fields = '__all__'
-
-class MarcaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Marca
-        fields = '__all__'
-
-class CalculoFreteSerializer(serializers.Serializer):
-    produto_id = serializers.CharField(required=True)
-    cep_destino = serializers.CharField(max_length=10, required=True)
-
-    def validate_cep_destino(self, value):
-        # Adicione aqui a validação de CEP se necessário
-        return value
+#         return {
+#             'access': str(refresh.access_token),
+#             'uuid': str(user.uuid),
+#         }
 
 
-class PromocaoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Promocao
-        fields = '__all__'
+# class CategoriaSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Categoria
+#         fields = '__all__'
+
+# class MarcaSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Marca
+#         fields = '__all__'
+
+# class CalculoFreteSerializer(serializers.Serializer):
+#     produto_id = serializers.CharField(required=True)
+#     cep_destino = serializers.CharField(max_length=10, required=True)
+
+#     def validate_cep_destino(self, value):
+#         # Adicione aqui a validação de CEP se necessário
+#         return value
 
 
-class OpcaoFreteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OpcaoFrete
-        fields = ['id', 'id_frete', 'nome', 'ativo']
+# class PromocaoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Promocao
+#         fields = '__all__'
 
 
-class ConfiguracaoFreteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConfiguracaoFrete
-        fields = ['cep_origem', 'desconto_frete', 'acrescimo_frete', 'dias_adicionais_entrega']
+# class OpcaoFreteSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = OpcaoFrete
+#         fields = ['id', 'id_frete', 'nome', 'ativo']
 
-class CupomSerializer(serializers.ModelSerializer):
-    produtos = serializers.PrimaryKeyRelatedField(queryset=Produto.objects.all(), many=True, required=False)
-    categorias = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all(), many=True, required=False)
-    clientes_exclusivos = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), many=True, required=False)
 
-    class Meta:
-        model = Cupom
-        fields = [
-            'id', 'codigo', 'descricao', 'tipo', 'valor', 'data_inicio', 'data_fim', 'ativo',
-            'uso_maximo', 'uso_por_cliente', 'valor_minimo_compra', 'valor_maximo_desconto',
-            'produtos', 'categorias', 'clientes_exclusivos'
-        ]
+# class ConfiguracaoFreteSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ConfiguracaoFrete
+#         fields = ['cep_origem', 'desconto_frete', 'acrescimo_frete', 'dias_adicionais_entrega']
 
-    def validate(self, data):
-        # Validações personalizadas
-        if data['tipo'] == 'percentual' and not data.get('valor'):
-            raise serializers.ValidationError("Para cupons percentuais, o campo 'valor' é obrigatório.")
-        if data['tipo'] == 'valor' and not data.get('valor'):
-            raise serializers.ValidationError("Para cupons de valor fixo, o campo 'valor' é obrigatório.")
-        if data['tipo'] == 'frete_gratis' and data.get('valor') is not None:
-            raise serializers.ValidationError("Para cupons de frete grátis, o campo 'valor' deve ser nulo.")
-        return data
+# class CupomSerializer(serializers.ModelSerializer):
+#     produtos = serializers.PrimaryKeyRelatedField(queryset=Produto.objects.all(), many=True, required=False)
+#     categorias = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all(), many=True, required=False)
+#     clientes_exclusivos = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), many=True, required=False)
+
+#     class Meta:
+#         model = Cupom
+#         fields = [
+#             'id', 'codigo', 'descricao', 'tipo', 'valor', 'data_inicio', 'data_fim', 'ativo',
+#             'uso_maximo', 'uso_por_cliente', 'valor_minimo_compra', 'valor_maximo_desconto',
+#             'produtos', 'categorias', 'clientes_exclusivos'
+#         ]
+
+#     def validate(self, data):
+#         # Validações personalizadas
+#         if data['tipo'] == 'percentual' and not data.get('valor'):
+#             raise serializers.ValidationError("Para cupons percentuais, o campo 'valor' é obrigatório.")
+#         if data['tipo'] == 'valor' and not data.get('valor'):
+#             raise serializers.ValidationError("Para cupons de valor fixo, o campo 'valor' é obrigatório.")
+#         if data['tipo'] == 'frete_gratis' and data.get('valor') is not None:
+#             raise serializers.ValidationError("Para cupons de frete grátis, o campo 'valor' deve ser nulo.")
+#         return data
     
-class CarouselImageAdminSerializer(serializers.ModelSerializer):
-    imagem = serializers.ImageField(required=False, allow_null=True)
+# class CarouselImageAdminSerializer(serializers.ModelSerializer):
+#     imagem = serializers.ImageField(required=False, allow_null=True)
 
-    class Meta:
-        model = CarouselImage
-        fields = '__all__'
+#     class Meta:
+#         model = CarouselImage
+#         fields = '__all__'
 
-    def update(self, instance, validated_data):
-        # Verificar se a chave 'imagem' está presente no payload
-        imagem = validated_data.get('imagem', None)
+#     def update(self, instance, validated_data):
+#         # Verificar se a chave 'imagem' está presente no payload
+#         imagem = validated_data.get('imagem', None)
         
-        # Atualiza os outros campos normalmente
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+#         # Atualiza os outros campos normalmente
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
 
-        # Lógica para lidar com a imagem
-        # Somente atualizar se a imagem foi explicitamente enviada
-        if 'imagem' in validated_data:
-            if imagem is None:
-                # Se imagem é None, remover a imagem atual
-                if instance.imagem:
-                    instance.imagem.delete(save=False)
-                instance.imagem = None
-            elif imagem:
-                # Se uma nova imagem foi enviada, substituir
-                instance.imagem = imagem
+#         # Lógica para lidar com a imagem
+#         # Somente atualizar se a imagem foi explicitamente enviada
+#         if 'imagem' in validated_data:
+#             if imagem is None:
+#                 # Se imagem é None, remover a imagem atual
+#                 if instance.imagem:
+#                     instance.imagem.delete(save=False)
+#                 instance.imagem = None
+#             elif imagem:
+#                 # Se uma nova imagem foi enviada, substituir
+#                 instance.imagem = imagem
         
-        instance.save()
-        return instance
+#         instance.save()
+#         return instance
 
-    def get_imagem(self, obj):
-        request = self.context.get('request')
-        if obj.imagem:
-            return request.build_absolute_uri(obj.imagem.url)
-        return None
+#     def get_imagem(self, obj):
+#         request = self.context.get('request')
+#         if obj.imagem:
+#             return request.build_absolute_uri(obj.imagem.url)
+#         return None
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"request": self.request})
-        return context
+#     def get_serializer_context(self):
+#         context = super().get_serializer_context()
+#         context.update({"request": self.request})
+#         return context
 
     
 
-class CarouselImageClientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CarouselImage
-        fields = ['uuid', 'titulo', 'imagem', 'link_url']
+# class CarouselImageClientSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CarouselImage
+#         fields = ['uuid', 'titulo', 'imagem', 'link_url']
 
 
-class ThemeConfigSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ThemeConfig
-        fields = '__all__'
+# class ThemeConfigSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ThemeConfig
+#         fields = '__all__'

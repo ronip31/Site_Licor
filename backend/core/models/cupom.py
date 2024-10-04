@@ -39,24 +39,24 @@ class Cupom(models.Model):
         now = timezone.now()
         return self.ativo and self.data_inicio <= now <= self.data_fim
 
-    def aplicar_cupom(self, valor_compra):
-        """
-        Função para calcular o desconto com base no tipo de cupom
-        """
-        # Certifique-se de que valor_compra seja Decimal
-        valor_compra = Decimal(valor_compra)
+    # def aplicar_cupom(self, valor_compra):
+    #     """
+    #     Função para calcular o desconto com base no tipo de cupom
+    #     """
+    #     # Certifique-se de que valor_compra seja Decimal
+    #     valor_compra = Decimal(valor_compra)
 
-        if not self.is_active():
-            return 0
+    #     if not self.is_active():
+    #         return 0
 
-        desconto = 0
-        if self.tipo == 'percentual':
-            desconto = valor_compra * (self.valor / Decimal(100))
-            if self.valor_maximo_desconto:
-                desconto = min(desconto, self.valor_maximo_desconto)
-        elif self.tipo == 'valor':
-            desconto = self.valor
-        elif self.tipo == 'frete_gratis':
-            desconto = 0  # Não aplica desconto diretamente no valor do produto, mas remove o custo de frete
+    #     desconto = 0
+    #     if self.tipo == 'percentual':
+    #         desconto = valor_compra * (self.valor / Decimal(100))
+    #         if self.valor_maximo_desconto:
+    #             desconto = min(desconto, self.valor_maximo_desconto)
+    #     elif self.tipo == 'valor':
+    #         desconto = self.valor
+    #     elif self.tipo == 'frete_gratis':
+    #         desconto = 0  # Não aplica desconto diretamente no valor do produto, mas remove o custo de frete
 
-        return desconto
+    #     return desconto

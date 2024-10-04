@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..services import calcular_frete
+from ..services import CupomService
 from ..serializers import CalculoFreteSerializer
 from decouple import config
 from ..permissions import IsAdminUser
@@ -17,7 +17,7 @@ class CalcularFreteView(APIView):
             produto_id = serializer.validated_data['produto_id']
             cep_destino = serializer.validated_data['cep_destino']
 
-            resultado_frete = calcular_frete(produto_id, cep_destino, SECRET_KEY)
+            resultado_frete = CupomService.calcular_frete(produto_id, cep_destino, SECRET_KEY)
 
             if "error" in resultado_frete:
                 return Response({"error": resultado_frete["error"]}, status=status.HTTP_400_BAD_REQUEST)
