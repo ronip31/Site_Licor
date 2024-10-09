@@ -9,8 +9,8 @@ class Promocao(models.Model):
     data_inicio = models.DateTimeField()
     data_fim = models.DateTimeField()
     nome_promo = models.TextField(blank=True, null=True)
-    produtos = models.ManyToManyField(Produto, blank=True, null=True, related_name='promocoes')  # Relacionamento para múltiplos produtos
-    categoria = models.ManyToManyField(Categoria, blank=True, null=True, related_name='promocoes')
+    produtos = models.ManyToManyField(Produto, blank=True, related_name='promocoes')  # Relacionamento para múltiplos produtos
+    categorias = models.ManyToManyField(Categoria, blank=True, related_name='promocoes')  # Mudado para plural
 
     class Meta:
         db_table = 'promocao'
@@ -22,8 +22,8 @@ class Promocao(models.Model):
         aplicacoes = []
         if self.produtos.exists():
             aplicacoes.append(f"Produtos: {', '.join(produto.nome for produto in self.produtos.all())}")
-        if self.categoria:
-            aplicacoes.append(f"Categoria: {self.categoria.nome}")
+        if self.categorias.exists():
+            aplicacoes.append(f"Categorias: {', '.join(categoria.nome for categoria in self.categorias.all())}")
         if not aplicacoes:
             return "Promocao geral"
         return ", ".join(aplicacoes)

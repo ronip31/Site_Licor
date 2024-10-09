@@ -35,9 +35,9 @@ class Produto(models.Model):
 
     def get_price_with_discount(self):
         now = timezone.now()
-        
+
         # Verifica se há promoção ativa diretamente no produto
-        promocao_produto = self.promocoes.filter(data_inicio__lte=now, data_fim__gte=now).first()
+        promocao_produto = self.promocoes.filter(data_inicio__lte=now, data_fim__gte=now).first()  # Alteração aqui
         if promocao_produto:
             if promocao_produto.percentual:
                 valor_desconto = self.preco_venda * (promocao_produto.percentual / 100)

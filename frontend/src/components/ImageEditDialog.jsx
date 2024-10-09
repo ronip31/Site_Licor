@@ -10,9 +10,11 @@ import {
   Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ImageWithPlaceholder from './ImageWithPlaceholder';
 import { useSnackbar } from 'notistack';
 import api from '../utils/api';
+
+// Definir a base da URL para os arquivos de mídia (substituindo localhost pelo IP correto)
+const mediaBaseURL = `http://${window.location.hostname}:8000`; // ou substitua diretamente pelo seu IP, se necessário
 
 const ImageEditDialog = ({ open, onClose, productId }) => {
   const [existingImages, setExistingImages] = useState([]);
@@ -24,17 +26,16 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
   const [loading, setLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
-  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-  // Centraliza o carregamento de imagens
+  // Função para carregar as imagens existentes
   const handleFetchImages = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get(`/imagens/por_produto/${productId}/`);
       setExistingImages(response.data);
     } catch (error) {
-      console.error('Erro ao carregar imagens:', error);
       enqueueSnackbar('Erro ao carregar imagens', { variant: 'error' });
     } finally {
       setLoading(false);
@@ -118,32 +119,40 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogTitle>Visualizar e Editar Fotos</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        aria-labelledby="customized-dialog-title"
+        aria-describedby="customized-dialog-description"
+      >
+        <DialogTitle id="customized-dialog-title">Visualizar e Editar Fotos</DialogTitle>
         <DialogContent>
           {loading ? (
             <CircularProgress />
           ) : (
             <Grid container spacing={1}>
-              {existingImages.map((image) => (
-                <Grid item xs={6} md={2} key={image.uuid}>
-                  <div style={{ position: 'relative' }}>
-                    <ImageWithPlaceholder
-                      src={image.imagem}
-                      alt={image.descricao_imagem || 'Imagem do produto'}
-                      onClick={() => setSelectedImage(image.imagem)}
-                      style={{ width: '100%', cursor: 'pointer', borderRadius: 8 }}
-                    />
-                    <IconButton
-                      onClick={() => openDeleteConfirmDialog(image.uuid)}
-                      color="secondary"
-                      style={{ position: 'absolute', top: 8, right: 8, backgroundColor: '#fff' }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </div>
-                </Grid>
-              ))}
+              {existingImages.map((image) => {
+                const imageUrl = `${mediaBaseURL}${image.imagem}`; // Monta o caminho completo da imagem
+                return (
+                  <Grid item xs={6} md={2} key={image.uuid}>
+                    <div style={{ position: 'relative' }}>
+                      <img
+                        src={imageUrl}
+                        alt={image.descricao_imagem || 'Imagem do produto'}
+                        style={{ width: '100%', cursor: 'pointer', borderRadius: 8 }}
+                        onClick={() => setSelectedImage(image.imagem)}
+                      />
+                      <IconButton
+                        onClick={() => openDeleteConfirmDialog(image.uuid)}
+                        color="secondary"
+                        style={{ position: 'absolute', top: 8, right: 8, backgroundColor: '#fff' }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </div>
+                  </Grid>
+                );
+              })}
             </Grid>
           )}
 
@@ -178,7 +187,7 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
 
       <Dialog open={Boolean(selectedImage)} onClose={() => setSelectedImage(null)} maxWidth="md" fullWidth>
         <DialogContent>
-          <img src={selectedImage ? `${'http://localhost:8000'}${selectedImage}` : ''} alt="Imagem ampliada" style={{ width: '100%', height: 'auto' }} />
+          <img src={selectedImage ? `${mediaBaseURL}${selectedImage}` : ''} alt="Imagem ampliada" style={{ width: '100%', height: 'auto' }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSelectedImage(null)}>Fechar</Button>

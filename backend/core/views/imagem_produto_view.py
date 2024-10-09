@@ -8,9 +8,10 @@ from ..serializers import ImagemProdutoSerializer, ImagemProdutoSerializerView
 from ..permissions import IsAdminUser
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
+from ..services import compress_image
 
 # Definir tamanho máximo e tipos permitidos
-MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # Permitir até 10MB antes de compressão
 ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 
 class ImagemProdutoViewSet(viewsets.ModelViewSet):
@@ -50,17 +51,20 @@ class ImagemProdutoViewSet(viewsets.ModelViewSet):
                 for image in request.FILES.getlist('imagens'):
                     # Validação de tipo e tamanho de arquivo
                     if image.size > MAX_IMAGE_SIZE:
-                        return Response({"detail": f"Arquivo {image.name} é muito grande. O tamanho máximo permitido é 5MB."}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({"detail": f"Arquivo {image.name} é muito grande. O tamanho máximo permitido é {MAX_IMAGE_SIZE / (1024 * 1024)}MB."}, status=status.HTTP_400_BAD_REQUEST)
                     if image.content_type not in ALLOWED_IMAGE_TYPES:
                         return Response({"detail": f"Tipo de arquivo não permitido: {image.content_type}"}, status=status.HTTP_400_BAD_REQUEST)
-                    
-                    ImagemProduto.objects.create(produto=produto, imagem=image)
+
+                    # Compressão da imagem
+                    compressed_image = compress_image(image)
+
+                    # Criar a instância de imagem do produto
+                    ImagemProduto.objects.create(produto=produto, imagem=compressed_image)
                 return Response({"detail": "Imagens adicionadas com sucesso."}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"detail": "Nenhuma imagem recebida."}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "Método não permitido."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
     
 class ImagensPorProdutoView(generics.ListAPIView):
     serializer_class = ImagemProdutoSerializerView

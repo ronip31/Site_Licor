@@ -21,7 +21,7 @@ const PromotionsPage = () => {
     data_inicio: '',
     data_fim: '',
     produtos: [],
-    categorias: []
+    categorias: [],
   });
 
   const { enqueueSnackbar } = useSnackbar();
@@ -87,7 +87,7 @@ const PromotionsPage = () => {
         data_inicio: '',
         data_fim: '',
         produtos: [],
-        categorias: []
+        categorias: [],
       }
     );
     setOpen(true);
@@ -102,7 +102,7 @@ const PromotionsPage = () => {
       data_inicio: '',
       data_fim: '',
       produtos: [],
-      categorias: []
+      categorias: [],
     });
   };
 
@@ -121,7 +121,7 @@ const PromotionsPage = () => {
       data_inicio,
       data_fim,
       produtos,
-      categorias
+      categorias,
     };
 
     try {
@@ -171,8 +171,8 @@ const PromotionsPage = () => {
     { field: 'valor_promocao', headerName: 'Valor Promoção', type: 'number', width: 120 },
     { field: 'data_inicio', headerName: 'Data Início', width: 210 },
     { field: 'data_fim', headerName: 'Data Fim', width: 210 },
-    { field: 'produto', headerName: 'Produto', width: 150 },
-    { field: 'categoria', headerName: 'Categoria', width: 150 },
+    { field: 'produtos', headerName: 'Produto', width: 150 },
+    { field: 'categorias', headerName: 'Categoria', width: 150 },
     {
       field: 'acoes',
       headerName: 'Ações',
