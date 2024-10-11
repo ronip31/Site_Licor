@@ -9,3 +9,4 @@ from .cupom_view import CuponsViewSet, AplicarCupomView
 from .imagem_produto_view import ImagemProdutoViewSet, ImagensPorProdutoView
 from .imagem_carosel_view import CarouselImageAdminViewSet, CarouselImageListView
 from .theme_config_view import ThemeConfigViewSet
+from .carrinho_view_set import CarrinhoViewSet

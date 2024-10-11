@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -12,7 +12,7 @@ import {
   Rating,
   Chip,
   TextField,
-  Paper
+  Paper,
 } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -43,9 +43,34 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [cep, setCep] = useState('');
   const [opcoesFrete, setOpcoesFrete] = useState([]);
+
+  const addToCart = (product) => {
+    let cart = JSON.parse(localStorage.getItem('cart')) || { itens: [] };
+
+    // Verifica se o produto já está no carrinho
+    const productIndex = cart.itens.findIndex(item => item.produto.uuid === product.uuid);
+
+    if (productIndex !== -1) {
+      // Se já estiver no carrinho, aumenta a quantidade
+      cart.itens[productIndex].quantidade += 1;
+    } else {
+      // Se não estiver, adiciona o produto ao carrinho
+      cart.itens.push({
+        produto: product,
+        quantidade: 1,
+        preco_unitario: product.preco_venda,
+      });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    // Dispara evento personalizado para atualizar o ícone de carrinho
+    window.dispatchEvent(new CustomEvent('cartUpdated'));
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -100,6 +125,15 @@ const ProductDetail = () => {
     );
   }
 
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
+
+  const handleBuyNow = () => {
+    addToCart(product);
+    navigate('/carrinho'); 
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="lg" style={{ padding: '20px' }}>
@@ -141,8 +175,8 @@ const ProductDetail = () => {
             </Card>
 
             {/* Descrição abaixo da imagem */}
-              <Typography variant="h5"  sx={{ fontWeight: 'bold' }}>Descrição do Produto</Typography>
-              <Typography variant="body1" dangerouslySetInnerHTML={{ __html: product.descricao }} />
+            <Typography variant="h5"  sx={{ fontWeight: 'bold' }}>Descrição do Produto</Typography>
+            <Typography variant="body1" dangerouslySetInnerHTML={{ __html: product.descricao }} />
 
           </Grid>
 
@@ -173,15 +207,15 @@ const ProductDetail = () => {
                 <Chip label={`Estoque: ${product.quantidade_estoque}`} color={product.quantidade_estoque > 0 ? 'primary' : 'secondary'} />
               </Box>
 
-              <Button
-                variant="contained"
-                color="secondary"
-                size="large"
-                sx={{ marginY: 2, padding: '10px 20px', fontSize: '1.1rem' }}
-              >
+              {/* Botões para Comprar e Adicionar ao Carrinho */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button variant="contained" color="secondary" size="large" onClick={handleBuyNow}>
                 Comprar
               </Button>
-
+              <Button variant="outlined" color="primary" size="large" onClick={handleAddToCart}>
+                Adicionar ao Carrinho
+              </Button>
+            </Box>
 
             {/* Campo de CEP e botão para calcular frete */}
             <Box component={Paper} elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
@@ -228,10 +262,9 @@ const ProductDetail = () => {
             )}
 
             {/* Informações de marca e teor alcoólico */}
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }} >Informações do Produto</Typography>
-              <Typography variant="body1"><strong>Marca:</strong> {product.marca.nome}</Typography>
-              <Typography variant="body1"><strong>Teor Alcoólico:</strong> {product.teor_alcoolico}%</Typography>
-
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }} >Informações do Produto</Typography>
+            <Typography variant="body1"><strong>Marca:</strong> {product.marca.nome}</Typography>
+            <Typography variant="body1"><strong>Teor Alcoólico:</strong> {product.teor_alcoolico}%</Typography>
           </Grid>
         </Grid>
 

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
   IconButton,
+  Badge,
   Drawer,
   List,
   ListItem,
@@ -17,26 +18,16 @@ import {
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Ícone do carrinho
 
 const theme = createTheme({
   palette: {
     primary: {
       main: '#232f3e',
-      light: '#5472d3',
-      dark: '#002171',
-      contrastText: '#ffffff',
     },
     secondary: {
       main: '#ffffff',
       contrastText: '#232f3e',
-    },
-    background: {
-      default: '#f5f5f5',
-      paper: '#232f3e', // Cor do fundo do Drawer
-    },
-    text: {
-      primary: '#ffffff',
-      secondary: '#757575',
     },
   },
   typography: {
@@ -68,23 +59,37 @@ const SearchField = styled(TextField)(({ theme }) => ({
     '& fieldset': {
       borderColor: theme.palette.secondary.contrastText,
     },
-    '&:hover fieldset': {
-      borderColor: theme.palette.primary.light,
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: theme.palette.primary.main,
-    },
-  },
-  '& input': {
-    padding: '10px 20px',
-    color: theme.palette.primary.main,
   },
   width: '300px',
+  '@media (max-width:600px)': {
+    width: '200px', // Ajusta o tamanho do campo de busca em telas menores
+  },
 }));
 
 const Header = () => {
+  const [cartItemsCount, setCartItemsCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Função para atualizar o número de itens no carrinho
+  const updateCartItemCount = () => {
+    const cart = JSON.parse(localStorage.getItem('cart')) || { itens: [] };
+    const totalItems = cart.itens.reduce((acc, item) => acc + item.quantidade, 0);
+    setCartItemsCount(totalItems);
+  };
+
+  useEffect(() => {
+    // Atualizar o número de itens no carrinho quando o componente é montado
+    updateCartItemCount();
+
+    // Adiciona um evento para escutar mudanças no localStorage
+    window.addEventListener('storage', updateCartItemCount);
+
+    // Remove o evento ao desmontar o componente
+    return () => {
+      window.removeEventListener('storage', updateCartItemCount);
+    };
+  }, []);
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -92,32 +97,25 @@ const Header = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Stack spacing={2} direction="row">
-        <AppBar position="static">
-          <StyledToolbar>
-            <Button component={Link} to="/" color="secondary">
-              Casa dos Licores
-            </Button>
+      <AppBar position="static">
+        <StyledToolbar>
+          <Button component={Link} to="/" color="secondary" sx={{ fontSize: '1.2rem' }}>
+            Casa dos Licores
+          </Button>
 
+          {!isMobile && (
+            <CenteredContainer>
+              <SearchField
+                variant="outlined"
+                placeholder="Buscar produtos..."
+                size="small"
+              />
+            </CenteredContainer>
+          )}
+
+          <div>
             {!isMobile && (
-              <CenteredContainer>
-                <SearchField
-                  variant="outlined"
-                  placeholder="Buscar produtos..."
-                  size="small"
-                />
-              </CenteredContainer>
-            )}
-
-            {isMobile ? (
-              <IconButton color="inherit" onClick={toggleDrawer}>
-                <MenuIcon />
-              </IconButton>
-            ) : (
-              <div>
-                <Button component={Link} to="/products" color="secondary">
-                  Produtos
-                </Button>
+              <>
                 <Button component={Link} to="/about" color="secondary">
                   Sobre
                 </Button>
@@ -127,45 +125,53 @@ const Header = () => {
                 <Button component={Link} to="/perfil" color="secondary">
                   Perfil
                 </Button>
-              </div>
+              </>
             )}
-          </StyledToolbar>
-        </AppBar>
 
-        {/* Drawer para navegação em dispositivos móveis */}
-        <Drawer
-          anchor="right"
-          open={drawerOpen}
-          onClose={toggleDrawer}
-          PaperProps={{
-            sx: {
-              backgroundColor: theme.palette.primary.main,
-              color: theme.palette.primary.contrastText,
-            },
-          }}
-        >
-          <div style={{ width: 250 }}>
-            <IconButton onClick={toggleDrawer} sx={{ margin: '10px', color: theme.palette.secondary.main }}>
-              <CloseIcon />
+            {/* Ícone do carrinho sempre visível */}
+            <IconButton component={Link} to="/carrinho" color="inherit">
+              <Badge badgeContent={cartItemsCount} color="error">
+                <ShoppingCartIcon />
+              </Badge>
             </IconButton>
-            <Divider />
-            <List>
-              <ListItem button component={Link} to="/products" onClick={toggleDrawer}>
-                <ListItemText primary="Produtos" sx={{ color: theme.palette.primary.contrastText }} />
-              </ListItem>
-              <ListItem button component={Link} to="/about" onClick={toggleDrawer}>
-                <ListItemText primary="Sobre" sx={{ color: theme.palette.primary.contrastText }} />
-              </ListItem>
-              <ListItem button component={Link} to="/contact" onClick={toggleDrawer}>
-                <ListItemText primary="Contato" sx={{ color: theme.palette.primary.contrastText }} />
-              </ListItem>
-              <ListItem button component={Link} to="/perfil" onClick={toggleDrawer}>
-                <ListItemText primary="Perfil" sx={{ color: theme.palette.primary.contrastText }} />
-              </ListItem>
-            </List>
+
+            {/* Ícone de menu para dispositivos móveis */}
+            {isMobile && (
+              <IconButton color="inherit" onClick={toggleDrawer}>
+                <MenuIcon />
+              </IconButton>
+            )}
           </div>
-        </Drawer>
-      </Stack>
+        </StyledToolbar>
+      </AppBar>
+
+      {/* Drawer para navegação em dispositivos móveis */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer}
+      >
+        <div style={{ width: 250 }}>
+          <IconButton onClick={toggleDrawer}>
+            <CloseIcon />
+          </IconButton>
+          <Divider />
+          <List>
+            <ListItem button component={Link} to="/products" onClick={toggleDrawer}>
+              <ListItemText primary="Produtos" />
+            </ListItem>
+            <ListItem button component={Link} to="/about" onClick={toggleDrawer}>
+              <ListItemText primary="Sobre" />
+            </ListItem>
+            <ListItem button component={Link} to="/contact" onClick={toggleDrawer}>
+              <ListItemText primary="Contato" />
+            </ListItem>
+            <ListItem button component={Link} to="/perfil" onClick={toggleDrawer}>
+              <ListItemText primary="Perfil" />
+            </ListItem>
+          </List>
+        </div>
+      </Drawer>
     </ThemeProvider>
   );
 };

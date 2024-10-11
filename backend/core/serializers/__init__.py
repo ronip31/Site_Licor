@@ -8,3 +8,4 @@ from .theme_serializers import ThemeConfigSerializer
 from .categoria_serializers import CategoriaSerializer, CategoriaSerializerNome
 from .marca_serializers import MarcaSerializer, MarcaSerializerNome
 from .promocao_serializer import PromocaoSerializer
+from .item_carrinho_serializer import ItemCarrinhoSerializer, CarrinhoSerializer

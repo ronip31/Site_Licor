@@ -7,6 +7,7 @@ import ProtectedRouteCliente from './components/ProtectedRoute/ProtectedRouteCli
 import Home from './pages/Home/Home';
 import Products from './pages/Client/Products/Products';
 import ProductDetails from './pages/Client/ProductDetails/ProductDetails';
+import Cart from './pages/Client/Cart/Cart';
 import Checkout from './pages/Client/Checkout/Checkout';
 import Perfil from './pages/Client/Perfil/Perfil';
 import Contato from './pages/Client/Contato/Contato';
@@ -39,6 +40,8 @@ function App() {
           <Route index element={<Products />} />
           <Route path="products" element={<Products />} />
           <Route path="/products-details/:uuid/:slug" element={<ProductDetails />} />
+          <Route path="/carrinho" element={<Cart />} />
+
           <Route path="checkout" element={<Checkout />} />
           <Route path="about" element={<Sobre />} />
           <Route path="contact" element={<Contato />} />

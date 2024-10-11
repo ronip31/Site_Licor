@@ -23,7 +23,8 @@ from .views import (
     ImagensPorProdutoView,
     ProdutosComImagensListView,
     Products_cupom_ViewSet,
-    ProdutosImagensSemDescricaoListView
+    ProdutosImagensSemDescricaoListView,
+    CarrinhoViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -48,6 +49,7 @@ router.register(r'cupons', CuponsViewSet, basename='cupons')
 router.register(r'carousel-admin', CarouselImageAdminViewSet, basename='carousel-admin')
 
 router.register(r'theme-config', ThemeConfigViewSet, basename='theme-config')
+router.register(r'carrinho', CarrinhoViewSet, basename='carrinho')
 
 # Definindo as URLs
 urlpatterns = [

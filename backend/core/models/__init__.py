@@ -18,3 +18,4 @@ from .configuracao_frete import ConfiguracaoFrete
 from .cupom import Cupom
 from .carousel_image import CarouselImage
 from .theme_config import ThemeConfig
+from .carrinho_compra import Carrinho, ItemCarrinho
