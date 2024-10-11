@@ -17,11 +17,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="imagemproduto",
-            name="data_criacao",
-            field=models.DateTimeField(default=django.utils.timezone.now),
-        ),
+        # Remova o bloco que adiciona a coluna "data_criacao"
+        # migrations.AddField(
+        #     model_name="imagemproduto",
+        #     name="data_criacao",
+        #     field=models.DateTimeField(default=django.utils.timezone.now),
+        # ),
+
+        # Certifique-se de que os campos restantes são únicos e necessários
         migrations.AddField(
             model_name="imagemproduto",
             name="uuid",
@@ -36,11 +39,6 @@ class Migration(migrations.Migration):
             model_name="imagemproduto",
             name="imagem",
             field=models.ImageField(upload_to="produtos/"),
-        ),
-        migrations.AddField(
-            model_name='imagemproduto',
-            name='uuid',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
         ),
         migrations.RunPython(generate_unique_uuids),  # Executa o script para gerar UUIDs únicos
     ]

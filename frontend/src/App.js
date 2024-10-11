@@ -36,9 +36,9 @@ function App() {
       <Routes>
         {/* Rotas para o site principal (clientes) */}
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
+          <Route index element={<Products />} />
           <Route path="products" element={<Products />} />
-          <Route path="products/:id" element={<ProductDetails />} />
+          <Route path="/products-details/:uuid/:slug" element={<ProductDetails />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="about" element={<Sobre />} />
           <Route path="contact" element={<Contato />} />

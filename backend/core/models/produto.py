@@ -3,6 +3,7 @@ from django.utils import timezone
 from .categoria import Categoria
 from .marca import Marca
 import uuid
+from decimal import Decimal
 
 class Produto(models.Model):
     ATIVO = 'Ativo'
@@ -37,13 +38,15 @@ class Produto(models.Model):
         now = timezone.now()
 
         # Verifica se há promoção ativa diretamente no produto
-        promocao_produto = self.promocoes.filter(data_inicio__lte=now, data_fim__gte=now).first()  # Alteração aqui
+        promocao_produto = self.promocoes.filter(data_inicio__lte=now, data_fim__gte=now).first()
         if promocao_produto:
             if promocao_produto.percentual:
                 valor_desconto = self.preco_venda * (promocao_produto.percentual / 100)
                 preco_promocional = self.preco_venda - valor_desconto
             elif promocao_produto.valor_promocao:
                 preco_promocional = self.preco_venda - promocao_produto.valor_promocao
+            # Garante que o preco_promocional tenha duas casas decimais
+            preco_promocional = Decimal(preco_promocional).quantize(Decimal('0.01'))
             return {'preco_anterior': self.preco_venda, 'preco_promocional': preco_promocional}
 
         # Verifica se há promoção ativa na categoria do produto
@@ -55,6 +58,8 @@ class Produto(models.Model):
                     preco_promocional = self.preco_venda - valor_desconto
                 elif categoria_promocao.valor_promocao:
                     preco_promocional = self.preco_venda - categoria_promocao.valor_promocao
+                # Garante que o preco_promocional tenha duas casas decimais
+                preco_promocional = Decimal(preco_promocional).quantize(Decimal('0.01'))
                 return {'preco_anterior': self.preco_venda, 'preco_promocional': preco_promocional}
 
         # Sem promoção ativa

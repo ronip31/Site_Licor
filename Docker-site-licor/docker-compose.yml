@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    volumes:
+      - ../frontend:/app
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+    depends_on:
+      - db
+    env_file:  # Carrega as variáveis de ambiente do arquivo .env
+      - ../backend/.env  # Certifique-se de que o .env está neste caminho
+
+  db:
+    image: mysql:8.0  # Use a imagem oficial do MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql  # Volume para persistência dos dados
+    environment:
+      MYSQL_DATABASE: dbpac5
+      MYSQL_USER: Pac5
+      MYSQL_PASSWORD: Pac5@2024
+      MYSQL_ROOT_PASSWORD: Pac5@2024  # Defina a senha do root
+    ports:
+      - "3306:3306"  # Exponha a porta 3306
+
+volumes:
+  mysql_data:

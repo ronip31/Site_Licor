@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from ..models import Produto, ImagemProduto, Marca
-from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer, ProdutoSerializer, ProductCupomSerializer
+from ..serializers import ProductSerializer, ImagemProdutoSerializer, MarcaSerializer, ProdutoSerializer, ProductCupomSerializer, ProdutoSerializerSemDescricao
 #from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
@@ -47,7 +47,13 @@ class Products_cupom_ViewSet(viewsets.ModelViewSet):
 #     permission_classes = [AllowAny]  # Permite acesso público
 
 
-class ProdutosComImagensListView(generics.ListAPIView):
+class ProdutosComImagensListView(generics.RetrieveAPIView):
     queryset = Produto.objects.all().prefetch_related('imagens')
     serializer_class = ProdutoSerializer
+    permission_classes = [AllowAny]  # Permite acesso público
+    lookup_field = 'uuid'
+
+class ProdutosImagensSemDescricaoListView(generics.ListAPIView):
+    queryset = Produto.objects.all().prefetch_related('imagens')
+    serializer_class = ProdutoSerializerSemDescricao
     permission_classes = [AllowAny]  # Permite acesso público

@@ -97,6 +97,17 @@ const Products = () => {
     );
   };
 
+  const slugify = (text) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .replace(/\s+/g, '-')           // Substitui espaços por hifens
+      .replace(/[^\w-]+/g, '')        // Remove caracteres especiais (o "-" não precisa de escape)
+      .replace(/--+/g, '-')           // Substitui hifens duplos por um único (o "-" não precisa de escape)
+      .replace(/^-+/, '')             // Remove hifens no início
+      .replace(/-+$/, '');            // Remove hifens no final
+  };
+  
 
   if (loading) {
     return (
@@ -195,7 +206,7 @@ const Products = () => {
                   )}
                   {/* Conteúdo do Card */}
                   <Box sx={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Link to={`/products/${product.uuid}`}>
+                    <Link to={`/products-details/${product.uuid}/${slugify(product.nome)}`} >
                       <LazyLoadImage
                         src={product.imagens[product.imageIndex]?.imagem || 'https://via.placeholder.com/300'}
                         alt={product.nome}
@@ -221,59 +232,36 @@ const Products = () => {
                   sx={{
                     textAlign: 'center',
                     padding: '16px',
-                    height: { xs: '180px', sm: '160px' }, // Altura maior para telas menores
+                    height: { xs: '180px', sm: '160px' },
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Link to={`/products/${product.uuid}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Typography 
-                      variant="subtitle1" 
-                      component="div" 
-                      sx={{ fontWeight: 'bold', minHeight: '48px', fontSize: { xs: '0.9rem', sm: '1rem' } }}
-                    >
+                  <Link to={`/products-details/${product.uuid}/${slugify(product.nome)}`}  style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold', minHeight: '48px', fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                       {product.nome}
                     </Typography>
                   </Link>
+
                   <Rating value={product.rating || 0} readOnly size="small" sx={{ marginY: '8px' }} />
 
                   {product.preco_com_desconto ? (
                     <>
-                      <Typography
-                        variant="body2"
-                        sx={{ textDecoration: 'line-through', color: 'gray', marginTop: '8px', fontSize: { xs: '0.8rem', sm: '1rem' } }}
-                      >
+                      <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'gray', marginTop: '8px', fontSize: { xs: '0.8rem', sm: '1rem' } }}>
                         De: R$ {product.preco_venda}
                       </Typography>
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          flexDirection: 'column', 
-                          alignItems: 'center',
-                          marginTop: '4px' 
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 'bold', color: 'green', fontSize: { xs: '1rem', sm: '1.2rem' } }}
-                        >
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '4px' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'green', fontSize: { xs: '1rem', sm: '1.2rem' } }}>
                           Por:
                         </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 'bold', color: 'green', fontSize: { xs: '1.2rem', sm: '1.4rem' } }}
-                        >
-                          R$ {product.preco_com_desconto}
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'green', fontSize: { xs: '1.2rem', sm: '1.4rem' } }}>
+                          R$ {product.preco_com_desconto.toFixed(2)}
                         </Typography>
                       </Box>
-
                     </>
                   ) : (
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 'bold', marginTop: '8px', fontSize: { xs: '1rem', sm: '1.2rem' } }}
-                    >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '8px', fontSize: { xs: '1rem', sm: '1.2rem' } }}>
                       R$ {product.preco_venda}
                     </Typography>
                   )}

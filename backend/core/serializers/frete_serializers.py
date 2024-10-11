@@ -2,7 +2,7 @@ from rest_framework import serializers
 from ..models import OpcaoFrete, ConfiguracaoFrete
 
 class CalculoFreteSerializer(serializers.Serializer):
-    produto_id = serializers.CharField(required=True)
+    produto_uuid = serializers.UUIDField()
     cep_destino = serializers.CharField(max_length=10, required=True)
 
     def validate_cep_destino(self, value):

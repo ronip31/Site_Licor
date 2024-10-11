@@ -19,7 +19,7 @@ class CustomAdminTokenObtainPairSerializer(TokenObtainPairSerializer):
         refresh = self.get_token(user)
         refresh['uuid'] = str(user.uuid)
 
-        return {'access': str(refresh.access_token), 'uuid': str(user.uuid)}
+        return {'access': str(refresh.access_token)}
 
 class CustomClienteTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'

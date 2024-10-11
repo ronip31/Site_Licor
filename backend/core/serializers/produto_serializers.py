@@ -62,35 +62,52 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
 
-# class ProductClientSerializer(serializers.ModelSerializer):
-#     preco_com_desconto = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = Produto
-#         fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
-
-#     def get_preco_com_desconto(self, obj):
-#         # Obtenha o preço com desconto, se disponível
-#         preco_info = obj.get_price_with_discount()
-#         preco_promocional = preco_info.get('preco_promocional')
-#         # Retorne None se não houver preço promocional
-#         return preco_promocional if preco_promocional else None
-    
-
 # Utilizado para buscar informações para área do cliente 
 class ProdutoSerializer(serializers.ModelSerializer):
     preco_com_desconto = serializers.SerializerMethodField()
     imagens = ImagemProdutoSerializerView(many=True, read_only=True)
-
+    
+    # Aqui você pode carregar CategoriaSerializerNome apenas quando for usá-lo
     class Meta:
         model = Produto
-        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
+        fields = ['uuid', 'nome', 'descricao', 'teor_alcoolico', 'marca', 'categoria', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
+
+    def to_representation(self, instance):
+        # Importar CategoriaSerializerNome apenas aqui para evitar o ciclo
+        from .categoria_serializers import CategoriaSerializerNome
+        from .marca_serializers import MarcaSerializerNome
+
+        # Use o serializer normalmente, chamando super apenas uma vez
+        representation = super().to_representation(instance)
+
+        # Adicionar a representação do nome da categoria
+        representation['categoria'] = CategoriaSerializerNome(instance.categoria).data
+
+        # Adicionar a representação do nome da marca
+        representation['marca'] = MarcaSerializerNome(instance.marca).data
+
+        return representation
+
 
     def get_preco_com_desconto(self, obj):
         preco_info = obj.get_price_with_discount()
         preco_promocional = preco_info.get('preco_promocional')
         return preco_promocional if preco_promocional else None
-    
+
+# Utilizado para buscar informações para área do cliente 
+class ProdutoSerializerSemDescricao(serializers.ModelSerializer):
+    preco_com_desconto = serializers.SerializerMethodField()
+    imagens = ImagemProdutoSerializerView(many=True, read_only=True)
+
+    class Meta:
+        model = Produto
+        fields = ['uuid', 'nome', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
+
+    def get_preco_com_desconto(self, obj):
+        preco_info = obj.get_price_with_discount()
+        preco_promocional = preco_info.get('preco_promocional')
+        return preco_promocional if preco_promocional else None
+
 # Utilizado na Rota de Cupoms - menos dados
 class ProductCupomSerializer(serializers.ModelSerializer):
 

@@ -17,7 +17,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '192.168.1.9',
+    '192.168.1.13',
     '10.173.82.117',  # Para desenvolvimento local
     
         # Para desenvolvimento local
@@ -97,8 +97,8 @@ SIMPLE_JWT = {
 # CORS configuration: Allow only specific origins in production
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Localhost development
-    "http://127.0.0.1:3000",  # Localhost development (IP)
-    "http://192.168.1.9:3000",
+    "http://127.0.0.1:3000", 
+    "http://192.168.1.13:3000", # Localhost development (IP)
     "http://10.173.82.117:3000",
     
 ]

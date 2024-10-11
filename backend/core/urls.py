@@ -22,7 +22,8 @@ from .views import (
     AplicarCupomView,
     ImagensPorProdutoView,
     ProdutosComImagensListView,
-    Products_cupom_ViewSet
+    Products_cupom_ViewSet,
+    ProdutosImagensSemDescricaoListView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -81,10 +82,12 @@ urlpatterns = [
     # Calcular Frete
     path('calcular-frete/', CalcularFreteView.as_view(), name='calcular-frete'),
 
-    # URL para acessar a área do cliente
-    #path('products', ProductClientView.as_view(),  name='produtos-client'),  
-    #path('produtos/<uuid:produto_uuid>/imagens/', ImagensPorProdutoView.as_view(), name='imagens-por-produto'),
-    path('products-with-images/', ProdutosComImagensListView.as_view(), name='products-with-images'),
+
+    #Buscar todos produtos
+    path('products-with-images/', ProdutosImagensSemDescricaoListView.as_view(), name='products-with-images'),
+    
+    #buscar detalhes do produto
+    path('products-details/<uuid:uuid>/', ProdutosComImagensListView.as_view(), name='products-details'),
     
     # Rota cupom para cliente:
     #path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado

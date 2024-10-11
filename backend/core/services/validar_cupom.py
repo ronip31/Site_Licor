@@ -78,62 +78,66 @@ class CupomService:
     
 
     @staticmethod
-    def calcular_frete(produto_id, cep_destino, token):
+    def calcular_frete(produto_uuid, cep_destino, token):
         try:
-            produto = Produto.objects.get(uuid=produto_id)
-            configuracao_frete = ConfiguracaoFrete.objects.first()  # Assume que há apenas uma configuração de frete
+            produto = Produto.objects.get(uuid=produto_uuid)
+            configuracao_frete = ConfiguracaoFrete.objects.first()
 
             url = "https://www.melhorenvio.com.br/api/v2/me/shipment/calculate"
 
             payload = {
-                "from": {"postal_code": str(configuracao_frete.cep_origem)},  # Convertendo para string
-                "to": {"postal_code": str(cep_destino)},  # Convertendo para string
+                "from": {"postal_code": str(configuracao_frete.cep_origem)},
+                "to": {"postal_code": str(cep_destino)},
                 "package": {
-                    "height": str(produto.altura),   # Convertendo para float
-                    "width": str(produto.largura),   # Convertendo para float
-                    "length": str(produto.comprimento),   # Convertendo para float
-                    "weight": str(produto.peso),   # Convertendo para float
+                    "height": str(produto.altura),
+                    "width": str(produto.largura),
+                    "length": str(produto.comprimento),
+                    "weight": str(produto.peso),
                 },
             }
 
             headers = {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {token}",
-                    "User-Agent": "Aplicação roni.pereira31@gmail.com"
-                }
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+                "User-Agent": "Aplicação roni.pereira31@gmail.com"
+            }
 
             response = requests.post(url, json=payload, headers=headers)
 
             if response.status_code == 200:
                 resultado_frete = response.json()
 
-                opcoes_frete_ativas = OpcaoFrete.objects.filter(ativo=True).values_list('id_frete', flat=True)  # IDs das opções de frete ativas
+                opcoes_frete_ativas = OpcaoFrete.objects.filter(ativo=True).values_list('id_frete', flat=True)
 
-                # Filtra as opções de frete com base nas opções ativas configuradas pelo administrador
                 opcoes_filtradas = [
                     opcao for opcao in resultado_frete if int(opcao['id']) in opcoes_frete_ativas
                 ]
 
-                # Aplica descontos ou acréscimos configurados
+                # Aplicar descontos/acréscimos e criar a resposta simplificada
+                resultado_final = []
                 for opcao in opcoes_filtradas:
-                    preco_original = float(opcao['price'])  # Certifica-se de converter para float
+                    preco_original = float(opcao.get('custom_price', opcao.get('price', 0)))
 
-                    # Verifica se os valores de desconto e acréscimo são válidos, senão define como 0
-                    desconto_frete = float(configuracao_frete.desconto_frete) if configuracao_frete.desconto_frete is not None else 0.0
-                    acrescimo_frete = float(configuracao_frete.acrescimo_frete) if configuracao_frete.acrescimo_frete is not None else 0.0
-                    dias_adicionais_entrega = int(configuracao_frete.dias_adicionais_entrega) if configuracao_frete.dias_adicionais_entrega is not None else 0
+                    desconto_frete = float(configuracao_frete.desconto_frete or 0)
+                    acrescimo_frete = float(configuracao_frete.acrescimo_frete or 0)
+                    dias_adicionais_entrega = int(configuracao_frete.dias_adicionais_entrega or 0)
 
                     desconto = preco_original * (desconto_frete / 100)
                     acrescimo = preco_original * (acrescimo_frete / 100)
                     preco_final = preco_original - desconto + acrescimo
-                    tempo_entrega_dias = opcao['delivery_time'] + dias_adicionais_entrega
 
-                    # Atualiza os dados diretamente no resultado
-                    opcao['preco_final'] = round(preco_final, 2)
-                    opcao['tempo_entrega_dias'] = tempo_entrega_dias
+                    tempo_entrega_dias = opcao.get('delivery_time', 0) + dias_adicionais_entrega
 
-                return opcoes_filtradas
+                    # Adicionar apenas as informações necessárias ao resultado, removendo opções com preco_final = 0
+                    if preco_final > 0:
+                        resultado_final.append({
+                            'nome': opcao.get('name'),
+                            'preco_final': round(preco_final, 2),
+                            'tempo_entrega_dias': tempo_entrega_dias
+                        })
+
+                return resultado_final
             else:
                 return {"error": response.text}
 

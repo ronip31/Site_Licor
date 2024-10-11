@@ -10,6 +10,8 @@ import {
   Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
 import { useSnackbar } from 'notistack';
 import api from '../utils/api';
 
@@ -24,6 +26,7 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
   const [imageToDelete, setImageToDelete] = useState(null);
   const [selectedFileNames, setSelectedFileNames] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [rotationAngles, setRotationAngles] = useState({}); // Estado para guardar os ângulos de rotação
 
   const { enqueueSnackbar } = useSnackbar();
   const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -35,6 +38,10 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
     try {
       const response = await api.get(`/imagens/por_produto/${productId}/`);
       setExistingImages(response.data);
+      setRotationAngles(response.data.reduce((acc, img) => {
+        acc[img.uuid] = 0; // Inicializa o ângulo de rotação para cada imagem
+        return acc;
+      }, {}));
     } catch (error) {
       enqueueSnackbar('Erro ao carregar imagens', { variant: 'error' });
     } finally {
@@ -49,6 +56,9 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
     }
   }, [open, productId, handleFetchImages]);
 
+
+  
+
   const handleImageChange = (e) => {
     const files = [...e.target.files];
     const validFiles = [];
@@ -57,7 +67,7 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
         enqueueSnackbar(`Tipo de arquivo não permitido: ${file.type}`, { variant: 'error' });
       } else if (file.size > MAX_IMAGE_SIZE) {
-        enqueueSnackbar(`Arquivo ${file.name} é muito grande. O tamanho máximo permitido é 5MB.`, { variant: 'error' });
+        enqueueSnackbar(`Arquivo ${file.name} é muito grande. O tamanho máximo permitido é 10MB.`, { variant: 'error' });
       } else {
         validFiles.push(file);
       }
@@ -117,37 +127,76 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
     setDeleteConfirmOpen(true);
   };
 
+  const rotateImage = async (imageId) => {
+    setRotationAngles((prevAngles) => ({
+      ...prevAngles,
+      [imageId]: prevAngles[imageId] + 90,
+    }));
+  
+    // Enviar rotação para o backend
+    try {
+      await api.post(`/imagens/${imageId}/rotacionar/`, {
+        rotation: 90, // Envia um valor de rotação de 90 graus
+      }, {
+        headers: {
+          'Content-Type': 'application/json', // Certifique-se de enviar como JSON
+        },
+      });
+      enqueueSnackbar('Imagem rotacionada e salva com sucesso', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Erro ao salvar rotação da imagem', { variant: 'error' });
+    }
+  };
+
+  const handleDialogClose = () => {
+    setImages([]);  // Limpa as imagens selecionadas
+    setSelectedFileNames([]);  // Limpa os nomes dos arquivos
+    onClose();  // Fecha o diálogo
+  };
+
   return (
     <>
       <Dialog
         open={open}
         onClose={onClose}
-        aria-labelledby="customized-dialog-title"
-        aria-describedby="customized-dialog-description"
+        fullWidth
       >
         <DialogTitle id="customized-dialog-title">Visualizar e Editar Fotos</DialogTitle>
         <DialogContent>
           {loading ? (
             <CircularProgress />
           ) : (
-            <Grid container spacing={1}>
+            <Grid container spacing={3}>
               {existingImages.map((image) => {
                 const imageUrl = `${mediaBaseURL}${image.imagem}`; // Monta o caminho completo da imagem
                 return (
-                  <Grid item xs={6} md={2} key={image.uuid}>
+                  <Grid item xs={6} md={3} key={image.uuid}>
                     <div style={{ position: 'relative' }}>
-                      <img
+                    <img
                         src={imageUrl}
                         alt={image.descricao_imagem || 'Imagem do produto'}
-                        style={{ width: '100%', cursor: 'pointer', borderRadius: 8 }}
+                        style={{
+                          width: '100%',
+                          cursor: 'pointer',
+                          borderRadius: 8,
+                          transform: `rotate(${rotationAngles[image.uuid]}deg)`, // Aplica a rotação
+                          transition: 'transform 0.3s ease',
+                        }}
                         onClick={() => setSelectedImage(image.imagem)}
                       />
                       <IconButton
                         onClick={() => openDeleteConfirmDialog(image.uuid)}
                         color="secondary"
-                        style={{ position: 'absolute', top: 8, right: 8, backgroundColor: '#fff' }}
+                        style={{ position: 'absolute', top: 0, right: -25, backgroundColor: '#fff' }}
                       >
                         <DeleteIcon />
+                        </IconButton>
+                      {/* Botão único de rotação */}
+                      <IconButton
+                        onClick={() => rotateImage(image.uuid)}
+                        style={{ position: 'absolute', bottom: 0, right: -25, backgroundColor: '#fff' }}
+                      >
+                        <RotateLeftIcon />
                       </IconButton>
                     </div>
                   </Grid>
@@ -178,7 +227,7 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={onClose}>Fechar</Button>
+          <Button onClick={handleDialogClose}>Fechar</Button>
           <Button onClick={handleAddImages} color="primary" disabled={loading || images.length === 0}>
             Adicionar Imagens
           </Button>
