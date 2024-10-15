@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Button, TextField, Typography, Alert, Stack } from '@mui/material';
+import api from '../../utils/api';
 
 const theme = createTheme({
   palette: {
@@ -38,7 +39,7 @@ const AdminLoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/api/token/admin/', {
+      const response = await api.post('/token/admin/', {
         email,
         password: senha,
       });

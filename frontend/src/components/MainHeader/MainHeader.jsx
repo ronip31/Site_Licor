@@ -35,21 +35,14 @@ const Header = () => {
   const fetchCartItems = async () => {
     try {
       const sessionId = localStorage.getItem('sessionId'); // Pega o session_id salvo no localStorage
-      const token = localStorage.getItem('token'); // Pega o token se o usuário estiver logado
+      const token = localStorage.getItem('token'); // Pega o token se estiver logado
 
-      if (!sessionId) return; // Evita chamada se não houver sessionId
-
-      const payload = {
-        session_id: sessionId,
-      };
-
-      // Configuração do cabeçalho com o token se o usuário estiver logado
+      const payload = { session_id: sessionId };
       const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-      // Envia o session_id no payload e o token (se disponível) nos headers
+      // Faz a requisição para obter os itens do carrinho
       const response = await api.post('/carrinho/listar/', payload, config);
 
-      // Calcula a quantidade total de itens no carrinho
       const totalItems = response.data.itens.reduce((acc, item) => acc + item.quantidade, 0);
       setCartItemsCount(totalItems); // Atualiza o número de itens no carrinho
     } catch (error) {
@@ -59,13 +52,14 @@ const Header = () => {
 
   useEffect(() => {
     fetchCartItems(); // Chama a função para buscar os itens do carrinho ao montar o componente
-
-    // Adiciona um evento para atualizar o número de itens ao adicionar produtos ao carrinho
+  
+    // Adiciona um listener para o evento 'cartUpdated' e chama fetchCartItems quando ele ocorre
     const handleCartUpdated = () => fetchCartItems();
     window.addEventListener('cartUpdated', handleCartUpdated);
-
+  
+    // Remove o listener ao desmontar o componente
     return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdated); // Remove o listener ao desmontar o componente
+      window.removeEventListener('cartUpdated', handleCartUpdated);
     };
   }, []);
 

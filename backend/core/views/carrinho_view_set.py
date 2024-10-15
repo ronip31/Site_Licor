@@ -30,10 +30,9 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
         session_id = request.data.get('session_id')
 
         if request.user.is_authenticated:
-            # Verifica se o usuário logado já tem um carrinho associado ao session_id
+            # Primeiro, busca se há um carrinho já associado ao usuário logado
             carrinho_user, created = Carrinho.objects.get_or_create(
-                usuario=request.user,
-                defaults={'session_id': session_id}
+                usuario=request.user
             )
 
             # Se o carrinho do usuário não tiver um session_id, atualiza com o session_id atual
@@ -43,8 +42,11 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
 
             # Agora verifica se há um carrinho anônimo (session_id) que precisa ser unificado
             if session_id:
-                carrinho_anonymous = Carrinho.objects.filter(session_id=session_id).exclude(usuario=request.user).first()
-                if carrinho_anonymous:
+                carrinhos_anonymous = Carrinho.objects.filter(session_id=session_id).exclude(usuario=request.user)
+
+                if carrinhos_anonymous.exists():
+                    carrinho_anonymous = carrinhos_anonymous.first()  # Usa o primeiro carrinho encontrado
+
                     # Transferir os itens do carrinho anônimo para o carrinho do usuário logado
                     for item in carrinho_anonymous.itens.all():
                         item_carrinho, created = ItemCarrinho.objects.get_or_create(
@@ -56,7 +58,7 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
                             item_carrinho.quantidade += item.quantidade
                             item_carrinho.save()
 
-                    # Mantém o session_id no carrinho, mas apaga o carrinho anônimo
+                    # Apaga o carrinho anônimo, já que os itens foram transferidos
                     carrinho_anonymous.delete()
 
             return carrinho_user
@@ -67,6 +69,7 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
                 request.session['session_id'] = session_id
             carrinho, created = Carrinho.objects.get_or_create(session_id=session_id)
             return carrinho
+
 
 
 
@@ -87,9 +90,11 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             return Response({"detail": "session_id não fornecido."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not carrinho or carrinho.itens.count() == 0:
-            return Response({"detail": "Carrinho vazio."}, status=status.HTTP_404_NOT_FOUND)
+            # Retorna o carrinho mesmo vazio, ao invés de um erro 404
+            return Response(CarrinhoSerializer(carrinho).data, status=status.HTTP_200_OK)
 
         return Response(CarrinhoSerializer(carrinho).data)
+
 
     @action(detail=False, methods=['post'])
     def adicionar_item(self, request):
@@ -131,9 +136,15 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             item_carrinho = ItemCarrinho.objects.get(carrinho=carrinho, produto=produto)
             item_carrinho.delete()
 
+            # Verifica se o carrinho ficou vazio após a remoção
+            if not carrinho.itens.exists():  # Se não houver mais itens no carrinho
+                return Response(CarrinhoSerializer(carrinho).data, status=status.HTTP_200_OK)
+
             return Response({"detail": "Item removido do carrinho."}, status=status.HTTP_204_NO_CONTENT)
+
         except (Produto.DoesNotExist, ItemCarrinho.DoesNotExist):
             return Response({"error": "Produto ou item não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
 
     @action(detail=False, methods=['post'])
     def atualizar_quantidade(self, request):

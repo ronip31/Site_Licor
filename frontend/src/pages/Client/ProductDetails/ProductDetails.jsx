@@ -23,7 +23,7 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import Lightbox from 'react-awesome-lightbox'; 
 import 'react-awesome-lightbox/build/style.css';
 import api from '../../../utils/api';
-import { v4 as uuidv4 } from 'uuid';
+import { getSessionId, getToken, isTokenValid } from '../../../utils/authUtils';
 
 const theme = createTheme({
   typography: {
@@ -53,22 +53,16 @@ const ProductDetail = () => {
   const [usuarioUuid, setUsuarioUuid] = useState(null); 
 
   useEffect(() => {
-    // Carrega o token e o session_id do localStorage
-    const token = localStorage.getItem('token');
-    const storedSessionId = localStorage.getItem('sessionId');
+    // Carrega o token e o session_id do utils
+    const token = getToken();
+    const storedSessionId = getSessionId();
 
-    if (token) {
+    if (token && isTokenValid()) {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       setUsuarioUuid(decodedToken.uuid); // Define o UUID do usuário logado
     }
 
-    if (storedSessionId) {
-      setSessionId(storedSessionId); // Usa o session_id existente
-    } else {
-      const newSessionId = uuidv4(); // Gera um novo UUID para o sessionId
-      localStorage.setItem('sessionId', newSessionId);
-      setSessionId(newSessionId); // Define o novo session_id
-    }
+    setSessionId(storedSessionId);
   }, []);
 
   const addToCart = async (product) => {
@@ -78,13 +72,11 @@ const ProductDetail = () => {
       session_id: sessionId, // Sempre envia o session_id
     };
 
-    const token = localStorage.getItem('token');
-    if (token) {
-      payload['Authorization'] = `Bearer ${token}`; // Envia o token se o usuário estiver logado
-    }
+    const token = getToken();
+    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
     try {
-      await api.post('/carrinho/adicionar_item/', payload);
+      await api.post('/carrinho/adicionar_item/', payload, config);
       window.dispatchEvent(new CustomEvent('cartUpdated')); // Dispara evento para atualizar o ícone do carrinho
     } catch (error) {
       console.error('Erro ao adicionar item ao carrinho:', error);
@@ -149,7 +141,6 @@ const ProductDetail = () => {
     addToCart(product);
   };
 
-
   const handleBuyNow = () => {
     addToCart(product);
     navigate('/carrinho');
@@ -198,37 +189,36 @@ const ProductDetail = () => {
             {/* Descrição abaixo da imagem */}
             <Typography variant="h5"  sx={{ fontWeight: 'bold' }}>Descrição do Produto</Typography>
             <Typography variant="body1" dangerouslySetInnerHTML={{ __html: product.descricao }} />
-
           </Grid>
 
           {/* Coluna para as informações do produto */}
           <Grid item xs={12} md={6}>
-              <Typography variant="h4" gutterBottom>{product.nome}</Typography>
+            <Typography variant="h4" gutterBottom>{product.nome}</Typography>
 
-              <Box sx={{ marginY: 2 }}>
-                <Rating value={4} readOnly />
-              </Box>
+            <Box sx={{ marginY: 2 }}>
+              <Rating value={4} readOnly />
+            </Box>
 
-                {product.preco_com_desconto ? (
-                  <>
-                    <Typography variant="h5" sx={{ textDecoration: 'line-through', color: 'gray' }}>
-                      De: R$ {parseFloat(product.preco_venda).toFixed(2)}
-                    </Typography>
-                    <Typography variant="h4" sx={{ color: 'green', fontWeight: 'bold' }}>
-                      Por: R$ {parseFloat(product.preco_com_desconto).toFixed(2)}
-                    </Typography>
-                  </>
-                ) : (
-                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                    R$ {parseFloat(product.preco_venda).toFixed(2)}
-                  </Typography>
-                )}
+            {product.preco_com_desconto ? (
+              <>
+                <Typography variant="h5" sx={{ textDecoration: 'line-through', color: 'gray' }}>
+                  De: R$ {parseFloat(product.preco_venda).toFixed(2)}
+                </Typography>
+                <Typography variant="h4" sx={{ color: 'green', fontWeight: 'bold' }}>
+                  Por: R$ {parseFloat(product.preco_com_desconto).toFixed(2)}
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                R$ {parseFloat(product.preco_venda).toFixed(2)}
+              </Typography>
+            )}
 
-              <Box sx={{ marginY: 2 }}>
-                <Chip label={`Estoque: ${product.quantidade_estoque}`} color={product.quantidade_estoque > 0 ? 'primary' : 'secondary'} />
-              </Box>
+            <Box sx={{ marginY: 2 }}>
+              <Chip label={`Estoque: ${product.quantidade_estoque}`} color={product.quantidade_estoque > 0 ? 'primary' : 'secondary'} />
+            </Box>
 
-              {/* Botões para Comprar e Adicionar ao Carrinho */}
+            {/* Botões para Comprar e Adicionar ao Carrinho */}
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button variant="contained" color="secondary" size="large" onClick={handleBuyNow}>
                 Comprar

@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from ..models import Carrinho, ItemCarrinho
-from core.serializers import ProdutoSerializer
+from core.serializers import ProdutoSerializerCarrinho
 
 class ItemCarrinhoSerializer(serializers.ModelSerializer):
-    produto = ProdutoSerializer(read_only=True)
+    produto = ProdutoSerializerCarrinho(read_only=True)
 
     class Meta:
         model = ItemCarrinho
@@ -14,4 +14,4 @@ class CarrinhoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Carrinho
-        fields = ['uuid', 'usuario', 'itens', 'criado_em', 'atualizado_em', 'session_id']
+        fields = ['uuid', 'itens', 'criado_em', 'atualizado_em', 'session_id']

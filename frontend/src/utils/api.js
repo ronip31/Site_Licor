@@ -57,7 +57,7 @@ api.interceptors.request.use(
         localStorage.removeItem('refreshToken');
         
         // Redireciona para a página de login
-        window.location.href = '/loginadmin';
+        window.location.href = '/login';
         return Promise.reject(error);
       }
     }
