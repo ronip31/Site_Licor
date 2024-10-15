@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from ..models import Carrinho, ItemCarrinho
-from ..serializers import CarrinhoSerializer
+from ..serializers import CarrinhoSerializer, ProdutoSerializerCarrinho
 from core.models import Produto
 import uuid
 
@@ -76,7 +76,8 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def listar(self, request):
         """
-        Lista os itens do carrinho com base no session_id ou no usuário autenticado.
+        Lista os itens do carrinho com base no session_id ou no usuário autenticado,
+        incluindo o cálculo do valor total do carrinho.
         """
         session_id = request.data.get('session_id')
 
@@ -90,10 +91,44 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             return Response({"detail": "session_id não fornecido."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not carrinho or carrinho.itens.count() == 0:
-            # Retorna o carrinho mesmo vazio, ao invés de um erro 404
-            return Response(CarrinhoSerializer(carrinho).data, status=status.HTTP_200_OK)
+            # Retorna o carrinho mesmo vazio
+            return Response({
+                "uuid": carrinho.uuid if carrinho else None,
+                "itens": [],
+                "total_carrinho": 0,
+                "session_id": session_id
+            }, status=status.HTTP_200_OK)
 
-        return Response(CarrinhoSerializer(carrinho).data)
+        # Cálculo do valor total por item e do carrinho
+        total_carrinho = 0
+        itens_detalhados = []
+        for item in carrinho.itens.all():
+            # Utilize o serializador para obter o preço com desconto
+            produto_serializado = ProdutoSerializerCarrinho(item.produto).data
+            preco_unitario = produto_serializado.get('preco_com_desconto') or produto_serializado.get('preco_venda')
+            total_item = float(preco_unitario) * item.quantidade
+            total_carrinho += total_item
+
+            # Adiciona detalhes de cada item, incluindo a quantidade
+            itens_detalhados.append({
+                "produto": {
+                    "uuid": item.produto.uuid,
+                    "nome": item.produto.nome,
+                    "preco_unitario": float(preco_unitario),
+                    "quantidade": item.quantidade,  # Quantidade adicionada aqui
+                    "total_item": total_item
+                }
+            })
+
+        # Retorna o carrinho com os cálculos
+        return Response({
+            "uuid": carrinho.uuid,
+            "itens": itens_detalhados,
+            "total_carrinho": total_carrinho,
+            "session_id": carrinho.session_id
+        }, status=status.HTTP_200_OK)
+
+
 
 
     @action(detail=False, methods=['post'])

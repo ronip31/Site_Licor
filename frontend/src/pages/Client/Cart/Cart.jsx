@@ -6,7 +6,6 @@ import { getSessionId, getToken, isTokenValid } from '../../../utils/authUtils';
 
 const Cart = () => {
   const [cart, setCart] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -29,13 +28,13 @@ const Cart = () => {
 
   // Função para diminuir a quantidade de um item
   const handleDecreaseQuantity = async (item) => {
-    if (item.quantidade > 1) {
+    if (item.produto.quantidade > 1) {
       try {
         const sessionId = getSessionId();
         const token = getToken();
         const payload = {
           produto_uuid: item.produto.uuid,
-          quantidade: item.quantidade - 1,
+          quantidade: item.produto.quantidade - 1,
           session_id: sessionId,
         };
 
@@ -43,12 +42,9 @@ const Cart = () => {
 
         await api.post('/carrinho/atualizar_quantidade/', payload, config);
         window.dispatchEvent(new CustomEvent('cartUpdated'));
-        setCart((prevCart) => ({
-          ...prevCart,
-          itens: prevCart.itens.map((i) =>
-            i.produto.uuid === item.produto.uuid ? { ...i, quantidade: i.quantidade - 1 } : i
-          ),
-        }));
+
+        const updatedCart = await api.post('/carrinho/listar/', { session_id: sessionId }, config);
+        setCart(updatedCart.data); // Atualiza o carrinho no estado
       } catch (error) {
         console.error('Erro ao diminuir a quantidade:', error);
       }
@@ -62,7 +58,7 @@ const Cart = () => {
       const token = getToken();
       const payload = {
         produto_uuid: item.produto.uuid,
-        quantidade: item.quantidade + 1,
+        quantidade: item.produto.quantidade + 1,
         session_id: sessionId,
       };
 
@@ -70,12 +66,9 @@ const Cart = () => {
 
       await api.post('/carrinho/atualizar_quantidade/', payload, config);
       window.dispatchEvent(new CustomEvent('cartUpdated'));
-      setCart((prevCart) => ({
-        ...prevCart,
-        itens: prevCart.itens.map((i) =>
-          i.produto.uuid === item.produto.uuid ? { ...i, quantidade: i.quantidade + 1 } : i
-        ),
-      }));
+
+      const updatedCart = await api.post('/carrinho/listar/', { session_id: sessionId }, config);
+      setCart(updatedCart.data); // Atualiza o carrinho no estado
     } catch (error) {
       console.error('Erro ao aumentar a quantidade:', error);
     }
@@ -146,13 +139,14 @@ const Cart = () => {
         <Card key={index} sx={{ marginY: 2 }}>
           <CardContent>
             <Typography variant="h6">{item.produto.nome}</Typography>
-            <Typography variant="body2">Preço: R$ {item.preco_unitario}</Typography>
+            <Typography variant="body2">Preço Unitário: R$ {item.produto.preco_unitario.toFixed(2)}</Typography>
+            <Typography variant="body2">Total do Item: R$ {item.produto.total_item.toFixed(2)}</Typography>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box>
-                <IconButton onClick={() => handleDecreaseQuantity(item)} disabled={item.quantidade <= 1}>
+                <IconButton onClick={() => handleDecreaseQuantity(item)} disabled={item.produto.quantidade <= 1}>
                   <Remove />
                 </IconButton>
-                <Typography component="span">{item.quantidade}</Typography>
+                <Typography component="span">{item.produto.quantidade}</Typography>
                 <IconButton onClick={() => handleIncreaseQuantity(item)}>
                   <Add />
                 </IconButton>
@@ -164,6 +158,9 @@ const Cart = () => {
           </CardContent>
         </Card>
       ))}
+      <Typography variant="h5" gutterBottom>
+        Total do Carrinho: R$ {cart.total_carrinho.toFixed(2)}
+      </Typography>
       <Button variant="contained" color="primary" size="large" onClick={handleCheckout}>
         Finalizar Compra
       </Button>

@@ -43,7 +43,7 @@ const Header = () => {
       // Faz a requisição para obter os itens do carrinho
       const response = await api.post('/carrinho/listar/', payload, config);
 
-      const totalItems = response.data.itens.reduce((acc, item) => acc + item.quantidade, 0);
+      const totalItems = response.data.itens.reduce((acc, item) => acc + item.produto.quantidade, 0);
       setCartItemsCount(totalItems); // Atualiza o número de itens no carrinho
     } catch (error) {
       console.error('Erro ao buscar o carrinho:', error);
