@@ -23,6 +23,7 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import Lightbox from 'react-awesome-lightbox'; 
 import 'react-awesome-lightbox/build/style.css';
 import api from '../../../utils/api';
+import { v4 as uuidv4 } from 'uuid';
 
 const theme = createTheme({
   typography: {
@@ -40,6 +41,7 @@ const theme = createTheme({
 
 const ProductDetail = () => {
   const { uuid } = useParams();
+  const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,36 +49,54 @@ const ProductDetail = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [cep, setCep] = useState('');
   const [opcoesFrete, setOpcoesFrete] = useState([]);
+  const [sessionId, setSessionId] = useState(null);
+  const [usuarioUuid, setUsuarioUuid] = useState(null); 
 
-  const addToCart = (product) => {
-    let cart = JSON.parse(localStorage.getItem('cart')) || { itens: [] };
+  useEffect(() => {
+    // Carrega o token e o session_id do localStorage
+    const token = localStorage.getItem('token');
+    const storedSessionId = localStorage.getItem('sessionId');
 
-    // Verifica se o produto já está no carrinho
-    const productIndex = cart.itens.findIndex(item => item.produto.uuid === product.uuid);
-
-    if (productIndex !== -1) {
-      // Se já estiver no carrinho, aumenta a quantidade
-      cart.itens[productIndex].quantidade += 1;
-    } else {
-      // Se não estiver, adiciona o produto ao carrinho
-      cart.itens.push({
-        produto: product,
-        quantidade: 1,
-        preco_unitario: product.preco_venda,
-      });
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      setUsuarioUuid(decodedToken.uuid); // Define o UUID do usuário logado
     }
 
-    localStorage.setItem('cart', JSON.stringify(cart));
+    if (storedSessionId) {
+      setSessionId(storedSessionId); // Usa o session_id existente
+    } else {
+      const newSessionId = uuidv4(); // Gera um novo UUID para o sessionId
+      localStorage.setItem('sessionId', newSessionId);
+      setSessionId(newSessionId); // Define o novo session_id
+    }
+  }, []);
 
-    // Dispara evento personalizado para atualizar o ícone de carrinho
-    window.dispatchEvent(new CustomEvent('cartUpdated'));
+  const addToCart = async (product) => {
+    const payload = {
+      produto_uuid: product.uuid,
+      quantidade: 1,
+      session_id: sessionId, // Sempre envia o session_id
+    };
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      payload['Authorization'] = `Bearer ${token}`; // Envia o token se o usuário estiver logado
+    }
+
+    try {
+      await api.post('/carrinho/adicionar_item/', payload);
+      window.dispatchEvent(new CustomEvent('cartUpdated')); // Dispara evento para atualizar o ícone do carrinho
+    } catch (error) {
+      console.error('Erro ao adicionar item ao carrinho:', error);
+    }
   };
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await api.get(`/products-details/${uuid}/`);
+        const response = await api.get(`/products-details/${slug}/`);
         setProduct(response.data);
+
       } catch (error) {
         console.error('Erro ao buscar produto:', error);
       } finally {
@@ -85,12 +105,12 @@ const ProductDetail = () => {
     };
 
     fetchProduct();
-  }, [uuid]);
+  }, [uuid, slug]);
 
   const handleCalcularFrete = async () => {
     try {
       const response = await api.post('/calcular-frete/', {
-        produto_uuid: uuid,
+        produto_uuid: product.uuid,
         cep_destino: cep,
       });
       if (response.data.length > 0) {
@@ -129,9 +149,10 @@ const ProductDetail = () => {
     addToCart(product);
   };
 
+
   const handleBuyNow = () => {
     addToCart(product);
-    navigate('/carrinho'); 
+    navigate('/carrinho');
   };
 
   return (

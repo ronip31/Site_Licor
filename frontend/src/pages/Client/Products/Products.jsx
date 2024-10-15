@@ -206,7 +206,7 @@ const Products = () => {
                   )}
                   {/* Conteúdo do Card */}
                   <Box sx={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Link to={`/products-details/${product.uuid}/${slugify(product.nome)}`} >
+                    <Link to={`/products-details/${slugify(product.nome)}`} >
                       <LazyLoadImage
                         src={product.imagens[product.imageIndex]?.imagem || 'https://via.placeholder.com/300'}
                         alt={product.nome}
@@ -238,7 +238,7 @@ const Products = () => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Link to={`/products-details/${product.uuid}/${slugify(product.nome)}`}  style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/products-details/${slugify(product.nome)}`}  style={{ textDecoration: 'none', color: 'inherit' }}>
                     <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold', minHeight: '48px', fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                       {product.nome}
                     </Typography>

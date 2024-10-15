@@ -4,6 +4,7 @@ from .categoria import Categoria
 from .marca import Marca
 import uuid
 from decimal import Decimal
+from django.utils.text import slugify
 
 class Produto(models.Model):
     ATIVO = 'Ativo'
@@ -30,9 +31,15 @@ class Produto(models.Model):
     largura = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     comprimento = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     peso = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, blank=True, null=True)
 
     class Meta:
         db_table = 'produto'
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nome)
+        super(Produto, self).save(*args, **kwargs)
 
     def get_price_with_discount(self):
         now = timezone.now()

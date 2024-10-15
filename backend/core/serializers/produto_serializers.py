@@ -70,7 +70,7 @@ class ProdutoSerializer(serializers.ModelSerializer):
     # Aqui você pode carregar CategoriaSerializerNome apenas quando for usá-lo
     class Meta:
         model = Produto
-        fields = ['uuid', 'nome', 'descricao', 'teor_alcoolico', 'marca', 'categoria', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens']
+        fields = ['uuid', 'nome', 'descricao', 'teor_alcoolico', 'marca', 'categoria', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens', 'slug']
 
     def to_representation(self, instance):
         # Importar CategoriaSerializerNome apenas aqui para evitar o ciclo

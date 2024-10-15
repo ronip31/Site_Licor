@@ -4,6 +4,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Button, TextField, Typography, Alert, Stack } from '@mui/material';
+import api from '../../utils/api';
 
 // Definindo o tema para manter a consistência visual
 const theme = createTheme({
@@ -40,20 +41,18 @@ const ClienteLoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/api/token/', {
+      const response = await api.post('/token/cliente/', {
         email,
         password: senha,
       });
 
       const token = response.data.access;
-      const decodedHeader = jwtDecode(token);
 
-      if (decodedHeader.tipo_usuario === 'cliente') {
-        localStorage.setItem('token', token);
-        navigate('/'); // Redireciona para a área do cliente
-      } else {
-        setErrorMessage('Acesso não autorizado.');
-      }
+      // Armazena o token no localStorage
+      localStorage.setItem('token', token);
+
+      // Redireciona para a área de administração após login bem-sucedido
+      navigate('/');
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       setErrorMessage('Falha no login. Verifique suas credenciais e tente novamente.');

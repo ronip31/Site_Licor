@@ -51,7 +51,7 @@ class ProdutosComImagensListView(generics.RetrieveAPIView):
     queryset = Produto.objects.all().prefetch_related('imagens')
     serializer_class = ProdutoSerializer
     permission_classes = [AllowAny]  # Permite acesso público
-    lookup_field = 'uuid'
+    lookup_field = 'slug'
 
 class ProdutosImagensSemDescricaoListView(generics.ListAPIView):
     queryset = Produto.objects.all().prefetch_related('imagens')

@@ -37,3 +37,10 @@ python manage.py runserver
 Caso seja acrescentado alguma dependência nova executar o comando para atualizar o arquivo:
 
 pip freeze > requirements.txt
+
+####
+
+Bancos novos executar:
+
+INSERT INTO opcao_frete (id_frete, nome, ativo) VALUES (1, 'PAC', 1);
+INSERT INTO opcao_frete (id_frete, nome, ativo) VALUES (2, 'SEDEX', 1);

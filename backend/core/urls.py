@@ -49,6 +49,7 @@ router.register(r'cupons', CuponsViewSet, basename='cupons')
 router.register(r'carousel-admin', CarouselImageAdminViewSet, basename='carousel-admin')
 
 router.register(r'theme-config', ThemeConfigViewSet, basename='theme-config')
+
 router.register(r'carrinho', CarrinhoViewSet, basename='carrinho')
 
 # Definindo as URLs
@@ -89,7 +90,7 @@ urlpatterns = [
     path('products-with-images/', ProdutosImagensSemDescricaoListView.as_view(), name='products-with-images'),
     
     #buscar detalhes do produto
-    path('products-details/<uuid:uuid>/', ProdutosComImagensListView.as_view(), name='products-details'),
+    path('products-details/<slug:slug>/', ProdutosComImagensListView.as_view(), name='products-details'),
     
     # Rota cupom para cliente:
     #path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado

@@ -1,37 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Link } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
   IconButton,
   Badge,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
   Button,
-  Stack,
-  TextField,
   useMediaQuery,
-  Divider,
 } from '@mui/material';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Ícone do carrinho
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import api from '../../utils/api';
 
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#232f3e',
-    },
-    secondary: {
-      main: '#ffffff',
-      contrastText: '#232f3e',
-    },
-  },
-  typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
+    primary: { main: '#232f3e' },
+    secondary: { main: '#ffffff', contrastText: '#232f3e' },
   },
 });
 
@@ -43,57 +27,47 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '0 20px',
 }));
 
-const CenteredContainer = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '20px',
-  flex: 1,
-  justifyContent: 'center',
-});
-
-const SearchField = styled(TextField)(({ theme }) => ({
-  backgroundColor: theme.palette.common.white,
-  borderRadius: '25px',
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '25px',
-    '& fieldset': {
-      borderColor: theme.palette.secondary.contrastText,
-    },
-  },
-  width: '300px',
-  '@media (max-width:600px)': {
-    width: '200px', // Ajusta o tamanho do campo de busca em telas menores
-  },
-}));
-
 const Header = () => {
   const [cartItemsCount, setCartItemsCount] = useState(0);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Função para atualizar o número de itens no carrinho
-  const updateCartItemCount = () => {
-    const cart = JSON.parse(localStorage.getItem('cart')) || { itens: [] };
-    const totalItems = cart.itens.reduce((acc, item) => acc + item.quantidade, 0);
-    setCartItemsCount(totalItems);
+  // Função para buscar a quantidade de itens no carrinho
+  const fetchCartItems = async () => {
+    try {
+      const sessionId = localStorage.getItem('sessionId'); // Pega o session_id salvo no localStorage
+      const token = localStorage.getItem('token'); // Pega o token se o usuário estiver logado
+
+      if (!sessionId) return; // Evita chamada se não houver sessionId
+
+      const payload = {
+        session_id: sessionId,
+      };
+
+      // Configuração do cabeçalho com o token se o usuário estiver logado
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
+      // Envia o session_id no payload e o token (se disponível) nos headers
+      const response = await api.post('/carrinho/listar/', payload, config);
+
+      // Calcula a quantidade total de itens no carrinho
+      const totalItems = response.data.itens.reduce((acc, item) => acc + item.quantidade, 0);
+      setCartItemsCount(totalItems); // Atualiza o número de itens no carrinho
+    } catch (error) {
+      console.error('Erro ao buscar o carrinho:', error);
+    }
   };
 
   useEffect(() => {
-    // Atualizar o número de itens no carrinho quando o componente é montado
-    updateCartItemCount();
+    fetchCartItems(); // Chama a função para buscar os itens do carrinho ao montar o componente
 
-    // Adiciona um evento para escutar mudanças no localStorage
-    window.addEventListener('storage', updateCartItemCount);
+    // Adiciona um evento para atualizar o número de itens ao adicionar produtos ao carrinho
+    const handleCartUpdated = () => fetchCartItems();
+    window.addEventListener('cartUpdated', handleCartUpdated);
 
-    // Remove o evento ao desmontar o componente
     return () => {
-      window.removeEventListener('storage', updateCartItemCount);
+      window.removeEventListener('cartUpdated', handleCartUpdated); // Remove o listener ao desmontar o componente
     };
   }, []);
-
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -102,16 +76,6 @@ const Header = () => {
           <Button component={Link} to="/" color="secondary" sx={{ fontSize: '1.2rem' }}>
             Casa dos Licores
           </Button>
-
-          {!isMobile && (
-            <CenteredContainer>
-              <SearchField
-                variant="outlined"
-                placeholder="Buscar produtos..."
-                size="small"
-              />
-            </CenteredContainer>
-          )}
 
           <div>
             {!isMobile && (
@@ -128,50 +92,15 @@ const Header = () => {
               </>
             )}
 
-            {/* Ícone do carrinho sempre visível */}
+            {/* Ícone do carrinho com a contagem de itens */}
             <IconButton component={Link} to="/carrinho" color="inherit">
               <Badge badgeContent={cartItemsCount} color="error">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-
-            {/* Ícone de menu para dispositivos móveis */}
-            {isMobile && (
-              <IconButton color="inherit" onClick={toggleDrawer}>
-                <MenuIcon />
-              </IconButton>
-            )}
           </div>
         </StyledToolbar>
       </AppBar>
-
-      {/* Drawer para navegação em dispositivos móveis */}
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={toggleDrawer}
-      >
-        <div style={{ width: 250 }}>
-          <IconButton onClick={toggleDrawer}>
-            <CloseIcon />
-          </IconButton>
-          <Divider />
-          <List>
-            <ListItem button component={Link} to="/products" onClick={toggleDrawer}>
-              <ListItemText primary="Produtos" />
-            </ListItem>
-            <ListItem button component={Link} to="/about" onClick={toggleDrawer}>
-              <ListItemText primary="Sobre" />
-            </ListItem>
-            <ListItem button component={Link} to="/contact" onClick={toggleDrawer}>
-              <ListItemText primary="Contato" />
-            </ListItem>
-            <ListItem button component={Link} to="/perfil" onClick={toggleDrawer}>
-              <ListItemText primary="Perfil" />
-            </ListItem>
-          </List>
-        </div>
-      </Drawer>
     </ThemeProvider>
   );
 };

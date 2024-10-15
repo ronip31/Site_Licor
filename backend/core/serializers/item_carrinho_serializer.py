@@ -7,11 +7,11 @@ class ItemCarrinhoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemCarrinho
-        fields = ['uuid', 'produto', 'quantidade', 'preco_unitario']
+        fields = ['carrinho','produto', 'quantidade']
 
 class CarrinhoSerializer(serializers.ModelSerializer):
     itens = ItemCarrinhoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Carrinho
-        fields = ['uuid', 'usuario', 'itens', 'criado_em', 'atualizado_em']
+        fields = ['uuid', 'usuario', 'itens', 'criado_em', 'atualizado_em', 'session_id']
