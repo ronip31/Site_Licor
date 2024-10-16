@@ -77,7 +77,7 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
     def listar(self, request):
         """
         Lista os itens do carrinho com base no session_id ou no usuário autenticado,
-        incluindo o cálculo do valor total do carrinho.
+        incluindo o cálculo do valor total do carrinho e imagens dos produtos.
         """
         session_id = request.data.get('session_id')
 
@@ -109,25 +109,27 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             total_item = float(preco_unitario) * item.quantidade
             total_carrinho += total_item
 
-            # Adiciona detalhes de cada item, incluindo a quantidade
+            # Adiciona detalhes de cada item, incluindo imagens e a quantidade
+            imagens = [imagem['imagem'] for imagem in produto_serializado.get('imagens', [])]
+
             itens_detalhados.append({
                 "produto": {
                     "uuid": item.produto.uuid,
                     "nome": item.produto.nome,
                     "preco_unitario": float(preco_unitario),
-                    "quantidade": item.quantidade,  # Quantidade adicionada aqui
-                    "total_item": total_item
+                    "quantidade": item.quantidade,  # Quantidade adicionada
+                    "total_item": total_item,
+                    "imagens": imagens  # Adiciona a lista de imagens
                 }
             })
 
-        # Retorna o carrinho com os cálculos
+        # Retorna o carrinho com os cálculos e as imagens
         return Response({
             "uuid": carrinho.uuid,
             "itens": itens_detalhados,
             "total_carrinho": total_carrinho,
             "session_id": carrinho.session_id
         }, status=status.HTTP_200_OK)
-
 
 
 

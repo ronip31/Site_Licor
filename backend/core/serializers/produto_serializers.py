@@ -123,7 +123,7 @@ class ProdutoSerializerCarrinho(serializers.ModelSerializer):
     # Aqui você pode carregar CategoriaSerializerNome apenas quando for usá-lo
     class Meta:
         model = Produto
-        fields = ['uuid', 'nome', 'descricao', 'preco_venda', 'preco_com_desconto', 'quantidade_estoque', 'imagens', 'slug']
+        fields = ['uuid', 'nome', 'descricao', 'preco_venda','preco_com_desconto', 'quantidade_estoque', 'imagens', 'slug']
 
     def get_preco_com_desconto(self, obj):
         preco_info = obj.get_price_with_discount()

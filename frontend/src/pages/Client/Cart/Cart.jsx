@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography, Button, Card, CardContent, IconButton } from '@mui/material';
-import { Remove, Add, Delete } from '@mui/icons-material'; // Ícones de remoção e adição de quantidade
+import { Container, Box, Typography, Button, Card, CardContent, IconButton, TextField, Divider } from '@mui/material';
+import { Remove, Add, Delete } from '@mui/icons-material';
 import api from '../../../utils/api'; // API para se comunicar com o backend
 import { getSessionId, getToken, isTokenValid } from '../../../utils/authUtils';
 
 const Cart = () => {
   const [cart, setCart] = useState(null);
+  const [cep, setCep] = useState('');
+  const [cupom, setCupom] = useState('');
+  const [desconto, setDesconto] = useState(0); // Estado para o valor do desconto
+  const [mensagemCupom, setMensagemCupom] = useState(null); // Estado para mensagens de cupom
+  const [freteGratis, setFreteGratis] = useState(false); // Estado para verificar se há frete grátis
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const sessionId = getSessionId(); // Usa o sessionId do utils
-        const token = getToken(); // Usa o token do utils
-
+        const sessionId = getSessionId();
+        const token = getToken();
         const payload = { session_id: sessionId };
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
@@ -25,6 +29,32 @@ const Cart = () => {
 
     fetchCart();
   }, []);
+
+  const getCompleteImageUrl = (imagePath) => {
+    return `${api.defaults.baseURL.replace('/api', '')}${imagePath}`;
+  };
+
+  const handleApplyCupom = async () => {
+    setMensagemCupom(null); // Limpa a mensagem anterior
+    try {
+      const payload = {
+        codigo_cupom: cupom,
+        valor_compra: cart.total_carrinho, // Valor atual da compra
+        produtos: cart.itens.map(item => item.produto.uuid), // Lista de produtos
+      };
+
+      const response = await api.post('/aplicar-cupom/', payload);
+      setDesconto(response.data.desconto); // Aplica o desconto retornado pela API
+      setFreteGratis(response.data.frete_gratis); // Define se o frete grátis foi aplicado
+      setMensagemCupom(response.data.mensagem); // Mostra a mensagem de sucesso
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.detail) {
+        setMensagemCupom(error.response.data.detail); // Mostra mensagem de erro
+      } else {
+        setMensagemCupom('Erro ao aplicar o cupom.');
+      }
+    }
+  };
 
   // Função para diminuir a quantidade de um item
   const handleDecreaseQuantity = async (item) => {
@@ -44,7 +74,7 @@ const Cart = () => {
         window.dispatchEvent(new CustomEvent('cartUpdated'));
 
         const updatedCart = await api.post('/carrinho/listar/', { session_id: sessionId }, config);
-        setCart(updatedCart.data); // Atualiza o carrinho no estado
+        setCart(updatedCart.data);
       } catch (error) {
         console.error('Erro ao diminuir a quantidade:', error);
       }
@@ -68,7 +98,7 @@ const Cart = () => {
       window.dispatchEvent(new CustomEvent('cartUpdated'));
 
       const updatedCart = await api.post('/carrinho/listar/', { session_id: sessionId }, config);
-      setCart(updatedCart.data); // Atualiza o carrinho no estado
+      setCart(updatedCart.data);
     } catch (error) {
       console.error('Erro ao aumentar a quantidade:', error);
     }
@@ -88,40 +118,23 @@ const Cart = () => {
 
       await api.post('/carrinho/remover_item/', payload, config);
 
-      // Dispara o evento para atualizar o ícone do carrinho
       window.dispatchEvent(new CustomEvent('cartUpdated'));
 
-      // Atualiza o carrinho, ou seja, recarrega os itens no carrinho
       const updatedCart = await api.post('/carrinho/listar/', { session_id: sessionId }, config);
-      setCart(updatedCart.data); // Atualiza o carrinho no estado
+      setCart(updatedCart.data);
     } catch (error) {
       console.error('Erro ao remover item do carrinho:', error);
     }
   };
 
-  // Verifica se o carrinho está vazio
-  if (!cart || !cart.itens || cart.itens.length === 0) {
-    return (
-      <Container maxWidth="lg" style={{ padding: '20px' }}>
-        <Typography variant="h6">Seu carrinho está vazio.</Typography>
-      </Container>
-    );
-  }
-
   const handleCheckout = async () => {
     if (!isTokenValid()) {
-      // Redirecionar para login se o usuário não estiver logado
       window.location.href = '/login';
     } else {
-      // Proceder para o checkout no backend
       try {
         const token = getToken();
-        const payload = {
-          session_id: getSessionId(),
-        };
-
+        const payload = { session_id: getSessionId() };
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-
         const response = await api.post('/carrinho/finalizar/', payload, config);
         console.log('Finalização de compra realizada com sucesso:', response.data);
       } catch (error) {
@@ -130,19 +143,41 @@ const Cart = () => {
     }
   };
 
+  if (!cart || !cart.itens || cart.itens.length === 0) {
+    return (
+      <Container maxWidth="lg" style={{ padding: '20px' }}>
+        <Typography variant="h6">Seu carrinho está vazio.</Typography>
+      </Container>
+    );
+  }
+
+  const totalComDesconto = cart.total_carrinho - desconto;
+
   return (
     <Container maxWidth="lg" style={{ padding: '20px' }}>
       <Typography variant="h4" gutterBottom>
-        Carrinho de Compras
+        Meu Carrinho
       </Typography>
+
+      <Divider sx={{ mb: 2 }} />
+
       {cart.itens.map((item, index) => (
         <Card key={index} sx={{ marginY: 2 }}>
           <CardContent>
-            <Typography variant="h6">{item.produto.nome}</Typography>
-            <Typography variant="body2">Preço Unitário: R$ {item.produto.preco_unitario.toFixed(2)}</Typography>
-            <Typography variant="body2">Total do Item: R$ {item.produto.total_item.toFixed(2)}</Typography>
             <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Box>
+              <Box display="flex" alignItems="center">
+                <img src={getCompleteImageUrl(item.produto.imagens[0])} alt={item.produto.nome} width={70} height={70} />
+                <Box ml={2}>
+                  <Typography variant="h6">{item.produto.nome}</Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Preço Unitário: R$ {item.produto.preco_unitario.toFixed(2)}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Total do Item: R$ {item.produto.total_item.toFixed(2)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box display="flex" alignItems="center">
                 <IconButton onClick={() => handleDecreaseQuantity(item)} disabled={item.produto.quantidade <= 1}>
                   <Remove />
                 </IconButton>
@@ -150,20 +185,76 @@ const Cart = () => {
                 <IconButton onClick={() => handleIncreaseQuantity(item)}>
                   <Add />
                 </IconButton>
+                <IconButton color="error" onClick={() => handleRemoveItem(item)}>
+                  <Delete />
+                </IconButton>
               </Box>
-              <IconButton color="error" onClick={() => handleRemoveItem(item)}>
-                <Delete />
-              </IconButton>
             </Box>
           </CardContent>
         </Card>
       ))}
-      <Typography variant="h5" gutterBottom>
-        Total do Carrinho: R$ {cart.total_carrinho.toFixed(2)}
-      </Typography>
-      <Button variant="contained" color="primary" size="large" onClick={handleCheckout}>
-        Finalizar Compra
-      </Button>
+
+      <Divider sx={{ my: 2 }} />
+
+      <Box mt={4}>
+        <Typography variant="h5">Total em Produtos: R$ {cart.total_carrinho.toFixed(2)}</Typography>
+        {desconto > 0 && (
+          <>
+            <Typography variant="h6" color="green">
+              Desconto Aplicado: -R$ {desconto.toFixed(2)}
+            </Typography>
+            <Typography variant="h5">
+              Total com Desconto: R$ {totalComDesconto.toFixed(2)}
+            </Typography>
+          </>
+        )}
+        {freteGratis && (
+          <Typography variant="h6" color="blue">
+            Frete Grátis aplicado!
+          </Typography>
+        )}
+      </Box>
+
+      <Box mt={2} display="flex" justifyContent="space-between">
+        <Box display="flex" flexDirection="column" width="45%">
+          <TextField
+            label="Inserir Cupom de Desconto"
+            variant="outlined"
+            value={cupom}
+            onChange={(e) => setCupom(e.target.value)}
+          />
+          <Button variant="contained" color="primary" size="large" sx={{ mt: 2 }} onClick={handleApplyCupom}>
+            Aplicar Cupom
+          </Button>
+          {mensagemCupom && (
+            <Typography variant={desconto > 0 ? 'h6' : 'body1'} color={desconto > 0 ? 'green' : 'red'} sx={{ mt: 1 }}>
+              {mensagemCupom}
+            </Typography>
+          )}
+        </Box>
+
+        <Box display="flex" flexDirection="column" width="45%">
+          <TextField
+            label="Informe o CEP"
+            variant="outlined"
+            value={cep}
+            onChange={(e) => setCep(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <Button variant="contained" color="primary" size="small">
+                  OK
+                </Button>
+              ),
+            }}
+          />
+        </Box>
+      </Box>
+
+      <Box mt={4} display="flex" justifyContent="flex-end">
+        <Button variant="contained" color="primary" size="large" onClick={handleCheckout}>
+          Finalizar Compra
+        </Button>
+      </Box>
     </Container>
   );
 };

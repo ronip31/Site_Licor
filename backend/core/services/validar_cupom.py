@@ -8,8 +8,8 @@ class CupomService:
     @staticmethod
     def aplicar_cupom(cupom, valor_compra, usuario, produtos_uuids, categorias_ids):
         # Verifica se o usuário está logado
-        if not usuario or not usuario.is_authenticated:
-            raise ValueError("Você precisa estar logado para aplicar este cupom.")
+        # if not usuario or not usuario.is_authenticated:
+        #     raise ValueError("Você precisa estar logado para aplicar este cupom.")
 
         # Transformar UUIDs de produtos em objetos de produto
         produtos = Produto.objects.filter(uuid__in=produtos_uuids)
