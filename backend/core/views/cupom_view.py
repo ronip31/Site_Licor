@@ -67,28 +67,22 @@ class AplicarCupomView(APIView):
         except Carrinho.DoesNotExist:
             return Response({"detail": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Calcula o valor total do carrinho levando em consideração o desconto, se houver
-        valor_total = 0
-        produtos_uuids = []
-        categorias_ids = []
-
+        # Prepara os dados dos itens para serem passados para o serviço de aplicação de cupom
+        produtos_detalhes = []
         for item in carrinho.itens.all():
-            # Chama o método get_price_with_discount para obter o preço com desconto, se houver
             preco_info = item.produto.get_price_with_discount()
             preco_com_desconto = preco_info.get('preco_promocional') or item.produto.preco_venda
-
-            valor_total += preco_com_desconto * item.quantidade
-
-            # Adiciona os UUIDs dos produtos e IDs das categorias
-            produtos_uuids.append(item.produto.uuid)
-            if item.produto.categoria:
-                categorias_ids.append(item.produto.categoria.id)
-
-        print("valor_total, produtos_uuids ,categorias_ids", valor_total, produtos_uuids, categorias_ids)
+            produto_detalhe = {
+                "uuid": item.produto.uuid,
+                "preco": preco_com_desconto,
+                "quantidade": item.quantidade,
+                "preco_venda": item.produto.preco_venda,
+            }
+            produtos_detalhes.append(produto_detalhe)
 
         # Aplica a lógica de validação e aplicação do cupom
         try:
-            desconto_info = CupomService.aplicar_cupom(cupom, valor_total, request.user, produtos_uuids, categorias_ids)
+            desconto_info = CupomService.aplicar_cupom(cupom, request.user, produtos_detalhes)
             return Response(desconto_info, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

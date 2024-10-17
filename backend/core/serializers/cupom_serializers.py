@@ -16,5 +16,5 @@ class CupomSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'codigo' ,'descricao', 'tipo', 'valor', 'data_inicio', 'data_fim', 'ativo',
             'uso_maximo', 'uso_por_cliente', 'valor_minimo_compra', 'valor_maximo_desconto',
-            'produtos', 'categorias', 'clientes_exclusivos'
+            'produtos', 'categorias', 'clientes_exclusivos', 'permitir_combinacao_com_promocoes'
         ]

@@ -29,6 +29,10 @@ class Cupom(models.Model):
     categorias = models.ManyToManyField(Categoria, blank=True)  # Categorias específicas aplicáveis
     clientes_exclusivos = models.ManyToManyField(Usuario, blank=True)  # Clientes específicos aplicáveis
 
+    #Cupom não permite combinação com promoções: O desconto só será aplicado aos produtos que não estão em promoção.
+    #Cupom permite combinação com promoções: O desconto será aplicado ao valor dos produtos, incluindo os promocionais.
+    permitir_combinacao_com_promocoes = models.BooleanField(default=False)
+
     class Meta:
         db_table = 'cupom'
 

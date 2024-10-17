@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -19,6 +19,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import api from '../../../utils/api';
 import 'react-lazy-load-image-component/src/effects/blur.css';
+import { getSessionId, getToken, isTokenValid } from '../../../utils/authUtils';
 
 const theme = createTheme({
   typography: {
@@ -38,6 +39,9 @@ const Products = () => {
   const [carouselImages, setCarouselImages] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [sessionId, setSessionId] = useState(null);
+  const [product, setProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -124,6 +128,37 @@ const Products = () => {
       </Container>
     );
   }
+
+  const addToCart = async (product) => {
+    if (!product || !product.uuid) {
+      console.error('Produto inválido ou não encontrado.');
+      return;
+    }
+    const storedSessionId = getSessionId();
+
+    const payload = {
+      produto_uuid: product.uuid,
+      quantidade: 1,
+      session_id: storedSessionId, // Sempre envia o session_id
+    };
+  
+    const token = getToken();
+    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  
+    try {
+      await api.post('/carrinho/adicionar_item/', payload, config);
+      window.dispatchEvent(new CustomEvent('cartUpdated')); // Dispara evento para atualizar o ícone do carrinho
+    } catch (error) {
+      console.error('Erro ao adicionar item ao carrinho:', error);
+    }
+  };
+  
+
+  const handleBuyNow = (product) => {
+    addToCart(product);
+    navigate('/carrinho');
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -287,6 +322,7 @@ const Products = () => {
                         backgroundColor: 'secondary.dark',
                       },
                     }}
+                    onClick={() => handleBuyNow(product)}  // Passa o produto atual ao clicar
                     aria-label={`Comprar ${product.nome}`}
                   >
                     Comprar

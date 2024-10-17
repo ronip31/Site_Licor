@@ -1,54 +1,91 @@
 from decimal import Decimal
 from django.utils import timezone
 import requests
-from ..models import Produto, ConfiguracaoFrete, OpcaoFrete, Categoria
+from ..models import Produto, ConfiguracaoFrete, OpcaoFrete, Categoria,Carrinho
 
 class CupomService:
 
     @staticmethod
-    def aplicar_cupom(cupom, valor_compra, usuario, produtos_uuids, categorias_ids):
+    def aplicar_cupom(cupom, usuario, produtos_detalhes):
+        """
+        Aplica o cupom de desconto considerando todas as regras de combinação de promoções e restrições de produtos/categorias.
+        """
+
         # Transformar UUIDs de produtos em objetos de produto
-        produtos = Produto.objects.filter(uuid__in=produtos_uuids)
-        
-        # Transformar IDs de categorias em objetos de categoria
-        categorias = Categoria.objects.filter(id__in=categorias_ids)
+        produtos_uuids = [produto['uuid'] for produto in produtos_detalhes]
+        produtos = Produto.objects.filter(uuid__in=produtos_uuids).select_related('categoria')  # Inclui categoria relacionada
 
         # Verificar se o cupom é aplicável a produtos específicos
         if cupom.produtos.exists() and not any(produto.uuid in cupom.produtos.values_list('uuid', flat=True) for produto in produtos):
-            raise ValueError("Cupom não é aplicável,.")
+            raise ValueError("Este cupom não é aplicável aos produtos selecionados.")
 
         # Verificar se o cupom é aplicável a categorias específicas
-        if cupom.categorias.exists() and not any(categoria.id in cupom.categorias.values_list('id', flat=True) for categoria in categorias):
-            raise ValueError("Cupom não é aplicável.")
+        categorias_ids = {
+            produto['categoria_id'] if 'categoria_id' in produto else produto_obj.categoria.id
+            for produto, produto_obj in zip(produtos_detalhes, produtos)
+        }
+        print(f"Categorias IDs dos produtos: {categorias_ids}")
+
+        # Filtrar categorias permitidas pelo cupom
+        categorias_cupom = set(cupom.categorias.values_list('id', flat=True))
+        print(f"Categorias do cupom: {categorias_cupom}")
+
+        # Filtrar produtos que pertencem às categorias do cupom
+        produtos_validos_categoria = [
+            produto for produto, produto_obj in zip(produtos_detalhes, produtos)
+            if not cupom.categorias.exists() or produto_obj.categoria.id in categorias_cupom
+        ]
+
+        if not produtos_validos_categoria:
+            raise ValueError("Nenhum dos produtos selecionados pertence às categorias aplicáveis a este cupom.")
 
         # Verificar se o cupom está ativo
         if not cupom.is_active():
-            raise ValueError("Cupom está expirado ou inativo.")
-
-        # Verificar se o valor da compra atende ao valor mínimo do cupom
-        valor_compra = Decimal(valor_compra)
-        if cupom.valor_minimo_compra and valor_compra < cupom.valor_minimo_compra:
-            raise ValueError(f"O valor mínimo de compra para usar este cupom é R$ {cupom.valor_minimo_compra}.")
+            raise ValueError("Este cupom está expirado ou inativo.")
 
         # Verificar se o cupom é aplicável ao usuário logado
         if cupom.clientes_exclusivos.exists():
-            # Verificar se o usuário está logado e se o cupom é exclusivo para o usuário autenticado
             if not usuario or not usuario.is_authenticated:
                 raise ValueError("Você precisa estar logado para aplicar este cupom.")
-            
-            # Verifica se o usuário autenticado está na lista de clientes exclusivos
             if usuario.uuid not in cupom.clientes_exclusivos.values_list('uuid', flat=True):
-                raise ValueError("Cupom não é aplicável ao seu usuário.")
+                raise ValueError("Este cupom não é aplicável ao seu usuário.")
 
-        # Aplicar o desconto e verificar se o frete é grátis
-        resultado = CupomService.calcular_desconto(cupom, valor_compra)
+        # Itera sobre os produtos válidos e determina o valor aplicável ao cupom
+        valor_total_aplicavel = Decimal(0)
+        valor_promocional = Decimal(0)  # Para somar o valor dos produtos em promoção
 
-        return resultado
+        for produto in produtos_validos_categoria:
+            promocao = produto['preco'] < produto['preco_venda']  # Verifica se o produto está em promoção
+
+            if promocao:
+                if not cupom.permitir_combinacao_com_promocoes:
+                    # Ignora o produto com promoção se o cupom não permite a combinação
+                    valor_promocional += Decimal(produto['preco']) * produto['quantidade']
+                else:
+                    # Aplica o desconto sobre o valor promocional
+                    valor_total_aplicavel += Decimal(produto['preco']) * produto['quantidade']
+            else:
+                # Produto sem promoção, aplica o desconto
+                valor_total_aplicavel += Decimal(produto['preco_venda']) * produto['quantidade']
+
+        # Se não há valor aplicável e a combinação com promoções não é permitida, não permite o cupom
+        if valor_total_aplicavel == 0 and not cupom.permitir_combinacao_com_promocoes:
+            raise ValueError("Cupom não pode ser aplicado aos produtos selecionados!")
+
+        # Verificar se o valor da compra atende ao valor mínimo do cupom (agora após aplicar as outras regras)
+        if cupom.valor_minimo_compra and valor_total_aplicavel < cupom.valor_minimo_compra:
+            raise ValueError(f"O valor mínimo de compra para usar este cupom é R$ {cupom.valor_minimo_compra}.")
+
+        # Aplicar o desconto apenas no valor aplicável (produtos não promocionados ou promocionados, se permitido)
+        desconto_info = CupomService.calcular_desconto(cupom, valor_total_aplicavel)
+
+        return desconto_info
+
 
 
 
     @staticmethod
-    def calcular_desconto(cupom, valor_compra):
+    def calcular_desconto(cupom, valor_total_aplicavel):
         """
         Função para calcular o desconto baseado no tipo de cupom e retornar se o frete é grátis.
         """
@@ -57,29 +94,25 @@ class CupomService:
         mensagem = None
 
         if cupom.tipo == 'percentual':
-            # Cálculo de desconto percentual
-            desconto = valor_compra * (cupom.valor / Decimal(100))
+            desconto = valor_total_aplicavel * (cupom.valor / Decimal(100))
             if cupom.valor_maximo_desconto:
                 desconto = min(desconto, cupom.valor_maximo_desconto)
             mensagem = f"Desconto de {cupom.valor}% aplicado com sucesso."
 
         elif cupom.tipo == 'valor':
-            # Cálculo de desconto de valor fixo
             desconto = cupom.valor
             mensagem = f"Desconto de R$ {cupom.valor} aplicado com sucesso."
 
         elif cupom.tipo == 'frete_gratis':
-            # No caso de frete grátis, não aplica desconto no valor da compra, mas sinaliza frete grátis
             frete_gratis = True
             mensagem = "Frete grátis aplicado com sucesso."
 
-        # Retorna um dicionário com as informações
         return {
             "desconto": desconto,
             "frete_gratis": frete_gratis,
-            "mensagem": mensagem
+            "mensagem": mensagem,
         }
-    
+
 
     @staticmethod
     def calcular_frete(produto_uuid, cep_destino, token):

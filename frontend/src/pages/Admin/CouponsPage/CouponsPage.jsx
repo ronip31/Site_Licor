@@ -30,6 +30,7 @@ const CouponsPage = () => {
     valor_minimo_compra: '',
     valor_maximo_desconto: '',
     ativo: true,
+    permitir_combinacao_com_promocoes: false,
   });
 
   const { enqueueSnackbar } = useSnackbar();
@@ -103,6 +104,7 @@ const CouponsPage = () => {
         valor_minimo_compra: '',
         valor_maximo_desconto: '',
         ativo: true,
+        permitir_combinacao_com_promocoes: false,
       }
     );
     setOpen(true);
@@ -125,11 +127,12 @@ const CouponsPage = () => {
       valor_minimo_compra: '',
       valor_maximo_desconto: '',
       ativo: true,
+      permitir_combinacao_com_promocoes: false,
     });
   };
 
   const handleSaveEdit = async () => {
-    const { codigo, descricao, tipo, valor, data_inicio, data_fim, uso_maximo, uso_por_cliente, produtos, categorias, clientes_exclusivos, valor_minimo_compra, valor_maximo_desconto, ativo } = selectedCoupon;
+    const { codigo, descricao, tipo, valor, data_inicio, data_fim, uso_maximo, uso_por_cliente, produtos, categorias, clientes_exclusivos, valor_minimo_compra, valor_maximo_desconto, ativo, permitir_combinacao_com_promocoes } = selectedCoupon;
 
     if (!codigo.trim() || !tipo || !data_inicio || !data_fim) {
       enqueueSnackbar('Preencha todos os campos obrigatórios.', { variant: 'warning' });
@@ -151,6 +154,7 @@ const CouponsPage = () => {
       ativo,
       valor_minimo_compra,
       valor_maximo_desconto,
+      permitir_combinacao_com_promocoes,
     };
 
     try {

@@ -105,6 +105,22 @@ const getValorLabel = () => {
           value={formatDate(selectedCoupon.data_fim)}
           onChange={(e) => setSelectedCoupon({ ...selectedCoupon, data_fim: e.target.value })}
         />
+        {/* Adicionando o campo para permitir a combinação com promoções */}
+        <FormControlLabel
+            control={
+              <Checkbox
+                checked={selectedCoupon.permitir_combinacao_com_promocoes}
+                onChange={(e) =>
+                  setSelectedCoupon({
+                    ...selectedCoupon,
+                    permitir_combinacao_com_promocoes: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Permitir combinação com promoções"
+          />
+
         </Grid>
         <Grid item xs={6} md={8}>
         <TextField
