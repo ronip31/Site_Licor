@@ -10,3 +10,4 @@ from .imagem_produto_view import ImagemProdutoViewSet, ImagensPorProdutoView
 from .imagem_carosel_view import CarouselImageAdminViewSet, CarouselImageListView
 from .theme_config_view import ThemeConfigViewSet
 from .carrinho_view_set import CarrinhoViewSet
+from .generate_session_id_view import generate_session_id_view

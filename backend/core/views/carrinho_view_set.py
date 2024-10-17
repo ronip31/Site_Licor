@@ -24,53 +24,51 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
     def get_or_create_cart(self, request):
         """
         Obtém ou cria um carrinho associado ao usuário ou ao session_id.
-        Caso o usuário tenha feito login, unifica o carrinho anônimo com o do usuário,
-        mantendo o session_id no banco de dados.
+        Caso o usuário tenha feito login, o carrinho anônimo é mesclado com o carrinho do usuário logado,
+        e o session_id mais recente é atribuído ao carrinho do usuário.
         """
         session_id = request.data.get('session_id')
 
         if request.user.is_authenticated:
-            # Primeiro, busca se há um carrinho já associado ao usuário logado
-            carrinho_user, created = Carrinho.objects.get_or_create(
-                usuario=request.user
-            )
+            # Tenta buscar o carrinho anônimo (não logado) com o session_id
+            carrinho_anonymous = None
+            if session_id:
+                carrinho_anonymous = Carrinho.objects.filter(session_id=session_id, usuario__isnull=True).first()
 
-            # Se o carrinho do usuário não tiver um session_id, atualiza com o session_id atual
-            if not carrinho_user.session_id and session_id:
+            # Verifica se o usuário já tem um carrinho associado à conta
+            carrinho_user, created = Carrinho.objects.get_or_create(usuario=request.user)
+
+            if carrinho_anonymous:
+                # Mescla os itens do carrinho anônimo com o carrinho do usuário logado
+                for item in carrinho_anonymous.itens.all():
+                    # Verifica se o item já está no carrinho do usuário
+                    item_carrinho, created = ItemCarrinho.objects.get_or_create(
+                        carrinho=carrinho_user,
+                        produto=item.produto,
+                        defaults={'quantidade': item.quantidade}
+                    )
+                    if not created:
+                        # Se o item já existir no carrinho do usuário, soma as quantidades
+                        item_carrinho.quantidade += item.quantidade
+                        item_carrinho.save()
+
+                # Apaga o carrinho anônimo, já que os itens foram transferidos
+                carrinho_anonymous.delete()
+
+            # Atualiza o session_id do carrinho do usuário com o session_id mais recente
+            if session_id and carrinho_user.session_id != session_id:
                 carrinho_user.session_id = session_id
                 carrinho_user.save()
 
-            # Agora verifica se há um carrinho anônimo (session_id) que precisa ser unificado
-            if session_id:
-                carrinhos_anonymous = Carrinho.objects.filter(session_id=session_id).exclude(usuario=request.user)
-
-                if carrinhos_anonymous.exists():
-                    carrinho_anonymous = carrinhos_anonymous.first()  # Usa o primeiro carrinho encontrado
-
-                    # Transferir os itens do carrinho anônimo para o carrinho do usuário logado
-                    for item in carrinho_anonymous.itens.all():
-                        item_carrinho, created = ItemCarrinho.objects.get_or_create(
-                            carrinho=carrinho_user,
-                            produto=item.produto,
-                            defaults={'quantidade': item.quantidade}
-                        )
-                        if not created:
-                            item_carrinho.quantidade += item.quantidade
-                            item_carrinho.save()
-
-                    # Apaga o carrinho anônimo, já que os itens foram transferidos
-                    carrinho_anonymous.delete()
-
             return carrinho_user
+
         else:
-            # Para usuários anônimos, usa o session_id
+            # Para usuários anônimos (não logados), cria ou obtém um carrinho pelo session_id
             if not session_id:
                 session_id = str(uuid.uuid4())
                 request.session['session_id'] = session_id
             carrinho, created = Carrinho.objects.get_or_create(session_id=session_id)
             return carrinho
-
-
 
 
     @action(detail=False, methods=['post'])

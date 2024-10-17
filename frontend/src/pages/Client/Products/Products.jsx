@@ -44,6 +44,10 @@ const Products = () => {
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
+
+    const storedSessionId = getSessionId();
+    setSessionId(storedSessionId);
+
     const fetchProducts = async () => {
       try {
         const response = await api.get('/products-with-images/');
@@ -61,6 +65,9 @@ const Products = () => {
     };
 
     const fetchCarouselImages = async () => {
+
+      
+
       try {
         const response = await api.get('/carousel-list/');
         setCarouselImages(response.data);
@@ -134,17 +141,19 @@ const Products = () => {
       console.error('Produto inválido ou não encontrado.');
       return;
     }
+    
+    // Certifique-se de que o sessionId está sendo obtido corretamente
     const storedSessionId = getSessionId();
 
     const payload = {
       produto_uuid: product.uuid,
       quantidade: 1,
-      session_id: storedSessionId, // Sempre envia o session_id
+      session_id: storedSessionId, // Sempre envia o session_id correto
     };
-  
+
     const token = getToken();
     const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  
+
     try {
       await api.post('/carrinho/adicionar_item/', payload, config);
       window.dispatchEvent(new CustomEvent('cartUpdated')); // Dispara evento para atualizar o ícone do carrinho
@@ -154,9 +163,9 @@ const Products = () => {
   };
   
 
-  const handleBuyNow = (product) => {
-    addToCart(product);
-    navigate('/carrinho');
+  const handleBuyNow = async (product) => {
+    await addToCart(product);  // Aguarda até que o produto seja adicionado
+    navigate('/carrinho');     // Redireciona para o carrinho
   };
 
 

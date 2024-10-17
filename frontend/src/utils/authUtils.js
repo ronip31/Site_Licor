@@ -1,25 +1,30 @@
-import { v5 as uuidv5, v4 as uuidv4 } from 'uuid';
+import api from '../utils/api'; // API para se comunicar com o backend
 
-const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Namespace fixo arbitrário
 
-// Função para gerar um session_id a partir de informações estáveis (exemplo: navegador e características do dispositivo)
-export const generateSessionId = () => {
-  const navigatorInfo = window.navigator.userAgent;
+export const fetchSessionId = async () => {
   const screenInfo = `${window.screen.height}x${window.screen.width}-${window.screen.colorDepth}`;
-  
-  const stringToHash = `${navigatorInfo}-${screenInfo}`;
-  const sessionId = uuidv5(stringToHash, NAMESPACE);
-  
-  // Armazena o session_id no localStorage
+  const language = window.navigator.language;
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const response = await api.get('/generate-session-id/', {
+    params: { screen_info: screenInfo, language: language, time_zone: timeZone },
+  });
+
+  const sessionId = response.data.session_id;
+
+  // Armazena no localStorage para persistência
   localStorage.setItem('sessionId', sessionId);
+
   return sessionId;
 };
+
 
 // Função para recuperar o session_id do localStorage ou gerar um novo se não existir
 export const getSessionId = () => {
   let sessionId = localStorage.getItem('sessionId');
   if (!sessionId) {
-    sessionId = generateSessionId();
+    // Se não houver sessionId no localStorage, gera um novo via API
+    sessionId = fetchSessionId();
   }
   return sessionId;
 };

@@ -13,6 +13,7 @@ const Cart = () => {
   const [freteGratis, setFreteGratis] = useState(false); // Estado para verificar se há frete grátis
 
   useEffect(() => {
+    window.dispatchEvent(new CustomEvent('cartUpdated'));
     const fetchCart = async () => {
       try {
         const sessionId = getSessionId();

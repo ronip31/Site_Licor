@@ -24,7 +24,8 @@ from .views import (
     ProdutosComImagensListView,
     Products_cupom_ViewSet,
     ProdutosImagensSemDescricaoListView,
-    CarrinhoViewSet
+    CarrinhoViewSet,
+    generate_session_id_view
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -92,8 +93,9 @@ urlpatterns = [
     #buscar detalhes do produto
     path('products-details/<slug:slug>/', ProdutosComImagensListView.as_view(), name='products-details'),
     
-    # Rota cupom para cliente:
-    #path('cupons-calc/', CuponsDetailView.as_view(), name='cupons-calc'),  # Adicionado
+    # Rota para gerar o session_id do cliente
+    path('generate-session-id/', generate_session_id_view, name='generate_session_id'),
+
     # Incluindo as rotas do DefaultRouter
     path('', include(router.urls)),
 
