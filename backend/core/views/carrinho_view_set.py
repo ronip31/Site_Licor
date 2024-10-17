@@ -144,19 +144,21 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
         except Produto.DoesNotExist:
             return Response({"error": "Produto não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
+        # Obtém ou cria o carrinho
         carrinho = self.get_or_create_cart(request)
 
-        item_carrinho, created = ItemCarrinho.objects.get_or_create(
-            carrinho=carrinho,
-            produto=produto,
-            defaults={'quantidade': quantidade}
-        )
-
-        if not created:
+        # Verifica se o item já está no carrinho
+        try:
+            item_carrinho = ItemCarrinho.objects.get(carrinho=carrinho, produto=produto)
+            # Se o item já existir, atualiza a quantidade
             item_carrinho.quantidade += int(quantidade)
             item_carrinho.save()
+        except ItemCarrinho.DoesNotExist:
+            # Se não existir, cria um novo item no carrinho
+            ItemCarrinho.objects.create(carrinho=carrinho, produto=produto, quantidade=quantidade)
 
         return Response(CarrinhoSerializer(carrinho).data, status=status.HTTP_201_CREATED)
+
 
     @action(detail=False, methods=['post'])
     def remover_item(self, request):
