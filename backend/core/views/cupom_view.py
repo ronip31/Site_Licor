@@ -39,7 +39,7 @@ class CuponsViewSet(viewsets.ModelViewSet):
 
 
 class AplicarCupomView(APIView):
-    
+
     def post(self, request, *args, **kwargs):
         codigo_cupom = request.data.get('codigo_cupom')
         session_id = request.data.get('session_id')
@@ -67,10 +67,24 @@ class AplicarCupomView(APIView):
         except Carrinho.DoesNotExist:
             return Response({"detail": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Calcula o valor total do carrinho e obtém os produtos e categorias
-        valor_total = sum(item.produto.preco_venda * item.quantidade for item in carrinho.itens.all())
-        produtos_uuids = [item.produto.uuid for item in carrinho.itens.all()]
-        categorias_ids = [item.produto.categoria.id for item in carrinho.itens.all() if item.produto.categoria]
+        # Calcula o valor total do carrinho levando em consideração o desconto, se houver
+        valor_total = 0
+        produtos_uuids = []
+        categorias_ids = []
+
+        for item in carrinho.itens.all():
+            # Chama o método get_price_with_discount para obter o preço com desconto, se houver
+            preco_info = item.produto.get_price_with_discount()
+            preco_com_desconto = preco_info.get('preco_promocional') or item.produto.preco_venda
+
+            valor_total += preco_com_desconto * item.quantidade
+
+            # Adiciona os UUIDs dos produtos e IDs das categorias
+            produtos_uuids.append(item.produto.uuid)
+            if item.produto.categoria:
+                categorias_ids.append(item.produto.categoria.id)
+
+        print("valor_total, produtos_uuids ,categorias_ids", valor_total, produtos_uuids, categorias_ids)
 
         # Aplica a lógica de validação e aplicação do cupom
         try:

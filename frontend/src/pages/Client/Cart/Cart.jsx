@@ -177,10 +177,10 @@ const Cart = () => {
                 <Box ml={2}>
                   <Typography variant="h6">{item.produto.nome}</Typography>
                   <Typography variant="body2" color="textSecondary">
-                    Preço Unitário: R$ {item.produto.preco_unitario.toFixed(2)}
+                    Valor un.: R$ {item.produto.preco_unitario.toFixed(2)}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    Total do Item: R$ {item.produto.total_item.toFixed(2)}
+                    Total itens: R$ {item.produto.total_item.toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
