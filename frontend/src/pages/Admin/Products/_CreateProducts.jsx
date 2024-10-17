@@ -45,7 +45,7 @@ const ImageWithPlaceholder = ({ src, alt, onClick }) => {
         </div>
       )}
       <img
-        src={src ? `${'http://localhost:8000'}${src}` : ''}
+        src={src ? `${window.location.hostname}${src}` : ''}
         alt={alt}
         onLoad={handleImageLoad}
         style={{ display: loading ? 'none' : 'block', width: '100px', height: '100px' }}
@@ -165,7 +165,7 @@ const ImageEditDialog = ({ open, onClose, productId }) => {
       {/* Modal para visualização ampliada da imagem */}
       <Dialog open={Boolean(selectedImage)} onClose={() => setSelectedImage(null)} maxWidth="md" fullWidth>
         <DialogContent>
-          <img src={selectedImage ? `${'http://localhost:8000'}${selectedImage}` : ''} alt="Imagem ampliada" style={{ width: '100%', height: 'auto' }} />
+          <img src={selectedImage ? `http://${window.location.hostname}${selectedImage}` : ''} alt="Imagem ampliada" style={{ width: '100%', height: 'auto' }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSelectedImage(null)}>Fechar</Button>

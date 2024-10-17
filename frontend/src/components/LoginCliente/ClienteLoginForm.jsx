@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Button, TextField, Typography, Alert, Stack } from '@mui/material';
 import api from '../../utils/api';

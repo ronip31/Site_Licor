@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
-import axios from 'axios';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import api from '../../../utils/api';
 
 const Carousel = () => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/carousel/lista/')
+    api.get('/carousel/lista/')
       .then(response => {
         setImages(response.data);
       })
@@ -33,10 +33,10 @@ const Carousel = () => {
         <div key={image.uuid}>
           {image.link_url ? (
             <a href={image.link_url}>
-              <img src={`http://localhost:8000${image.imagem}`} alt={image.titulo} style={{ width: '100%' }} />
+              <img src={`http://${window.location.hostname}${image.imagem}`} alt={image.titulo} style={{ width: '100%' }} />
             </a>
           ) : (
-            <img src={`http://localhost:8000${image.imagem}`} alt={image.titulo} style={{ width: '100%' }} />
+            <img src={`http://${window.location.hostname}${image.imagem}`} alt={image.titulo} style={{ width: '100%' }} />
           )}
         </div>
       ))}

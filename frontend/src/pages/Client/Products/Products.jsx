@@ -19,7 +19,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import api from '../../../utils/api';
 import 'react-lazy-load-image-component/src/effects/blur.css';
-import { getSessionId, getToken, isTokenValid } from '../../../utils/authUtils';
+import { getSessionId, getToken} from '../../../utils/authUtils';
 
 const theme = createTheme({
   typography: {

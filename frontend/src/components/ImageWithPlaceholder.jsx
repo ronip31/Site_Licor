@@ -27,7 +27,7 @@ const ImageWithPlaceholder = ({ src, alt, onClick }) => {
         </div>
       )}
       <img
-        src={src ? `${'http://localhost:8000'}${src}` : ''}
+        src={src ? `${window.location.hostname}${src}` : ''}
         alt={alt}
         onLoad={handleImageLoad}
         style={{ display: loading ? 'none' : 'block', width: '100px', height: '100px' }}

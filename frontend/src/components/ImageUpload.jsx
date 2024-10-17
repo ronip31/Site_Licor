@@ -33,7 +33,7 @@ const ImageUpload = ({ onImageChange, existingImage }) => {
       )}
       {existingImage && (
         <div style={{ marginTop: '8px' }}>
-          <img src={`http://localhost:8000${existingImage}`} alt="Imagem atual" style={{ maxWidth: '100%' }} />
+          <img src={`http://${window.location.hostname}${existingImage}`} alt="Imagem atual" style={{ maxWidth: '100%' }} />
         </div>
       )}
     </div>
