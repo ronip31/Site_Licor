@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from ..permissions import IsAdminUser
-from ..models import Cupom, Produto, Categoria, Usuario
+from ..models import Cupom, Produto, Categoria, Usuario, Carrinho
 from ..serializers import CupomSerializer
 from ..services import CupomService
 from rest_framework.views import APIView
@@ -39,13 +39,14 @@ class CuponsViewSet(viewsets.ModelViewSet):
 
 
 class AplicarCupomView(APIView):
-
+    
     def post(self, request, *args, **kwargs):
         codigo_cupom = request.data.get('codigo_cupom')
-        valor_compra = request.data.get('valor_compra')
-        usuario = request.user if request.user.is_authenticated else None
-        produtos = request.data.get('produtos', [])  # Lista de UUIDs de produtos
-        categorias = request.data.get('categorias', [])  # Lista de IDs de categorias
+        session_id = request.data.get('session_id')
+
+        # Verifica se o cupom foi fornecido
+        if not codigo_cupom:
+            return Response({"detail": "Código do cupom é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Verifica se o cupom existe
         try:
@@ -55,9 +56,25 @@ class AplicarCupomView(APIView):
         except Cupom.DoesNotExist:
             return Response({"detail": "Erro ao buscar cupom"}, status=status.HTTP_404_NOT_FOUND)
 
+        # Busca o carrinho com base no session_id ou no usuário autenticado
+        try:
+            if request.user.is_authenticated:
+                carrinho = Carrinho.objects.prefetch_related('itens__produto').get(usuario=request.user)
+            elif session_id:
+                carrinho = Carrinho.objects.prefetch_related('itens__produto').get(session_id=session_id)
+            else:
+                return Response({"detail": "Session ID ou token de usuário é necessário."}, status=status.HTTP_400_BAD_REQUEST)
+        except Carrinho.DoesNotExist:
+            return Response({"detail": "Carrinho não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Calcula o valor total do carrinho e obtém os produtos e categorias
+        valor_total = sum(item.produto.preco_venda * item.quantidade for item in carrinho.itens.all())
+        produtos_uuids = [item.produto.uuid for item in carrinho.itens.all()]
+        categorias_ids = [item.produto.categoria.id for item in carrinho.itens.all() if item.produto.categoria]
+
         # Aplica a lógica de validação e aplicação do cupom
         try:
-            desconto_info = CupomService.aplicar_cupom(cupom, valor_compra, usuario, produtos, categorias)
+            desconto_info = CupomService.aplicar_cupom(cupom, valor_total, request.user, produtos_uuids, categorias_ids)
             return Response(desconto_info, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

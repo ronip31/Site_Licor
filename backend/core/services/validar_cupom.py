@@ -7,10 +7,6 @@ class CupomService:
 
     @staticmethod
     def aplicar_cupom(cupom, valor_compra, usuario, produtos_uuids, categorias_ids):
-        # Verifica se o usuário está logado
-        # if not usuario or not usuario.is_authenticated:
-        #     raise ValueError("Você precisa estar logado para aplicar este cupom.")
-
         # Transformar UUIDs de produtos em objetos de produto
         produtos = Produto.objects.filter(uuid__in=produtos_uuids)
         
@@ -19,15 +15,15 @@ class CupomService:
 
         # Verificar se o cupom é aplicável a produtos específicos
         if cupom.produtos.exists() and not any(produto.uuid in cupom.produtos.values_list('uuid', flat=True) for produto in produtos):
-            raise ValueError("Este cupom não é aplicável aos produtos selecionados.")
+            raise ValueError("Cupom não é aplicável,.")
 
         # Verificar se o cupom é aplicável a categorias específicas
         if cupom.categorias.exists() and not any(categoria.id in cupom.categorias.values_list('id', flat=True) for categoria in categorias):
-            raise ValueError("Este cupom não é aplicável às categorias selecionadas.")
+            raise ValueError("Cupom não é aplicável.")
 
         # Verificar se o cupom está ativo
         if not cupom.is_active():
-            raise ValueError("Este cupom está expirado ou inativo.")
+            raise ValueError("Cupom está expirado ou inativo.")
 
         # Verificar se o valor da compra atende ao valor mínimo do cupom
         valor_compra = Decimal(valor_compra)
@@ -35,13 +31,21 @@ class CupomService:
             raise ValueError(f"O valor mínimo de compra para usar este cupom é R$ {cupom.valor_minimo_compra}.")
 
         # Verificar se o cupom é aplicável ao usuário logado
-        if cupom.clientes_exclusivos.exists() and usuario.uuid not in cupom.clientes_exclusivos.values_list('uuid', flat=True):
-            raise ValueError("Este cupom não é aplicável ao seu usuário.")
+        if cupom.clientes_exclusivos.exists():
+            # Verificar se o usuário está logado e se o cupom é exclusivo para o usuário autenticado
+            if not usuario or not usuario.is_authenticated:
+                raise ValueError("Você precisa estar logado para aplicar este cupom.")
+            
+            # Verifica se o usuário autenticado está na lista de clientes exclusivos
+            if usuario.uuid not in cupom.clientes_exclusivos.values_list('uuid', flat=True):
+                raise ValueError("Cupom não é aplicável ao seu usuário.")
 
         # Aplicar o desconto e verificar se o frete é grátis
         resultado = CupomService.calcular_desconto(cupom, valor_compra)
 
         return resultado
+
+
 
     @staticmethod
     def calcular_desconto(cupom, valor_compra):

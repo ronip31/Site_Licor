@@ -36,14 +36,21 @@ const Cart = () => {
 
   const handleApplyCupom = async () => {
     setMensagemCupom(null); // Limpa a mensagem anterior
+    setDesconto(0); // Redefine o desconto para evitar manter o valor anterior
+    setFreteGratis(false); // Redefine o frete grátis
     try {
-      const payload = {
-        codigo_cupom: cupom,
-        valor_compra: cart.total_carrinho, // Valor atual da compra
-        produtos: cart.itens.map(item => item.produto.uuid), // Lista de produtos
+      const sessionId = getSessionId();
+      const token = getToken();
+      const payload = { 
+        session_id: sessionId,  // Session ID enviado no payload
+        codigo_cupom: cupom      // Cupom fornecido pelo usuário
       };
-
-      const response = await api.post('/aplicar-cupom/', payload);
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  
+      // Chama a API para aplicar o cupom
+      const response = await api.post('/aplicar-cupom/', payload, config);
+  
+      // Aplica o desconto e as informações retornadas pela API
       setDesconto(response.data.desconto); // Aplica o desconto retornado pela API
       setFreteGratis(response.data.frete_gratis); // Define se o frete grátis foi aplicado
       setMensagemCupom(response.data.mensagem); // Mostra a mensagem de sucesso
@@ -55,7 +62,7 @@ const Cart = () => {
       }
     }
   };
-
+  
   // Função para diminuir a quantidade de um item
   const handleDecreaseQuantity = async (item) => {
     if (item.produto.quantidade > 1) {
