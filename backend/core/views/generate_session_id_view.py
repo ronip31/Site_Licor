@@ -6,9 +6,10 @@ def generate_session_id_view(request):
     screen_info = request.GET.get('screen_info', '')
     language = request.GET.get('language', '')
     time_zone = request.GET.get('time_zone', '')
+    fingerprint = request.GET.get('fingerprint', '')
 
     # Gera o session_id utilizando a função do utils
-    session_id = generate_session_id(user_agent, screen_info, language, time_zone)
+    session_id = generate_session_id(user_agent, screen_info, language, time_zone, fingerprint)
 
     # Retorna o session_id gerado para o frontend
     return JsonResponse({"session_id": session_id})

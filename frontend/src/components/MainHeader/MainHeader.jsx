@@ -39,7 +39,7 @@ const Header = () => {
 
       const payload = { session_id: sessionId };
       const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-
+      console.log("payload", payload)
       // Faz a requisição para obter os itens do carrinho
       const response = await api.post('/carrinho/listar/', payload, config);
 

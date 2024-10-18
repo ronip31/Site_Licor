@@ -18,8 +18,9 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '192.168.1.9',
-    '192.168.1.13',
-    '10.173.82.117',  # Para desenvolvimento local
+    '192.168.1.12',
+    '10.173.82.117',
+    '10.199.74.87',  # Para desenvolvimento local
     
         # Para desenvolvimento local
 ]  # In production, replace with your domain e.g., ['myfrontend.com']
@@ -100,8 +101,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Localhost development
     "http://127.0.0.1:3000", 
     "http://192.168.1.9:3000",
-    "http://192.168.1.13:3000", # Localhost development (IP)
+    "http://192.168.1.12:3000", # Localhost development (IP)
     "http://10.173.82.117:3000",
+    "http://10.199.74.87:3000",
     
 ]
 # Uncomment the following line for production, and comment the `CORS_ALLOWED_ORIGINS`

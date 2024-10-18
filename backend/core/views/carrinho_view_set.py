@@ -139,6 +139,14 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
         produto_uuid = request.data.get('produto_uuid')
         quantidade = request.data.get('quantidade', 1)
 
+        # Verifica se a quantidade é um número válido e não negativa
+        try:
+            quantidade = int(quantidade)
+            if quantidade <= 0:
+                return Response({"error": "A quantidade deve ser um número positivo."}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            return Response({"error": "A quantidade deve ser um número inteiro."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             produto = Produto.objects.get(uuid=produto_uuid)
         except Produto.DoesNotExist:
@@ -151,13 +159,14 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
         try:
             item_carrinho = ItemCarrinho.objects.get(carrinho=carrinho, produto=produto)
             # Se o item já existir, atualiza a quantidade
-            item_carrinho.quantidade += int(quantidade)
+            item_carrinho.quantidade += quantidade
             item_carrinho.save()
         except ItemCarrinho.DoesNotExist:
             # Se não existir, cria um novo item no carrinho
             ItemCarrinho.objects.create(carrinho=carrinho, produto=produto, quantidade=quantidade)
 
         return Response(CarrinhoSerializer(carrinho).data, status=status.HTTP_201_CREATED)
+
 
 
     @action(detail=False, methods=['post'])

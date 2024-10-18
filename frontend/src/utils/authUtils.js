@@ -1,13 +1,24 @@
 import api from '../utils/api'; // API para se comunicar com o backend
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
+const getBrowserFingerprint = async () => {
+  // Inicializa FingerprintJS
+  const fp = await FingerprintJS.load();
+  const result = await fp.get();
+  return result.visitorId;
+};
 
 export const fetchSessionId = async () => {
   const screenInfo = `${window.screen.height}x${window.screen.width}-${window.screen.colorDepth}`;
   const language = window.navigator.language;
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const browserFingerprint = await getBrowserFingerprint();
 
   const response = await api.get('/generate-session-id/', {
-    params: { screen_info: screenInfo, language: language, time_zone: timeZone },
+    params: { screen_info: screenInfo, 
+      language: language, 
+      time_zone: timeZone,
+      fingerprint: browserFingerprint },
   });
 
   const sessionId = response.data.session_id;
