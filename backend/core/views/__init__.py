@@ -1,4 +1,4 @@
-from .user_views import UsuarioCreateView, UsuarioListView, UsuarioDetailView, UsuarioDeleteView
+from .user_views import UsuarioCreateView, UsuarioListView, UsuarioMeView, UsuarioDeleteView
 from .product_views import ProdutoViewSet, ProdutosComImagensListView, Products_cupom_ViewSet, ProdutosImagensSemDescricaoListView
 from .category_views import CategoriaViewSet, MarcaViewSet
 from .token_login_view import CustomTokenObtainPairViewCliente, CustomTokenObtainPairViewAdmin
@@ -11,3 +11,4 @@ from .imagem_carosel_view import CarouselImageAdminViewSet, CarouselImageListVie
 from .theme_config_view import ThemeConfigViewSet
 from .carrinho_view_set import CarrinhoViewSet
 from .generate_session_id_view import generate_session_id_view
+from .produto_import_view import ProdutoImportView, ProdutoTemplateDownloadView

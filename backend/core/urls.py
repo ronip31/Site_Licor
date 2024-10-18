@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     UsuarioCreateView, 
     UsuarioListView, 
-    UsuarioDetailView, 
+    UsuarioMeView, 
     UsuarioDeleteView, 
     ProdutoViewSet, 
     ImagemProdutoViewSet,
@@ -25,7 +25,9 @@ from .views import (
     Products_cupom_ViewSet,
     ProdutosImagensSemDescricaoListView,
     CarrinhoViewSet,
-    generate_session_id_view
+    generate_session_id_view,
+    ProdutoImportView,
+    ProdutoTemplateDownloadView
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -56,10 +58,16 @@ router.register(r'carrinho', CarrinhoViewSet, basename='carrinho')
 # Definindo as URLs
 urlpatterns = [
 
+    #rotas para download e import dos produdos - ADMIN
+    path('produtos/import/', ProdutoImportView.as_view(), name='produto-import'),
+    path('produtos/template/download/', ProdutoTemplateDownloadView.as_view(), name='produto-template-download'),
+
     # Usuários
     path('usuarios/', UsuarioCreateView.as_view(), name='usuario-create'),
     path('usuarios/lista/', UsuarioListView.as_view(), name='usuario-lista'),
-    path('usuarios/<int:pk>/', UsuarioDetailView.as_view(), name='usuario-detalhe'),
+
+    path('usuarios/me/', UsuarioMeView.as_view(), name='usuario-me'),
+
     path('usuarios/<int:pk>/delete/', UsuarioDeleteView.as_view(), name='usuario-delete'),
 
     # Autenticação  - Administrador

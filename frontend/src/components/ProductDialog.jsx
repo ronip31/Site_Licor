@@ -98,6 +98,21 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               })}
             />
 
+            <FormControl fullWidth margin="dense">
+              <Autocomplete
+                autoFocus
+                options={marks}
+                value={marks.find((marc) => selectedProduct.marca === marc.id) || null}
+                onChange={(event, newValue) => {
+                  setSelectedProduct({ ...selectedProduct, marca: newValue ? newValue.id : null });
+                }}
+                getOptionLabel={(option) => option.nome} // Exibe o nome da categoria
+                renderInput={(params) => (
+                  <TextField {...params} variant="outlined" label="Marca" placeholder="Buscar por Marca..." />
+                )}
+              />
+            </FormControl>
+
           <FormControl fullWidth margin="dense">
             <Autocomplete
               autoFocus
@@ -146,39 +161,23 @@ const ProductDialog = ({ open, onClose, selectedProduct, handleSaveEdit, categor
               onChange={(e) => setSelectedProduct({ ...selectedProduct, volume: e.target.value })}
             />
 
-
-            <FormControl fullWidth margin="dense">
-              <Autocomplete
-                autoFocus
-                options={marks}
-                value={marks.find((marc) => selectedProduct.marca === marc.id) || null}
-                onChange={(event, newValue) => {
-                  setSelectedProduct({ ...selectedProduct, marca: newValue ? newValue.id : null });
-                }}
-                getOptionLabel={(option) => option.nome} // Exibe o nome da categoria
-                renderInput={(params) => (
-                  <TextField {...params} variant="outlined" label="Marca" placeholder="Buscar por Marca..." />
-                )}
-              />
-            </FormControl>
-
-            <TextField
+           <TextField
               margin="dense"
-              label="Altura"
+              label="Altura cm"
               fullWidth
               value={selectedProduct?.altura || ''}
               onChange={(e) => handleInputChange(e, 'altura')}
             />
             <TextField
               margin="dense"
-              label="Largura"
+              label="Largura cm"
               fullWidth
               value={selectedProduct?.largura || ''}
               onChange={(e) => handleInputChange(e, 'largura')}
             />
             <TextField
               margin="dense"
-              label="Comprimento"
+              label="Comprimento cm"
               fullWidth
               value={selectedProduct?.comprimento || ''}
               onChange={(e) => handleInputChange(e, 'comprimento')}

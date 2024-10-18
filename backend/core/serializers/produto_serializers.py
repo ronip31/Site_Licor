@@ -129,3 +129,10 @@ class ProdutoSerializerCarrinho(serializers.ModelSerializer):
         preco_info = obj.get_price_with_discount()
         preco_promocional = preco_info.get('preco_promocional')
         return preco_promocional if preco_promocional else None
+
+class ProdutoSerializerImport(serializers.ModelSerializer):
+
+    # Aqui você pode carregar CategoriaSerializerNome apenas quando for usá-lo
+    class Meta:
+        model = Produto
+        fields = ['uuid', 'nome', 'descricao', 'teor_alcoolico', 'marca', 'categoria', 'preco_venda',  'quantidade_estoque']

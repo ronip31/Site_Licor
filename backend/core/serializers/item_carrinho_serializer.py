@@ -9,6 +9,11 @@ class ItemCarrinhoSerializer(serializers.ModelSerializer):
         model = ItemCarrinho
         fields = ['carrinho','produto', 'quantidade']
 
+        def validate_quantidade(self, value):
+            if value <= 0:
+                raise serializers.ValidationError("A quantidade deve ser um número positivo.")
+            return value
+
 class CarrinhoSerializer(serializers.ModelSerializer):
     itens = ItemCarrinhoSerializer(many=True, read_only=True)
     imagens = ImagemProdutoSerializerView(many=True, read_only=True)
@@ -16,3 +21,8 @@ class CarrinhoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrinho
         fields = ['uuid', 'itens', 'criado_em', 'atualizado_em','imagens', 'session_id']
+
+        def validate_quantidade(self, value):
+            if value <= 0:
+                raise serializers.ValidationError("A quantidade deve ser um número positivo.")
+            return value

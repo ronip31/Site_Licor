@@ -17,7 +17,7 @@ class Produto(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     nome = models.CharField(max_length=255)
     descricao = models.TextField()
-    preco_custo = models.DecimalField(max_digits=10, decimal_places=2)
+    preco_custo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     preco_venda = models.DecimalField(max_digits=10, decimal_places=2)
     quantidade_estoque = models.IntegerField()
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)

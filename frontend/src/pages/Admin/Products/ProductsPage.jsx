@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
-import { Button } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import api from '../../../utils/api';
 import ImageEditDialog from '../../../components/ImageEditDialog';
 import ProductDialog from '../../../components/ProductDialog';
 import { useSnackbar } from 'notistack';
 
 const ProductsPage = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [marks, setMarcas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [selectedFileNames, setSelectedFileNames] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState({
     nome: '',
     descricao: '',
@@ -32,7 +35,49 @@ const ProductsPage = () => {
     peso: '',
   });
 
-  const { enqueueSnackbar } = useSnackbar();
+  // Função para baixar o template XLSX
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await api.get('/produtos/template/download/', {
+        responseType: 'blob',  // Importante para baixar arquivos binários
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'produtos_template.xlsx');
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      enqueueSnackbar('Erro ao baixar o template.', { variant: 'error' });
+    }
+  };
+
+  // Função para enviar o arquivo XLSX
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleImportProducts = async () => {
+    if (!selectedFile) {
+      enqueueSnackbar('Selecione um arquivo antes de importar.', { variant: 'warning' });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      await api.post('/produtos/import/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      enqueueSnackbar('Produtos importados com sucesso!', { variant: 'success' });
+      setSelectedFile(null);  // Limpa o nome do arquivo após importação
+      fetchData();  // Recarrega os dados após importação
+    } catch (error) {
+      enqueueSnackbar('Erro ao importar produtos.', { variant: 'error' });
+    }
+  };
 
   const validateFields = () => {
     const { nome, descricao, preco_custo, preco_venda, categoria, status } = selectedProduct;
@@ -237,14 +282,54 @@ const ProductsPage = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{ mb: 4, alignSelf: 'flex-start', ml: 6, fontSize: '0.875rem' }}
-        onClick={() => handleOpenDialog()}
-      >
-        Criar Novo Produto
-      </Button>
+      <Stack direction="row" spacing={4} sx={{ mb: 2, alignSelf: 'flex-start', ml: 6 }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          style={{ marginTop: '9px' }}
+          onClick={() => handleOpenDialog()}
+        >
+          Criar Novo Produto
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ marginTop: '9px' }}
+          onClick={handleDownloadTemplate}
+        >
+          Baixar Template XLSX
+        </Button>
+
+        <Button
+          variant="contained"
+          component="label"
+          style={{ marginTop: '9px' }}
+        >
+          Escolher Arquivo
+          <input
+            type="file"
+            accept=".xlsx"
+            hidden
+            onChange={handleFileChange}
+          />
+        </Button>
+
+        {selectedFile && (
+          <div style={{ marginTop: '9px' }}>
+            <p>Arquivo selecionado: {selectedFile.name}</p>
+          </div>
+        )}
+
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleImportProducts}
+          style={{ marginTop: '9px' }}
+        >
+          Importar Produtos
+        </Button>
+      </Stack>
+
       <Box sx={{ height: 500, width: '100%', fontSize: '0.875rem' }}>
         <DataGrid
           rows={products}
@@ -286,7 +371,6 @@ const ProductsPage = () => {
       />
 
       <ImageEditDialog open={imageDialogOpen} onClose={handleCloseImageDialog} productId={selectedProduct.uuid} />
-      
     </Box>
   );
 };
